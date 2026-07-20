@@ -11,23 +11,28 @@
 | Chrome label | Physical meaning | Use when |
 |---|---|---|
 | `62 × 100 mm` | Portrait — 62mm wide, 100mm tall | Tall label, feeds lengthways |
-| `100 × 62 mm` | **Landscape — 100mm wide, 62mm tall** | Wider card format, needs the rotation trick below |
+| `100 × 62 mm` | **Landscape — 100mm wide, 62mm tall** | Wider card format — see below for how to get it printing the right way up |
 
-**The winning `@page` rule for a landscape label taller than the roll's own cross-web width:**
+**Author the `@page` in the label's own natural shape, and let the print dialog rotate it — don't fake rotation with CSS.** An earlier version of this design used a CSS `transform: rotate(-90deg)` wrapper to squeeze landscape content into a portrait `@page`, on the theory that the roll's own preset catalogue is always `62mm × [length]` (roll width first — see §8) so the page had to be declared portrait. That doesn't survive Chrome's print pipeline reliably: confirmed on a real physical test print, it came out with inconsistent alignment and overlapping text, even though it looked correct in an on-screen (non-print) render. **Don't use `transform: rotate()` anywhere in a print template.**
+
+The reliable approach: declare `@page` directly in the label's own landscape dimensions —
 ```css
 @page { size: 100mm 62mm; margin: 1.5mm; }
 ```
+— author the content naturally (no rotation wrapper at all, just a normal top-to-bottom flex layout, same as the compact 62×45mm design below), and get the physical rotation from the **print dialog's own Landscape orientation setting** instead of CSS. This is a print-driver feature built for exactly this case, and it doesn't go through any of the fragile transform/pagination code paths that broke the CSS approach. In the system print dialog (⌥⌘P → native panel, not Chrome's own dropdown — see §8), select **Landscape** orientation together with the "62mm Roll" length closest to 100mm.
 
-**Critical:** inject this `@page` rule *inside the label's own `<style>` block* — do not rely on the host page's print CSS. When printing from a web app, the host page may set `@page { size: A4 }` which overrides label sizes. Self-contained styles win.
+**Critical:** inject the `@page` rule *inside the label's own `<style>` block* — do not rely on the host page's print CSS. When printing from a web app, the host page may set `@page { size: A4 }` which overrides label sizes. Self-contained styles win.
 
-**No rotation needed for compact labels.** If the label's length (feed direction) is *shorter* than the 62mm roll width — e.g. a 62mm × 45mm label — it's already landscape-shaped without any rotation trick:
+**No orientation trick needed for compact labels.** If the label's length (feed direction) is *shorter* than the 62mm roll width — e.g. a 62mm × 45mm label — it's already landscape-shaped without any special orientation handling:
 ```css
 @page { size: 62mm 45mm; margin: 0; }
 ```
-The rotation/`.rotated { transform: rotate(-90deg) }` container is only needed when the label is *longer* than 62mm and you want it to read landscape (as in the original 100×62mm design below).
 
-**Print dialog settings (Chrome):**
-- Paper size: select the matching physical size (see §8 for how to add sizes that aren't in Chrome's default list)
+**Debugging alignment issues without burning labels:** open the system print dialog (⌥⌘P) and check its **preview pane** before printing — it reflects the actual paginated output for the roll length/orientation you've selected, so misalignment shows up there without wasting a physical print.
+
+**Print dialog settings (Chrome/macOS native panel):**
+- Paper size: select the matching physical size, "62mm Roll" submenu, closest length to your label's long edge (see §8 for adding sizes that aren't in Chrome's default list)
+- Orientation: **Landscape** for any label wider than 62mm (e.g. the 100×62mm shape above); Portrait for anything narrower
 - Margins: Minimum / None
 - Scale: 100
 - Headers and footers: **unchecked**
@@ -42,7 +47,9 @@ Serif fonts (e.g. Garamond, Times) have hairline thin strokes that thermal dot m
 
 **Update, July 2026:** a serif face (Petrona, weight 500) was tested for a single large hero element — the client name, printed at 18–20pt — and reproduced cleanly with no wash-out. At that size the strokes are thick enough for the thermal head to resolve. The original "no serifs" rule holds for anything at body-text size; it does not need to apply to a single large (~18pt+) headline element. Test print before committing either way — this was a deliberate, confirmed exception, not a blanket reversal of the rule.
 
-**Recommended:** `DM Mono`, `Courier New`, or any monospace system font for everything except a single large hero element, which may use a serif face if printed at 18pt or larger.
+**Update, July 2026:** Petrona is now the app's one serif face used everywhere a serif is called for — both hero name elements (Pot Labels, Name Tags) and the A4 outputs (Class Roll, Crate Checklist headings), replacing the mix of Cormorant Garamond/Georgia used previously. One consequence for auto-fit sizing: Petrona's letterforms run noticeably wider than Cormorant Garamond's at the same point size, so a `fitNames()`-style floor tuned for Cormorant Garamond can still overflow with Petrona — re-check the floor against a genuinely long test name (a double-barrelled surname) after any font change, not just a typical one.
+
+**Recommended:** `DM Mono`, `Courier New`, or any monospace system font for everything except a single large hero element, which may use a serif face (Petrona) if printed at 18pt or larger.
 
 ### Font weight hierarchy for thermal printing
 
@@ -381,10 +388,11 @@ Increase density 1–2 notches to bring up lighter-weight text without blowing o
 
 ## 9. Quick Checklist for New Label Designs
 
-- [ ] `@page` size set correctly and injected in label's own `<style>` block
-- [ ] Rotation container (`transform: rotate(-90deg)`) only used if the label is *longer* than the roll width — skip it for compact labels
-- [ ] Monospace font used for body text; serif reserved for a single large (18pt+) hero element only, and test-printed to confirm
+- [ ] `@page` declared in the label's own natural (non-rotated) dimensions and injected in label's own `<style>` block — never a CSS `transform: rotate()` wrapper to fake landscape on a portrait page; that doesn't survive Chrome's print pipeline reliably (see §1)
+- [ ] For any label wider than 62mm, print instructions tell the user to select **Landscape** orientation in the system print dialog, not just the paper size
+- [ ] Monospace font used for body text; serif (Petrona) reserved for a single large (18pt+) hero element only, and test-printed to confirm
 - [ ] Font weights: `500` for name only, `400` for everything else
+- [ ] If the hero name auto-fits via canvas measurement, the floor point size has been checked against a genuinely long test name, not just a typical one — Petrona runs wider than Cormorant Garamond at the same size (see §2)
 - [ ] All rules are filled `<div>` elements — no CSS `border` properties
 - [ ] Every rule has its thickness set **explicitly** (`height` on horizontal, `width` on vertical) — don't rely on a grid track's size alone
 - [ ] If rules need to form a joined frame, build it as one grid (vertical rule spanning all rows) rather than separately-margined elements

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dimboola Pottery — Workshop Manager</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
@@ -28,8 +28,8 @@
   .app-wrap { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 0 20px 80px; }
 
   header { padding: 36px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
-  .studio-mark { font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-  h1 { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 300; font-style: italic; color: var(--kiln-black); line-height: 1; }
+  .studio-mark { font-family: 'Petrona', serif; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  h1 { font-family: 'Petrona', serif; font-size: 38px; font-weight: 300; font-style: italic; color: var(--kiln-black); line-height: 1; }
   h1 span { font-style: normal; font-weight: 500; color: var(--clay-dark); }
   .header-date { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-align: right; }
 
@@ -43,7 +43,7 @@
 
   /* PANEL */
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 22px; margin-bottom: 18px; }
-  .panel-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--kiln-black); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .panel-title { font-family: 'Petrona', serif; font-size: 18px; color: var(--kiln-black); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
   .num { width: 22px; height: 22px; background: var(--clay-warm); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 10px; flex-shrink: 0; }
 
   /* FIELDS */
@@ -69,7 +69,7 @@
   .sc-head { background: var(--kiln-dark); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .sc-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
   .sc-num { font-size: 10px; color: var(--clay-light); opacity: 0.55; white-space: nowrap; }
-  .sc-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--ash-white); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sc-name { font-family: 'Petrona', serif; font-size: 17px; color: var(--ash-white); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .badge { font-size: 9px; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.05em; white-space: nowrap; flex-shrink: 0; }
   .badge-acuity { background: rgba(74,103,65,0.3); color: #8BC87F; }
   .badge-manual { background: rgba(61,90,107,0.3); color: #8BB8CF; }
@@ -118,14 +118,14 @@
 
   /* CLASS ROLL */
   .roll-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
-  .roll-classname { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; font-style: italic; color: var(--kiln-black); }
+  .roll-classname { font-family: 'Petrona', serif; font-size: 26px; font-weight: 300; font-style: italic; color: var(--kiln-black); }
   .roll-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
   .roll-table { width: 100%; border-collapse: collapse; }
   .roll-table th { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); padding: 8px 10px; border-bottom: 2px solid var(--border); text-align: left; }
   .roll-table td { padding: 11px 10px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: top; }
   .roll-table tr:last-child td { border-bottom: none; }
   .roll-table tr:hover td { background: var(--surface-raised); }
-  .roll-name { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--kiln-black); }
+  .roll-name { font-family: 'Petrona', serif; font-size: 16px; color: var(--kiln-black); }
   .roll-sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
   .arrived-cb { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 2px; cursor: pointer; appearance: none; -webkit-appearance: none; display: block; }
   .arrived-cb:checked { background: var(--glaze-green); border-color: var(--glaze-green); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='8'%3E%3Cpath d='M1 4l3 3L10 1' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; }
@@ -139,7 +139,7 @@
   .pot-label { width: 236px; min-height: 112px; border: 1px solid #ccc; border-radius: 2px; background: white; padding: 11px 13px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
   .pot-label::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--clay-warm); }
   .pl-studio { font-size: 7px; letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 3px; }
-  .pl-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 500; color: #1A1410; line-height: 1.1; margin-bottom: 1px; }
+  .pl-name { font-family: 'Petrona', serif; font-size: 17px; font-weight: 500; color: #1A1410; line-height: 1.1; margin-bottom: 1px; }
   .pl-class { font-size: 9px; color: #777; margin-bottom: 5px; }
   .pl-div { height: 1px; background: #ddd; margin: 4px 0; }
   .pl-desc { font-size: 11px; color: #1A1410; font-weight: 500; line-height: 1.3; margin-bottom: 2px; }
@@ -151,10 +151,10 @@
   .pl-count { font-size: 9px; background: #1A1410; color: white; padding: 2px 7px; border-radius: 10px; }
 
   /* NAME TAG — clean minimal */
-  .nametag { width: 236px; height: 96px; border: 2px solid #1A1410; border-radius: 2px; background: white; padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .nt-studio { font-size: 7px; letter-spacing: 0.22em; text-transform: uppercase; color: #aaa; margin-bottom: 5px; font-family: 'DM Mono', monospace; }
-  .nt-name { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 500; color: #1A1410; line-height: 1; letter-spacing: -0.01em; }
-  .nt-class { font-size: 9px; color: #aaa; margin-top: 5px; font-family: 'DM Mono', monospace; }
+  .nametag { width: 236px; height: 96px; border: 2px solid #1A1410; border-radius: 2px; background: white; padding: 10px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+  .nt-studio { font-size: 7px; letter-spacing: 0.22em; text-transform: uppercase; color: #aaa; margin-bottom: 5px; font-family: 'DM Mono', monospace; text-align: center; }
+  .nt-name { font-family: 'Petrona', serif; font-size: 28px; font-weight: 500; color: #1A1410; line-height: 1; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+  .nt-class { font-size: 9px; color: #aaa; margin-top: 5px; font-family: 'DM Mono', monospace; text-align: center; }
 
   /* EXPORT PANEL */
   .export-panel { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 2px; padding: 16px 20px; margin-bottom: 16px; }
@@ -176,21 +176,17 @@
        should print. Forcing every .tab-pane to display:block here used to
        print all four tabs regardless of which one was active. */
     header, .tab-bar, .panel, .bottom-bar, .export-panel { display: none !important; }
+    /* Both label previews (.pot-label, .nametag) are on-screen-only now —
+       actual printing goes through printPotLabels()/printNameTags(), each
+       a self-contained popup with its own @page (thermal-label-design-guide.md
+       §1). Keep .preview-section hidden unconditionally in-page print. */
     .preview-section { display: none !important; margin: 0; }
-    .preview-section .action-row, .preview-section > p, .preview-section .section-label { display: none !important; }
-    .labels-grid { gap: 4mm; }
-    .pot-label, .nametag { page-break-inside: avoid; box-shadow: none; }
 
     /* Class Roll: the attendance table lives inside a .panel (hidden by the
-       generic rule above) — show it again, but only when the Name Tag
-       preview isn't what's currently on screen, so "Print Roll", the Name
-       Tag print button, and a plain Cmd/Ctrl+P from this tab all resolve to
-       the right content without needing a separate JS-set print mode. */
-    #tab-roll:not(:has(#nameTagSection.visible)) .panel { display: block !important; }
-    #tab-roll:not(:has(#nameTagSection.visible)) .roll-actions { display: none !important; }
-
-    /* Name Tags: shown only once the preview grid has actually been generated */
-    #nameTagSection.visible { display: block !important; }
+       generic rule above) — show it again so "Print Roll" and a plain
+       Cmd/Ctrl+P from this tab print the roll. */
+    #tab-roll .panel { display: block !important; }
+    #tab-roll .roll-actions { display: none !important; }
   }
 
   @media (max-width: 640px) {
@@ -310,7 +306,7 @@
         </div>
         <div class="roll-actions" style="display:flex;gap:9px;flex-wrap:wrap;">
           <button class="btn btn-secondary" onclick="window.print()">🖨 Print Roll</button>
-          <button class="btn btn-blue" onclick="genNameTags()">🏷 Print Name Tags</button>
+          <button class="btn btn-blue" onclick="genNameTags()">🏷 Generate Name Tags ▸</button>
         </div>
       </div>
       <div id="rollWrap"></div>
@@ -319,10 +315,10 @@
     <!-- NAME TAG PREVIEW -->
     <div class="preview-section" id="nameTagSection">
       <div class="section-label">Name Tag Preview — Brother QL-820NWB · 62mm DK Roll</div>
-      <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">Apron-distance readable. Print via Ctrl/Cmd+P — minimum margins, no headers/footers.</p>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">Apron-distance readable. Prints 100×62mm landscape — click "Print Name Tags" below (not Ctrl/Cmd+P), then in the system print dialog select <strong>Landscape</strong> orientation and the "62mm Roll" length closest to 100mm.</p>
       <div id="nameTagGrid" class="labels-grid"></div>
       <div class="action-row" style="margin-top:14px;">
-        <button class="btn btn-dark" onclick="window.print()">🖨 Print Name Tags</button>
+        <button class="btn btn-dark" onclick="printNameTags()">🖨 Print Name Tags</button>
         <button class="btn btn-secondary" onclick="hideSection('nameTagSection')">Hide</button>
       </div>
     </div>
@@ -642,7 +638,7 @@ function renderPotsTab() {
     return `
     <div style="border:1px solid var(--border);border-radius:2px;margin-bottom:14px;overflow:hidden;">
       <div style="background:var(--kiln-dark);padding:9px 15px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--ash-white);">${e(fullName(s)||'New Student')}</span>
+        <span style="font-family:'Petrona',serif;font-size:17px;font-style:italic;color:var(--ash-white);">${e(fullName(s)||'New Student')}</span>
         <span class="badge badge-pots">${s.pots.length} pot${s.pots.length!==1?'s':''}</span>
       </div>
       <div style="padding:14px 16px;">
@@ -734,7 +730,7 @@ function genNameTags() {
   const grid=document.getElementById('nameTagGrid');
   grid.innerHTML='';
   students.forEach(s=>{
-    const display=nameTag(s);
+    const display=fullName(s)||'Unknown';
     const tag=document.createElement('div');
     tag.className='nametag';
     tag.innerHTML=`
@@ -1033,6 +1029,150 @@ ${labelsHtml}
   toast(`${tp} pot label${tp !== 1 ? 's' : ''} sent to print`);
 }
 
+function printNameTags() {
+  if (!students.length) { toast('No students to make name tags for'); return; }
+
+  /*
+   * Brother QL-820NWB · 62mm DK roll — same architecture as printPotLabels():
+   * self-contained popup with its own @page, so the host page's A4 print
+   * rule never applies (see thermal-label-design-guide.md §1).
+   *
+   * @page is declared 100mm x 62mm — the label's own natural landscape
+   * shape — with NO CSS transform/rotation. A CSS `transform: rotate()`
+   * used to fake the rotation here, but that doesn't survive Chrome's
+   * print pipeline reliably (confirmed on a real test print: inconsistent
+   * alignment, name/footer overlap). Getting a landscape label onto the
+   * portrait 62mm roll is instead a print-dialog job: select "Landscape"
+   * orientation in the system print dialog (⌥⌘P → the native panel, not
+   * Chrome's own dropdown), plus the "62mm Roll" length closest to 100mm.
+   * See thermal-label-design-guide.md §1.
+   */
+
+  const studioVal = sn();
+  const classVal  = cn();
+  const dateVal   = dateShort();
+
+  const labelsHtml = students.map((s, i) => {
+    const isLast = i === students.length - 1;
+    return `
+    <div class="page${isLast ? ' last' : ''}">
+      <div class="nt-studio">${e(studioVal)}</div>
+      <div class="nt-name-zone"><div class="nt-name">${e(fullName(s) || 'Unknown')}</div></div>
+      <div class="nt-footer">${e(classVal)} &nbsp;·&nbsp; ${e(dateVal)}</div>
+    </div>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Name Tags — ${e(classVal)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Petrona:wght@500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @page { size: 100mm 62mm; margin: 1.5mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Mono', monospace;
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Label authored directly in its natural landscape shape — select
+     Landscape orientation in the print dialog to fit the portrait roll. */
+  .page {
+    width: 100mm;
+    height: 62mm;
+    display: flex;
+    flex-direction: column;
+    padding: 4mm 6mm;
+    page-break-after: always;
+    overflow: hidden;
+  }
+  .page.last { page-break-after: auto; }
+
+  .nt-studio {
+    font-size: 7pt;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #555;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* Name zone takes all remaining space and centres the hero name.
+     Font size starts at the 44pt cap; fitNames() below shrinks it per
+     label so First + Last always fits on one line. */
+  .nt-name-zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  .nt-name {
+    font-family: 'Petrona', serif;
+    font-weight: 500;
+    color: #1A1410;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 44pt;
+  }
+
+  .nt-footer {
+    font-size: 9pt;
+    color: #555;
+    text-align: center;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+${labelsHtml}
+<script>
+  // Shrink the client name to fit the 88mm content width (100mm box minus
+  // 6mm left + 6mm right padding), stepping down from the 44pt cap to a
+  // 10pt floor — low enough that even an unusually long double-barrelled
+  // name still lands on one line rather than overflowing (Petrona's
+  // letterforms run wider than Cormorant Garamond at the same point size,
+  // so the floor here is lower than printPotLabels()'s). Same
+  // canvas-measurement technique as fitNames() in printPotLabels(). Runs
+  // once fonts are loaded so Petrona measures correctly.
+  function fitNames() {
+    var availableMm = 88;
+    var pxPerMm = 96 / 25.4;
+    var maxPt = 44, minPt = 10, stepPt = 0.5;
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    document.querySelectorAll('.nt-name').forEach(function(el) {
+      var pt = maxPt;
+      var text = el.textContent;
+      while (pt > minPt) {
+        ctx.font = '500 ' + pt + 'pt Petrona, Georgia, serif';
+        var widthMm = ctx.measureText(text).width / pxPerMm;
+        if (widthMm <= availableMm) break;
+        pt -= stepPt;
+      }
+      el.style.fontSize = pt + 'pt';
+    });
+  }
+  document.fonts.ready.then(function() {
+    fitNames();
+    requestAnimationFrame(function() { window.print(); window.close(); });
+  });
+<\/script>
+</body>
+</html>`;
+
+  const popup = window.open('', '_blank', 'width=400,height=650');
+  if (!popup) { toast('Pop-up blocked — allow pop-ups for this page and try again'); return; }
+  popup.document.write(html);
+  popup.document.close();
+  toast(`${students.length} name tag${students.length !== 1 ? 's' : ''} sent to print`);
+}
+
 // ════════════════════════════════════════
 // KILN & CRATE CHECKLIST
 // ════════════════════════════════════════
@@ -1105,6 +1245,7 @@ function printCrateChecklist() {
 <head>
 <meta charset="UTF-8">
 <title>Kiln &amp; Crate Checklist — ${e(classInfo)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Petrona&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   @page {
     size: A4;
@@ -1117,9 +1258,9 @@ function printCrateChecklist() {
   .page-header { margin-bottom: 5mm; }
   .ph-eyebrow { font-size: 7pt; letter-spacing: 0.22em; text-transform: uppercase; color: #666; margin-bottom: 1.5mm; }
   .ph-title   { display: flex; align-items: baseline; justify-content: space-between;
-                font-family: Georgia, serif; font-size: 26pt; font-weight: normal; font-style: normal;
+                font-family: 'Petrona', Georgia, serif; font-size: 26pt; font-weight: normal; font-style: normal;
                 color: #000; line-height: 1; margin-bottom: 3mm; }
-  .ph-title-date { font-family: Georgia, serif; font-size: 26pt; font-weight: normal; font-style: normal;
+  .ph-title-date { font-family: 'Petrona', Georgia, serif; font-size: 26pt; font-weight: normal; font-style: normal;
                    color: #000; white-space: nowrap; }
   .ph-rule    { height: 0; border: none; border-top: 1.5pt solid #000; margin-bottom: 4mm; }
 
@@ -1148,7 +1289,7 @@ function printCrateChecklist() {
     background: #D0D0D0;
   }
   .sc-left    { display: flex; align-items: baseline; gap: 4mm; flex-wrap: wrap; }
-  .sc-name    { font-family: Georgia, serif; font-size: 13pt; font-style: normal; font-weight: normal; color: #000; }
+  .sc-name    { font-family: 'Petrona', Georgia, serif; font-size: 13pt; font-style: normal; font-weight: normal; color: #000; }
   .sc-contact { font-size: 9pt; font-weight: 600; color: #222; letter-spacing: 0.02em; }
   .sc-potcount{ font-size: 9pt; font-weight: 600; color: #222; letter-spacing: 0.06em; white-space: nowrap; }
 
@@ -1427,7 +1568,7 @@ function exportHTML() {
     return `<tr style="background:${i%2===0?'#fff':'#fafaf8'}">
       <td style="padding:10px 8px;color:#8B5E3C;font-weight:bold;vertical-align:top">${i+1}</td>
       <td style="padding:10px 8px;vertical-align:top">
-        <div style="font-size:16px;font-family:Georgia,serif;color:#1A1410">${e(fullName(s)||'—')}</div>
+        <div style="font-size:16px;font-family:'Petrona',Georgia,serif;color:#1A1410">${e(fullName(s)||'—')}</div>
         ${s.postcode?`<div style="font-size:10px;color:#aaa">Postcode: ${e(s.postcode)}</div>`:''}
         ${s.phone?`<div style="font-size:10px;color:#aaa">${e(s.phone)}</div>`:''}
         ${s.email?`<div style="font-size:10px;color:#aaa">${e(s.email)}</div>`:''}
@@ -1440,7 +1581,8 @@ function exportHTML() {
 
   const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <title>${e(cn())} — ${e(dateLong())}</title>
-<style>body{font-family:Georgia,serif;background:#F5F0EA;color:#1A1410;margin:0;padding:0}
+<link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+<style>body{font-family:'Petrona',Georgia,serif;background:#F5F0EA;color:#1A1410;margin:0;padding:0}
 .wrap{max-width:900px;margin:0 auto;padding:40px 28px}
 h1{font-size:30px;font-weight:300;font-style:italic;color:#1A1410;margin-bottom:4px}
 .meta{font-size:12px;color:#9B8878;font-family:monospace;margin-bottom:26px}
@@ -1479,7 +1621,6 @@ function clearAll() {
 }
 function hideSection(id){document.getElementById(id).classList.remove('visible');}
 const fullName = s=>(s.firstName+' '+s.lastName).trim();
-const nameTag  = s=>{ const l=s.lastName?s.lastName.charAt(0).toUpperCase()+'.':''; return (s.firstName+(l?' '+l:'')).trim(); };
 const e = str=>String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
 </script>

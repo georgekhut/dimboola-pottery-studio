@@ -171,14 +171,26 @@
     body { background: white; }
     body::before { display: none; }
     .app-wrap { max-width: 100%; padding: 0; }
+    /* .tab-pane visibility is left to the existing screen rule (line ~41) —
+       only the active tab is on screen when print is triggered, so only it
+       should print. Forcing every .tab-pane to display:block here used to
+       print all four tabs regardless of which one was active. */
     header, .tab-bar, .panel, .bottom-bar, .export-panel { display: none !important; }
-    .tab-pane { display: block !important; }
-    .preview-section { display: block !important; margin: 0; }
+    .preview-section { display: none !important; margin: 0; }
     .preview-section .action-row, .preview-section > p, .preview-section .section-label { display: none !important; }
     .labels-grid { gap: 4mm; }
     .pot-label, .nametag { page-break-inside: avoid; box-shadow: none; }
-    /* Roll print */
-    .roll-only-print .tab-pane:not(#tab-roll) { display: none !important; }
+
+    /* Class Roll: the attendance table lives inside a .panel (hidden by the
+       generic rule above) — show it again, but only when the Name Tag
+       preview isn't what's currently on screen, so "Print Roll", the Name
+       Tag print button, and a plain Cmd/Ctrl+P from this tab all resolve to
+       the right content without needing a separate JS-set print mode. */
+    #tab-roll:not(:has(#nameTagSection.visible)) .panel { display: block !important; }
+    #tab-roll:not(:has(#nameTagSection.visible)) .roll-actions { display: none !important; }
+
+    /* Name Tags: shown only once the preview grid has actually been generated */
+    #nameTagSection.visible { display: block !important; }
   }
 
   @media (max-width: 640px) {
@@ -296,7 +308,7 @@
           <div class="roll-classname" id="rollTitle">Class Roll</div>
           <div class="roll-meta" id="rollMeta">—</div>
         </div>
-        <div style="display:flex;gap:9px;flex-wrap:wrap;">
+        <div class="roll-actions" style="display:flex;gap:9px;flex-wrap:wrap;">
           <button class="btn btn-secondary" onclick="window.print()">🖨 Print Roll</button>
           <button class="btn btn-blue" onclick="genNameTags()">🏷 Print Name Tags</button>
         </div>

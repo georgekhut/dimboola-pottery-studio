@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dimboola Pottery — Workshop Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --clay-warm: #C4956A;
+    --clay-dark: #8B5E3C;
+    --clay-light: #E8D5C0;
+    --kiln-black: #1A1410;
+    --kiln-dark: #2C2218;
+    --ash-white: #F5F0EA;
+    --glaze-green: #4A6741;
+    --text-primary: #1A1410;
+    --text-secondary: #6B5744;
+    --text-muted: #9B8878;
+    --border: #D4C4B0;
+    --surface: #FDFAF6;
+    --surface-raised: #F7F2EB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Mono', monospace; background: var(--ash-white); color: var(--text-primary); min-height: 100vh; font-size: 13px; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+  .app-wrap { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header { padding: 36px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+  .studio-mark { font-family: 'Cormorant Garamond', serif; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 300; font-style: italic; color: var(--kiln-black); line-height: 1; }
+  h1 span { font-style: normal; font-weight: 500; color: var(--clay-dark); }
+  .header-date { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-align: right; }
+
+  /* TABS */
+  .tab-bar { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 26px; }
+  .tab-btn { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; padding: 10px 18px; cursor: pointer; border: none; background: none; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+  .tab-btn:hover { color: var(--clay-dark); }
+  .tab-btn.active { color: var(--clay-dark); border-bottom-color: var(--clay-warm); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* PANEL */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 22px; margin-bottom: 18px; }
+  .panel-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--kiln-black); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .num { width: 22px; height: 22px; background: var(--clay-warm); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 10px; flex-shrink: 0; }
+
+  /* FIELDS */
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .field-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .fg { display: flex; flex-direction: column; gap: 5px; }
+  .fg label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-secondary); }
+  .fg input, .fg select, .fg textarea { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 1px; padding: 8px 11px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-primary); outline: none; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; }
+  .fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--clay-warm); background: #fff; }
+  .fg select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239B8878'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 11px center; padding-right: 30px; cursor: pointer; }
+  .fg textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+  .section-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--border); }
+
+  /* IMPORT BOX */
+  .import-box { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 2px; padding: 16px 18px; margin-top: 14px; }
+  .import-hint { font-size: 11px; color: var(--text-muted); line-height: 1.75; margin-bottom: 12px; }
+  .import-hint code { background: var(--clay-light); padding: 1px 5px; border-radius: 2px; font-size: 10px; color: var(--clay-dark); }
+
+  /* STUDENT CARDS */
+  .student-card { border: 1px solid var(--border); border-radius: 2px; margin-bottom: 12px; background: var(--surface); overflow: hidden; }
+  .sc-head { background: var(--kiln-dark); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .sc-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+  .sc-num { font-size: 10px; color: var(--clay-light); opacity: 0.55; white-space: nowrap; }
+  .sc-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--ash-white); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .badge { font-size: 9px; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.05em; white-space: nowrap; flex-shrink: 0; }
+  .badge-acuity { background: rgba(74,103,65,0.3); color: #8BC87F; }
+  .badge-manual { background: rgba(61,90,107,0.3); color: #8BB8CF; }
+  .badge-pots { background: rgba(196,149,106,0.25); color: var(--clay-warm); }
+  .btn-rm { background: none; border: 1px solid rgba(196,149,106,0.25); border-radius: 1px; color: var(--clay-light); font-family: 'DM Mono', monospace; font-size: 10px; padding: 3px 9px; cursor: pointer; letter-spacing: 0.1em; opacity: 0.6; transition: all 0.15s; flex-shrink: 0; }
+  .btn-rm:hover { opacity: 1; border-color: var(--clay-warm); }
+  .sc-body { padding: 14px 16px; }
+  .contact-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 10px 12px; background: var(--surface-raised); border: 1px solid var(--border); border-radius: 1px; margin-bottom: 12px; }
+  .cs-item label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 2px; }
+  .cs-item span { font-size: 11px; color: var(--text-secondary); }
+
+  /* POT ROWS */
+  .pots-title { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+  .pots-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .pot-row { display: grid; grid-template-columns: 26px 1fr 90px 190px 130px auto; gap: 8px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
+  .diam-display { font-size: 10px; color: var(--glaze-green); margin-top: 3px; letter-spacing: 0.01em; min-height: 14px; }
+  .pot-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .pot-num { width: 26px; height: 26px; background: var(--clay-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--clay-dark); font-weight: 500; margin-top: 19px; flex-shrink: 0; }
+  .btn-rm-pot { background: none; border: 1px solid var(--border); color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 11px; padding: 7px 9px; cursor: pointer; height: 31px; margin-top: 19px; border-radius: 1px; transition: all 0.15s; }
+  .btn-rm-pot:hover { border-color: #c0392b; color: #c0392b; }
+
+  /* BUTTONS */
+  .btn { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.11em; text-transform: uppercase; cursor: pointer; border-radius: 1px; padding: 9px 16px; transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--clay-warm); border: 1px solid var(--clay-warm); color: white; }
+  .btn-primary:hover { background: var(--clay-dark); border-color: var(--clay-dark); }
+  .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
+  .btn-secondary:hover { border-color: var(--clay-warm); color: var(--clay-warm); }
+  .btn-ghost { background: transparent; border: 1px dashed var(--border); color: var(--text-muted); }
+  .btn-ghost:hover { border-color: var(--clay-warm); color: var(--clay-warm); border-style: solid; }
+  .btn-dark { background: var(--kiln-black); border: 1px solid var(--kiln-black); color: var(--ash-white); }
+  .btn-dark:hover { background: var(--clay-dark); border-color: var(--clay-dark); }
+  .btn-green { background: var(--glaze-green); border: 1px solid var(--glaze-green); color: white; }
+  .btn-green:hover { background: #3a5232; }
+  .btn-blue { background: #3D5A6B; border: 1px solid #3D5A6B; color: white; }
+  .btn-blue:hover { background: #2e4452; }
+  .action-row { display: flex; gap: 9px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+
+  /* BOTTOM BAR */
+  .bottom-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .summary-stat { color: var(--clay-dark); font-weight: 500; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); border: 1px dashed var(--border); border-radius: 2px; }
+  .empty-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.4; }
+  .empty-state p { font-size: 12px; line-height: 1.7; }
+
+  /* CLASS ROLL */
+  .roll-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+  .roll-classname { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 300; font-style: italic; color: var(--kiln-black); }
+  .roll-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .roll-table { width: 100%; border-collapse: collapse; }
+  .roll-table th { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); padding: 8px 10px; border-bottom: 2px solid var(--border); text-align: left; }
+  .roll-table td { padding: 11px 10px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: top; }
+  .roll-table tr:last-child td { border-bottom: none; }
+  .roll-table tr:hover td { background: var(--surface-raised); }
+  .roll-name { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--kiln-black); }
+  .roll-sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
+  .arrived-cb { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 2px; cursor: pointer; appearance: none; -webkit-appearance: none; display: block; }
+  .arrived-cb:checked { background: var(--glaze-green); border-color: var(--glaze-green); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='8'%3E%3Cpath d='M1 4l3 3L10 1' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; }
+
+  /* LABEL PREVIEWS */
+  .preview-section { margin-top: 24px; display: none; }
+  .preview-section.visible { display: block; }
+  .labels-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+
+  /* POT LABEL — 62mm Brother DK */
+  .pot-label { width: 236px; min-height: 112px; border: 1px solid #ccc; border-radius: 2px; background: white; padding: 11px 13px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+  .pot-label::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--clay-warm); }
+  .pl-studio { font-size: 7px; letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 3px; }
+  .pl-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 500; color: #1A1410; line-height: 1.1; margin-bottom: 1px; }
+  .pl-class { font-size: 9px; color: #777; margin-bottom: 5px; }
+  .pl-div { height: 1px; background: #ddd; margin: 4px 0; }
+  .pl-desc { font-size: 11px; color: #1A1410; font-weight: 500; line-height: 1.3; margin-bottom: 2px; }
+  .pl-clay { font-size: 9px; color: #999; margin-bottom: 2px; }
+  .pl-glaze { font-size: 10px; color: var(--glaze-green); font-weight: 500; margin-bottom: 2px; }
+  .pl-diam { font-size: 9px; color: #888; margin-bottom: 3px; letter-spacing: 0.01em; }
+  .pl-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 3px; }
+  .pl-date { font-size: 8px; color: #aaa; }
+  .pl-count { font-size: 9px; background: #1A1410; color: white; padding: 2px 7px; border-radius: 10px; }
+
+  /* NAME TAG — clean minimal */
+  .nametag { width: 236px; height: 96px; border: 2px solid #1A1410; border-radius: 2px; background: white; padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .nt-studio { font-size: 7px; letter-spacing: 0.22em; text-transform: uppercase; color: #aaa; margin-bottom: 5px; font-family: 'DM Mono', monospace; }
+  .nt-name { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 500; color: #1A1410; line-height: 1; letter-spacing: -0.01em; }
+  .nt-class { font-size: 9px; color: #aaa; margin-top: 5px; font-family: 'DM Mono', monospace; }
+
+  /* EXPORT PANEL */
+  .export-panel { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 2px; padding: 16px 20px; margin-bottom: 16px; }
+  .export-title { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; }
+  .export-panel p { font-size: 11px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 22px; right: 22px; background: var(--kiln-black); color: var(--ash-white); padding: 11px 18px; border-radius: 2px; font-size: 11px; letter-spacing: 0.06em; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; z-index: 999; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* PRINT */
+  @media print {
+    @page { margin: 6mm; size: A4; }
+    body { background: white; }
+    body::before { display: none; }
+    .app-wrap { max-width: 100%; padding: 0; }
+    header, .tab-bar, .panel, .bottom-bar, .export-panel { display: none !important; }
+    .tab-pane { display: block !important; }
+    .preview-section { display: block !important; margin: 0; }
+    .preview-section .action-row, .preview-section > p, .preview-section .section-label { display: none !important; }
+    .labels-grid { gap: 4mm; }
+    .pot-label, .nametag { page-break-inside: avoid; box-shadow: none; }
+    /* Roll print */
+    .roll-only-print .tab-pane:not(#tab-roll) { display: none !important; }
+  }
+
+  @media (max-width: 640px) {
+    .field-row, .field-row-4, .field-row-3 { grid-template-columns: 1fr 1fr; }
+    .pot-row { grid-template-columns: 26px 1fr; }
+    .pot-row > *:nth-child(n+3) { grid-column: 2; }
+    .contact-strip { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app-wrap">
+
+  <header>
+    <div>
+      <div class="studio-mark">Dimboola Pottery Classes</div>
+      <h1>Workshop <span>Manager</span></h1>
+    </div>
+    <div class="header-date" id="headerDate"></div>
+  </header>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('setup')">① Class Setup</button>
+    <button class="tab-btn" onclick="switchTab('roll')">② Class Roll</button>
+    <button class="tab-btn" onclick="switchTab('pots')">③ Pots &amp; Glazes</button>
+    <button class="tab-btn" onclick="switchTab('print')">④ Print &amp; Export</button>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TAB 1: CLASS SETUP -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="tab-pane active" id="tab-setup">
+    <div class="panel">
+      <div class="panel-title"><span class="num">1</span> Class Details</div>
+      <div class="field-row">
+        <div class="fg">
+          <label>Class / Workshop Name</label>
+          <input type="text" id="className" placeholder="e.g. Plate &amp; Platter Workshop" oninput="syncInfo()" />
+        </div>
+        <div class="fg">
+          <label>Date of Class</label>
+          <input type="date" id="classDate" oninput="syncInfo()" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="fg">
+          <label>Studio Name (for labels)</label>
+          <input type="text" id="studioName" value="Dimboola Pottery Classes" />
+        </div>
+        <div class="fg">
+          <label>Class Time (optional)</label>
+          <input type="text" id="classTime" placeholder="e.g. 11:00 AM – 1:00 PM" />
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="num">2</span> Add Students</div>
+      <div id="studentsContainer"></div>
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="addStudent()">+ Add Student Manually</button>
+        <button class="btn btn-ghost" onclick="toggleBox('boxOutlook')">↓ Import from Outlook</button>
+        <button class="btn btn-ghost" onclick="toggleBox('boxNames')">↓ Paste Names</button>
+      </div>
+
+      <!-- OUTLOOK IMPORT -->
+      <div class="import-box" id="boxOutlook" style="display:none;">
+        <div class="section-label" style="margin-bottom:10px;">Import from Outlook — Acuity Booking Notifications</div>
+        <p class="import-hint">
+          Open your Acuity booking notification(s) in Outlook and copy the body text. You can paste multiple bookings at once — the app will detect each one automatically and extract name, phone, email, postcode and Acuity ID.<br><br>
+          Each block should contain lines like: <code>Name: Jon Fuller</code> &nbsp; <code>Phone: +61429957208</code> &nbsp; <code>Email: jonofuller17@gmail.com</code> &nbsp; <code>post code...: 3424</code> &nbsp; <code>AcuityID=1700224820</code>
+        </p>
+        <div class="fg" style="margin-bottom:12px;">
+          <label>Paste notification text here (one or multiple bookings)</label>
+          <textarea id="outlookPaste" rows="9" placeholder="May 16, 2026 11:00am AEST&#10;Calendar: Dimboola Pottery Classes&#10;Name: Jon Fuller&#10;Phone: +61429957208&#10;Email: jonofuller17@gmail.com&#10;Certificate Code: B0B3AE55&#10;&#10;About you...&#10;============&#10;What is your home address post code? ...: 3424&#10;&#10;AcuityID=1700224820"></textarea>
+        </div>
+        <div style="display:flex;gap:9px;">
+          <button class="btn btn-primary" onclick="importOutlook()">Import Students</button>
+          <button class="btn btn-secondary" onclick="toggleBox('boxOutlook')">Cancel</button>
+        </div>
+      </div>
+
+      <!-- NAMES IMPORT -->
+      <div class="import-box" id="boxNames" style="display:none;">
+        <div class="section-label" style="margin-bottom:10px;">Quick Name Import</div>
+        <p class="import-hint">One name per line (First Last). Use when you only have names from an Acuity booking list — no contact details will be captured.</p>
+        <div class="fg" style="margin-bottom:12px;">
+          <label>Names</label>
+          <textarea id="namesPaste" rows="5" placeholder="Georgia Powell&#10;Trish Penny&#10;Kristy Moloney&#10;Jo Klein"></textarea>
+        </div>
+        <div style="display:flex;gap:9px;">
+          <button class="btn btn-primary" onclick="importNames()">Import Names</button>
+          <button class="btn btn-secondary" onclick="toggleBox('boxNames')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div style="font-size:11px;color:var(--text-muted);"><span id="sumA">0 students · 0 pots</span></div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+        <button class="btn btn-blue" onclick="switchTab('roll')">View Class Roll →</button>
+        <button class="btn btn-dark" onclick="switchTab('pots')">Enter Pot Details →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TAB 2: CLASS ROLL -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="tab-pane" id="tab-roll">
+    <div class="panel">
+      <div class="roll-header">
+        <div>
+          <div class="roll-classname" id="rollTitle">Class Roll</div>
+          <div class="roll-meta" id="rollMeta">—</div>
+        </div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;">
+          <button class="btn btn-secondary" onclick="window.print()">🖨 Print Roll</button>
+          <button class="btn btn-blue" onclick="genNameTags()">🏷 Print Name Tags</button>
+        </div>
+      </div>
+      <div id="rollWrap"></div>
+    </div>
+
+    <!-- NAME TAG PREVIEW -->
+    <div class="preview-section" id="nameTagSection">
+      <div class="section-label">Name Tag Preview — Brother QL-820NWB · 62mm DK Roll</div>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">Apron-distance readable. Print via Ctrl/Cmd+P — minimum margins, no headers/footers.</p>
+      <div id="nameTagGrid" class="labels-grid"></div>
+      <div class="action-row" style="margin-top:14px;">
+        <button class="btn btn-dark" onclick="window.print()">🖨 Print Name Tags</button>
+        <button class="btn btn-secondary" onclick="hideSection('nameTagSection')">Hide</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TAB 3: POTS & GLAZES -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="tab-pane" id="tab-pots">
+    <div class="panel">
+      <div class="panel-title"><span class="num">3</span> Pots Made — Enter After Class</div>
+      <div id="potsWrap"></div>
+    </div>
+    <div class="bottom-bar">
+      <div style="font-size:11px;color:var(--text-muted);"><span id="sumB">0 students · 0 pots</span></div>
+      <button class="btn btn-dark" onclick="switchTab('print')">Generate Labels &amp; Export →</button>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TAB 4: PRINT & EXPORT -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="tab-pane" id="tab-print">
+    <div class="export-panel">
+      <div class="export-title">Export &amp; Backup Class Record</div>
+      <p>Save a permanent record of this class — student details, contact info, pots made, glaze requests. Drop the downloaded file into your Dropbox folder for cloud backup.</p>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;">
+        <button class="btn btn-green" onclick="exportExcel()">↓ Download Excel (.xlsx)</button>
+        <button class="btn btn-secondary" onclick="exportHTML()">↓ Download HTML Record</button>
+      </div>
+    </div>
+
+    <div class="export-panel">
+      <div class="export-title">Restore from Excel Backup</div>
+      <p>Load a previously exported class record (.xlsx) back into the app — restores class details, all students, and their pots &amp; glazes. The file must have been exported by this app (sheets: Class Summary, Student Roll, Pots &amp; Glazes).</p>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;">
+        <label class="btn btn-secondary" style="cursor:pointer;">
+          ↑ Load Excel Backup (.xlsx)
+          <input type="file" id="restoreFileInput" accept=".xlsx" style="display:none;" onchange="restoreFromExcel(this)">
+        </label>
+        <span id="restoreStatus" style="font-size:11px;color:var(--text-muted);"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="num">4</span> Kiln &amp; Crate Checklist</div>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">Prints a full A4 checklist of all students and their pots — with a checkbox to tick off each pot as it's loaded into the kiln crate. Includes a kiln firing notes section. Left margin suits hole-punch filing.</p>
+      <button class="btn btn-dark" onclick="printCrateChecklist()">🖨 Print Crate Checklist</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="num">5</span> Pot Labels</div>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">Generates one adhesive label per pot for the Brother QL-820NWB (62mm DK roll). Each label shows student name, class, date, pot description, clay body, glaze, and item numbering.</p>
+      <button class="btn btn-dark" onclick="genPotLabels()">Generate Pot Labels ▸</button>
+
+      <div class="preview-section" id="potLabelSection">
+        <div class="section-label" style="margin-top:20px;">Pot Label Preview</div>
+        <div id="potLabelGrid" class="labels-grid"></div>
+        <div class="action-row" style="margin-top:14px;">
+          <button class="btn btn-dark" onclick="printPotLabels()">🖨 Print Labels</button>
+          <button class="btn btn-secondary" onclick="hideSection('potLabelSection')">Hide</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-wrap -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════
+const CLAY = ['White Stoneware','Buff Stoneware'];
+const SHRINK_RATE = 0.12; // 12% linear shrinkage wet → glaze fired
+const GLAZES = [
+  'Moon White (gloss, thick)',
+  'Moon White (gloss, thin)',
+  'Bottle Green (clear)',
+  'EC Matt',
+  'EC Matt, very thin',
+  'Horsley Matt',
+  'Chrome Pink',
+  'Turquoise Matt',
+  'Blanc Cremeau',
+  'Black-Brown (Tenmoku)'
+];
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let students = [];
+let uid = 1;
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const t = new Date();
+  document.getElementById('classDate').value = t.toISOString().split('T')[0];
+  document.getElementById('headerDate').textContent =
+    t.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  renderAll();
+});
+
+// ════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const idx = ['setup','roll','pots','print'].indexOf(name);
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  renderAll();
+}
+
+// ════════════════════════════════════════
+// CLASS INFO
+// ════════════════════════════════════════
+function syncInfo() {
+  document.getElementById('rollTitle').textContent = cn() || 'Class Roll';
+  const d = dateLong();
+  const ti = document.getElementById('classTime').value;
+  document.getElementById('rollMeta').textContent = [d,ti].filter(Boolean).join(' · ') || '—';
+}
+const cn  = () => (document.getElementById('className').value||'').trim() || 'Pottery Class';
+const sn  = () => (document.getElementById('studioName').value||'').trim() || 'Dimboola Pottery Classes';
+const dateLong = () => {
+  const v = document.getElementById('classDate').value;
+  return v ? new Date(v+'T12:00:00').toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) : '';
+};
+const dateShort = () => {
+  const v = document.getElementById('classDate').value;
+  return v ? new Date(v+'T12:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'}) : 'Date not set';
+};
+// Fixed-width DD/MM/YYYY for the print label only — dateShort() varies from
+// 10 to 18 characters depending on month name length ("1 May 2026" vs
+// "23 September 2026"), which made the date column in the grid frame
+// unpredictable to size. This is always exactly 10 characters. Built
+// directly from the <input type="date"> value (already zero-padded
+// YYYY-MM-DD) rather than via toLocaleDateString, so it never drops a
+// leading zero.
+const dateCompact = () => {
+  const v = document.getElementById('classDate').value;
+  if (!v) return 'Date not set';
+  const [y, m, d] = v.split('-');
+  return `${d}/${m}/${y}`;
+};
+// Same idea as dateCompact(), split across two lines (DD/MM, then YYYY) so
+// the print label's date column can be much narrower — 5 characters wide
+// at most, instead of 10.
+const dateSplit = () => {
+  const v = document.getElementById('classDate').value;
+  if (!v) return { line1: 'Date', line2: 'not set' };
+  const [y, m, d] = v.split('-');
+  return { line1: `${d}/${m}`, line2: y };
+};
+
+// ════════════════════════════════════════
+// STUDENT CRUD
+// ════════════════════════════════════════
+function addStudent(d={}) {
+  students.push({
+    id:uid++, firstName:d.firstName||'', lastName:d.lastName||'',
+    phone:d.phone||'', email:d.email||'', postcode:d.postcode||'',
+    note:d.note||'', source:d.source||'manual',
+    acuityId:d.acuityId||'', certCode:d.certCode||'',
+    pots:[]
+  });
+  renderAll(); updateSum();
+}
+function removeStudent(id) { students=students.filter(s=>s.id!==id); renderAll(); updateSum(); }
+function setField(id,f,v) { const s=students.find(s=>s.id===id); if(s){s[f]=v;} updateSum(); }
+function addPot(sid) { const s=students.find(s=>s.id===sid); if(s){s.pots.push({description:'',clay:'White Stoneware',glaze:'',diameter:null});renderPotsTab();updateSum();} }
+function removePot(sid,pi) { const s=students.find(s=>s.id===sid); if(s){s.pots.splice(pi,1);renderPotsTab();updateSum();} }
+function setPot(sid,pi,f,v) { const s=students.find(s=>s.id===sid); if(s&&s.pots[pi])s.pots[pi][f]=v; }
+
+// ════════════════════════════════════════
+// RENDER ORCHESTRATOR
+// ════════════════════════════════════════
+function renderAll() { renderSetup(); renderRoll(); renderPotsTab(); updateSum(); syncInfo(); }
+
+// ════════════════════════════════════════
+// RENDER: SETUP — STUDENT CARDS
+// ════════════════════════════════════════
+function renderSetup() {
+  const c = document.getElementById('studentsContainer');
+  if (!students.length) {
+    c.innerHTML = `<div class="empty-state"><div class="empty-icon">🏺</div><p>No students yet.<br>Import from Outlook or add a walk-in manually.</p></div>`;
+    return;
+  }
+  c.innerHTML = students.map((s,i)=>{
+    const full = fullName(s)||'New Student';
+    const srcBadge = s.source==='acuity'
+      ? `<span class="badge badge-acuity">Acuity</span>`
+      : `<span class="badge badge-manual">Walk-in</span>`;
+    const contactHtml = (s.phone||s.email||s.acuityId) ? `
+      <div class="contact-strip" style="margin-bottom:10px;">
+        <div class="cs-item"><label>Acuity ID</label><span>${e(s.acuityId)||'—'}</span></div>
+      </div>` : '';
+    return `
+    <div class="student-card">
+      <div class="sc-head">
+        <div class="sc-left">
+          <span class="sc-num">${i+1}</span>
+          <span class="sc-name">${e(full)}</span>
+          ${srcBadge}
+        </div>
+        <button class="btn-rm" onclick="removeStudent(${s.id})">Remove</button>
+      </div>
+      <div class="sc-body">
+        ${contactHtml}
+        <div class="field-row-4">
+          <div class="fg"><label>First Name</label>
+            <input value="${e(s.firstName)}" placeholder="First"
+              oninput="setField(${s.id},'firstName',this.value);this.closest('.student-card').querySelector('.sc-name').textContent=fullName(students.find(x=>x.id==${s.id}))||'New Student'" /></div>
+          <div class="fg"><label>Last Name</label>
+            <input value="${e(s.lastName)}" placeholder="Last"
+              oninput="setField(${s.id},'lastName',this.value);this.closest('.student-card').querySelector('.sc-name').textContent=fullName(students.find(x=>x.id==${s.id}))||'New Student'" /></div>
+          <div class="fg"><label>Postcode</label>
+            <input value="${e(s.postcode)}" placeholder="e.g. 3424" oninput="setField(${s.id},'postcode',this.value)" /></div>
+          <div class="fg"><label>Note</label>
+            <input value="${e(s.note)}" placeholder="e.g. cash, Emily's Mum" oninput="setField(${s.id},'note',this.value)" /></div>
+        </div>
+        <div class="field-row">
+          <div class="fg"><label>Phone</label>
+            <input type="tel" value="${e(s.phone)}" placeholder="e.g. +61 4xx xxx xxx"
+              oninput="setField(${s.id},'phone',this.value)" /></div>
+          <div class="fg"><label>Email</label>
+            <input type="email" value="${e(s.email)}" placeholder="e.g. jane@email.com"
+              oninput="setField(${s.id},'email',this.value)" /></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+// RENDER: CLASS ROLL
+// ════════════════════════════════════════
+function renderRoll() {
+  const w = document.getElementById('rollWrap');
+  if (!students.length) {
+    w.innerHTML = `<p style="font-size:12px;color:var(--text-muted);">Add students in the Class Setup tab to see the roll here.</p>`;
+    return;
+  }
+  w.innerHTML = `<table class="roll-table">
+    <thead><tr>
+      <th>#</th><th>Student</th><th>Postcode</th><th>Contact</th><th>Note</th><th>Source</th><th style="text-align:center">Arrived ✓</th>
+    </tr></thead>
+    <tbody>
+    ${students.map((s,i)=>`
+      <tr>
+        <td style="color:var(--text-muted);font-size:11px;">${i+1}</td>
+        <td><div class="roll-name">${e(fullName(s)||'—')}</div></td>
+        <td style="font-size:11px;color:var(--text-secondary);">${e(s.postcode)||'—'}</td>
+        <td><div class="roll-sub">${s.phone?e(s.phone)+'<br>':''}${e(s.email)}</div></td>
+        <td style="font-size:11px;color:var(--clay-dark);font-style:italic;">${e(s.note)}</td>
+        <td><span class="badge ${s.source==='acuity'?'badge-acuity':'badge-manual'}">${s.source==='acuity'?'Acuity':'Walk-in'}</span></td>
+        <td style="text-align:center;"><input type="checkbox" class="arrived-cb" /></td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function updateDiamDisplay(input, sid, pi) {
+  const val = parseInt(input.value);
+  const el = document.getElementById(`diam-${sid}-${pi}`);
+  if (!el) return;
+  if (val && val > 0) {
+    const fired = Math.round(val * (1 - SHRINK_RATE));
+    el.textContent = `⌀ ${val} → ${fired} mm`;
+  } else {
+    el.textContent = '';
+  }
+}
+
+// ════════════════════════════════════════
+// RENDER: POTS TAB
+// ════════════════════════════════════════
+function renderPotsTab() {
+  const w = document.getElementById('potsWrap');
+  if (!students.length) {
+    w.innerHTML = `<p style="font-size:12px;color:var(--text-muted);">Add students in the Class Setup tab first.</p>`;
+    return;
+  }
+  w.innerHTML = students.map(s=>{
+    const potsHtml = s.pots.map((p,pi)=>{
+      const diamFired = p.diameter ? Math.round(p.diameter * (1 - SHRINK_RATE)) : '';
+      const diamDisplay = p.diameter
+        ? `⌀ ${p.diameter} → ${diamFired} mm`
+        : '';
+      return `
+      <div class="pot-row">
+        <div class="pot-num">${pi+1}</div>
+        <div class="fg"><label>Description</label>
+          <input value="${e(p.description)}" placeholder="e.g. Oval plate"
+            oninput="setPot(${s.id},${pi},'description',this.value)" /></div>
+        <div class="fg"><label>⌀ Wet mm</label>
+          <input type="number" min="1" max="999" value="${e(p.diameter)}" placeholder="e.g. 276"
+            oninput="setPot(${s.id},${pi},'diameter',this.value?parseInt(this.value):null);updateDiamDisplay(this,${s.id},${pi})" />
+          <div class="diam-display" id="diam-${s.id}-${pi}">${diamDisplay}</div>
+        </div>
+        <div class="fg"><label>Glaze</label>
+          <select onchange="setPot(${s.id},${pi},'glaze',this.value)">
+            <option value="">— select —</option>
+            ${GLAZES.map(g=>`<option value="${e(g)}"${g===p.glaze?' selected':''}>${e(g)}</option>`).join('')}
+          </select></div>
+        <div class="fg"><label>Clay</label>
+          <select onchange="setPot(${s.id},${pi},'clay',this.value)">
+            ${CLAY.map(c=>`<option value="${e(c)}"${c===p.clay?' selected':''}>${e(c)}</option>`).join('')}
+          </select></div>
+        <button class="btn-rm-pot" onclick="removePot(${s.id},${pi})" title="Remove">✕</button>
+      </div>`;
+    }).join('');
+    return `
+    <div style="border:1px solid var(--border);border-radius:2px;margin-bottom:14px;overflow:hidden;">
+      <div style="background:var(--kiln-dark);padding:9px 15px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--ash-white);">${e(fullName(s)||'New Student')}</span>
+        <span class="badge badge-pots">${s.pots.length} pot${s.pots.length!==1?'s':''}</span>
+      </div>
+      <div style="padding:14px 16px;">
+        <div class="pots-title">Pots made in this class</div>
+        ${potsHtml||`<p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">No pots added yet.</p>`}
+        <button class="btn btn-ghost" style="margin-top:8px;" onclick="addPot(${s.id})">+ Add a pot</button>
+      </div>
+    </div>`;
+  }).join('');
+  // update second summary
+  const tp=students.reduce((n,s)=>n+s.pots.length,0);
+  document.getElementById('sumB').innerHTML=`<span class="summary-stat">${students.length}</span> students &nbsp;·&nbsp; <span class="summary-stat">${tp}</span> pots`;
+}
+
+// ════════════════════════════════════════
+// IMPORT: OUTLOOK / ACUITY
+// ════════════════════════════════════════
+function toggleBox(id) {
+  const ids=['boxOutlook','boxNames'];
+  ids.forEach(i=>{ const el=document.getElementById(i); if(i===id)el.style.display=el.style.display==='none'?'block':'none'; else el.style.display='none'; });
+}
+
+function importOutlook() {
+  const raw = document.getElementById('outlookPaste').value.trim();
+  if (!raw) { toast('Paste some notification text first'); return; }
+  const blocks = splitBlocks(raw);
+  let added=0;
+  blocks.forEach(b=>{ const d=parseBlock(b); if(d.firstName){addStudent({...d,source:'acuity'});added++;} });
+  if (!added) { toast('No student data found — check the pasted text'); return; }
+  document.getElementById('outlookPaste').value='';
+  toggleBox('boxOutlook');
+  toast(`${added} student${added!==1?'s':''} imported from Outlook`);
+  renderAll();
+}
+
+function splitBlocks(text) {
+  // Split on AcuityID= line boundaries — each booking ends with one
+  const blocks=[]; let cur='';
+  text.split('\n').forEach(line=>{
+    cur+=line+'\n';
+    if(/^AcuityID=/i.test(line.trim())){blocks.push(cur);cur='';}
+  });
+  if(cur.trim())blocks.push(cur);
+  return blocks.length>1?blocks:[text];
+}
+
+function parseBlock(block) {
+  const lines=block.split('\n').map(l=>l.trim());
+  const get=(...pats)=>{ for(const p of pats)for(const l of lines){const m=l.match(p);if(m)return m[1].trim();} return ''; };
+
+  // Name
+  let firstName='',lastName='';
+  const nameLine = get(/^Name:\s*(.+)/i);
+  if(nameLine){const p=nameLine.split(/\s+/);firstName=p[0];lastName=p.slice(1).join(' ');}
+
+  // Phone / Email / IDs
+  const phone   = get(/^Phone:\s*(.+)/i, /^Mobile:\s*(.+)/i, /^Ph:\s*(.+)/i);
+  const email   = get(/^Email:\s*(.+)/i);
+  const certCode= get(/^Certificate Code:\s*(.+)/i);
+  const acuityId= get(/AcuityID=(\d+)/i);
+
+  // Postcode — look for 4-digit number after the === separator or in the postcode question line
+  const postcodeMatch = block.match(/post.?code[^:]*:\s*.*?(\d{4})/i)
+    || block.match(/region[^:]*:\s*.*?(\d{4})/i);
+  const postcode = postcodeMatch ? postcodeMatch[1] : '';
+
+  return {firstName,lastName,phone,email,postcode,certCode,acuityId};
+}
+
+function importNames() {
+  const raw=document.getElementById('namesPaste').value.trim();
+  if(!raw)return;
+  let added=0;
+  raw.split('\n').map(l=>l.trim()).filter(Boolean).forEach(line=>{
+    const p=line.split(/\s+/);
+    if(p[0]){addStudent({firstName:p[0],lastName:p.slice(1).join(' '),source:'manual'});added++;}
+  });
+  document.getElementById('namesPaste').value='';
+  toggleBox('boxNames');
+  toast(`${added} student${added!==1?'s':''} added`);
+  renderAll();
+}
+
+// ════════════════════════════════════════
+// NAME TAGS
+// ════════════════════════════════════════
+function genNameTags() {
+  if(!students.length){toast('No students to make name tags for');return;}
+  const grid=document.getElementById('nameTagGrid');
+  grid.innerHTML='';
+  students.forEach(s=>{
+    const display=nameTag(s);
+    const tag=document.createElement('div');
+    tag.className='nametag';
+    tag.innerHTML=`
+      <div class="nt-studio">${e(sn())}</div>
+      <div class="nt-name">${e(display)}</div>
+      <div class="nt-class">${e(cn())} · ${e(dateShort())}</div>`;
+    grid.appendChild(tag);
+  });
+  document.getElementById('nameTagSection').classList.add('visible');
+  document.getElementById('nameTagSection').scrollIntoView({behavior:'smooth',block:'start'});
+  toast(`${students.length} name tag${students.length!==1?'s':''} ready to print`);
+}
+
+// ════════════════════════════════════════
+// POT LABELS
+// ════════════════════════════════════════
+function genPotLabels() {
+  const tp=students.reduce((n,s)=>n+s.pots.length,0);
+  if(!students.length){toast('Add students first');return;}
+  if(!tp){toast('Add pot details in the Pots & Glazes tab first');return;}
+  const grid=document.getElementById('potLabelGrid');
+  grid.innerHTML='';
+  students.forEach(s=>{
+    const total=s.pots.length;
+    s.pots.forEach((p,idx)=>{
+      const label=document.createElement('div');
+      label.className='pot-label';
+      const item=total>1?`Item ${idx+1} of ${total}`:'Single item';
+      const firedDiam = p.diameter ? Math.round(p.diameter * (1 - SHRINK_RATE)) : null;
+      const diamLine = p.diameter
+        ? `<div class="pl-diam">⌀ ${p.diameter} → ${firedDiam} mm (wet → fired)</div>`
+        : '';
+      label.innerHTML=`
+        <div>
+          <div class="pl-studio">${e(sn())}</div>
+          <div class="pl-name">${e(fullName(s)||'Unknown')}</div>
+          <div class="pl-class">${e(cn())}</div>
+        </div>
+        <div class="pl-div"></div>
+        <div>
+          <div class="pl-desc">${e(p.description||'Pot — no description')}</div>
+          <div class="pl-clay">${e(p.clay)}</div>
+          <div class="pl-glaze">Glaze: ${e(p.glaze||'Not specified')}</div>
+          ${diamLine}
+        </div>
+        <div class="pl-footer">
+          <div class="pl-date">${e(dateShort())}</div>
+          <div class="pl-count">${e(item)}</div>
+        </div>`;
+      grid.appendChild(label);
+    });
+  });
+  document.getElementById('potLabelSection').classList.add('visible');
+  document.getElementById('potLabelSection').scrollIntoView({behavior:'smooth',block:'start'});
+  toast(`${tp} pot label${tp!==1?'s':''} generated`);
+}
+
+// ════════════════════════════════════════
+// PRINT POT LABELS — popup · Brother QL-820NWB · 62×45mm
+// ════════════════════════════════════════
+function printPotLabels() {
+  const tp = students.reduce((n,s) => n + s.pots.length, 0);
+  if (!students.length) { toast('Add students first'); return; }
+  if (!tp) { toast('Add pot details in the Pots & Glazes tab first'); return; }
+
+  /*
+   * @page: 62mm × 45mm landscape (62mm roll width, 45mm feed length).
+   * No rotation needed — 62mm width already matches the roll, and the
+   * label is naturally wider than it is tall, so content lays out directly.
+   * All dimensions in mm. All text #1A1410 — near-black, prints clean on thermal.
+   * Divider is a filled div, not a border (borders render dashed on thermal).
+   * Client name auto-fits via fitNames() below, based on the design sketches
+   * worked through with George — see thermal-label-design-guide.md.
+   */
+
+  const allPots = [];
+  students.forEach(s => s.pots.forEach((p, idx) => allPots.push({s, p, idx})));
+
+  const labelsHtml = allPots.map(({s, p, idx}, li) => {
+    const total    = s.pots.length;
+    const item     = total > 1 ? `Item ${idx+1} of ${total}` : 'Single item';
+    const isLast   = li === allPots.length - 1;
+    const descClay = [(p.description || 'Pot — no description'), p.clay].filter(Boolean).join(' · ');
+    const dateLines = dateSplit();
+
+    return `
+    <div class="page${isLast ? ' last' : ''}">
+      <div class="card">
+        <div class="pl-studio">${e(sn())}</div>
+        <div class="pl-name">${e(fullName(s)||'Unknown')}</div>
+        <div class="pl-frame">
+          <div class="pl-frame-hrule-top"></div>
+          <div class="pl-class-col">${e(cn())}</div>
+          <div class="pl-frame-vrule"></div>
+          <div class="pl-date-col">
+            <div>${e(dateLines.line1)}</div>
+            <div>${e(dateLines.line2)}</div>
+          </div>
+          <div class="pl-frame-hrule-bottom"></div>
+        </div>
+        <div class="pl-desc">${e(descClay)}</div>
+        <div class="pl-glaze">Glaze: ${e(p.glaze||'Not specified')}</div>
+        <div class="pl-count">${e(item)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pot Labels — ${e(cn())}</title>
+<link href="https://fonts.googleapis.com/css2?family=Petrona:wght@500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @page { size: 62mm 45mm; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Mono', monospace;
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Landscape page: 62mm wide (roll width) x 45mm tall — one label per page */
+  .page {
+    width: 62mm;
+    height: 45mm;
+    page-break-after: always;
+    overflow: hidden;
+  }
+  .page.last { page-break-after: auto; }
+
+  /* Card fills the page. Padding = margins: 3mm top, 4mm sides, 4mm bottom.
+     Top trimmed from 5mm to make room for the new I-beam rule frame below. */
+  .card {
+    width: 62mm;
+    height: 45mm;
+    display: flex;
+    flex-direction: column;
+    padding: 3mm 4mm 4mm 4mm;
+    overflow: hidden;
+  }
+
+  /* Line 1 — studio name, 6pt all caps, touches line 2 below */
+  .pl-studio {
+    font-size: 6pt;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #1A1410;
+    line-height: 1.1;
+  }
+
+  /* Line 2 — client name, Petrona serif, auto-fit width via fitNames() below.
+     Touches line 1 above and line 3 below (0mm gap). 20pt cap, 8pt floor. */
+  .pl-name {
+    font-family: 'Petrona', Georgia, serif;
+    font-size: 20pt;
+    font-weight: 500;
+    color: #1A1410;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: visible;
+    margin-bottom: 1mm;
+  }
+
+  /* True grid frame around class name + date, so the vertical rule physically
+     joins the top and bottom horizontal rules (no floating gaps). The grid
+     has 3 rows (top rule / content / bottom rule) and 3 columns (class /
+     vertical rule / date). The vertical rule spans grid-row 1/4, so it runs
+     the full frame height regardless of how tall the content row is. Extra
+     breathing room above and below the text lives in the column padding,
+     not in separate margins, so it doesn't break the rule/rule join.
+     Class column is weighted 2fr vs date's 1fr — the date is always short
+     ("11 June 2026"), so the class + organisation name gets most of the room. */
+  .pl-frame {
+    display: grid;
+    grid-template-columns: 4fr 0.5mm 1fr;
+    grid-template-rows: 0.5mm auto 0.5mm;
+    margin-bottom: 2.5mm;
+  }
+  /* Explicit height on both horizontal rules — matching the explicit width
+     already set on the vertical rule below. Relying on the grid row track
+     alone (0.5mm) left the two rules rendering at slightly different
+     weights when printed; locking height directly on the elements fixes it. */
+  .pl-frame-hrule-top,
+  .pl-frame-hrule-bottom {
+    grid-column: 1 / 4;
+    height: 0.5mm;
+    background: #1A1410;
+  }
+  .pl-frame-hrule-top { grid-row: 1; }
+  .pl-frame-hrule-bottom { grid-row: 3; }
+  .pl-frame-vrule {
+    grid-row: 1 / 4;
+    grid-column: 2;
+    width: 0.5mm;
+    background: #1A1410;
+  }
+  /* Class name: line 1 runs full width, line 2 truncates with an ellipsis.
+     -webkit-line-clamp alone wasn't being respected as a grid item with an
+     "auto" row — a third line was bleeding through into the rule below it.
+     max-height is a hard backstop: even if line-clamp fails to visually
+     truncate, overflow:hidden + max-height guarantees nothing past 2 lines
+     is ever shown or affects the row's height.
+     max-height must include the padding, since box-sizing:border-box (set
+     globally above) counts padding inside height/max-height — 2 lines at
+     7pt/1.25 is 6.17mm, plus 2mm + 1.5mm padding = 9.67mm. The previous
+     6.2mm left only ~2.7mm for text, which is what sliced line 2 in half. */
+  .pl-class-col {
+    grid-row: 2;
+    grid-column: 1;
+    font-size: 7pt;
+    color: #1A1410;
+    line-height: 1.25;
+    padding: 2mm 2mm 1.5mm 0;
+    max-height: 9.7mm;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  /* Date: always exactly two short, fixed-format lines (DD/MM, YYYY), so
+     no wrapping or truncation risk — no line-clamp needed here. Column is
+     narrower now (1fr vs class name's 4fr) since 5 characters is the most
+     it will ever need to hold. */
+  .pl-date-col {
+    grid-row: 2;
+    grid-column: 3;
+    font-size: 7pt;
+    color: #1A1410;
+    line-height: 1.25;
+    text-align: right;
+    padding: 2mm 0 1.5mm 2mm;
+  }
+
+  /* Line 4 — description + clay body, 7pt, 1mm below */
+  .pl-desc {
+    font-size: 7pt;
+    color: #1A1410;
+    margin-bottom: 1mm;
+  }
+
+  /* Line 5 — glaze, 7pt */
+  .pl-glaze {
+    font-size: 7pt;
+    color: #1A1410;
+  }
+
+  /* Line 6 — item count, 8pt, right-aligned, anchored to the 4mm bottom
+     margin via margin-top: auto — absorbs whatever space is left above it */
+  .pl-count {
+    font-size: 8pt;
+    color: #1A1410;
+    text-align: right;
+    white-space: nowrap;
+    margin-top: auto;
+  }
+</style>
+</head>
+<body>
+${labelsHtml}
+<script>
+  // Shrink the client name to fit the 54mm content width (62mm card minus
+  // 4mm left + 4mm right padding), stepping down from the 20pt cap to an
+  // 8pt floor. Runs once fonts are loaded so Petrona measures correctly.
+  function fitNames() {
+    var availableMm = 54;
+    var pxPerMm = 96 / 25.4;
+    var maxPt = 20, minPt = 8, stepPt = 0.5;
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    document.querySelectorAll('.pl-name').forEach(function(el) {
+      var pt = maxPt;
+      var text = el.textContent;
+      while (pt > minPt) {
+        ctx.font = '500 ' + pt + 'pt Petrona, Georgia, serif';
+        var widthMm = ctx.measureText(text).width / pxPerMm;
+        if (widthMm <= availableMm) break;
+        pt -= stepPt;
+      }
+      el.style.fontSize = pt + 'pt';
+    });
+  }
+  document.fonts.ready.then(function() {
+    fitNames();
+    requestAnimationFrame(function() { window.print(); window.close(); });
+  });
+<\/script>
+</body>
+</html>`;
+
+  const popup = window.open('', '_blank', 'width=400,height=600');
+  if (!popup) { toast('Pop-up blocked — allow pop-ups for this page and try again'); return; }
+  popup.document.write(html);
+  popup.document.close();
+  toast(`${tp} pot label${tp !== 1 ? 's' : ''} sent to print`);
+}
+
+// ════════════════════════════════════════
+// KILN & CRATE CHECKLIST
+// ════════════════════════════════════════
+function printCrateChecklist() {
+  if (!students.length) { toast('No students to print'); return; }
+
+  const tp       = students.reduce((n,s) => n + s.pots.length, 0);
+  const classInfo = cn();
+  const dateInfo  = dateLong();
+  const timeInfo  = document.getElementById('classTime').value || '';
+  const studio    = sn();
+
+  // Summary box date: "SATURDAY\n13 June 2026"
+  const classDateVal = document.getElementById('classDate').value;
+  const dateObj = classDateVal ? new Date(classDateVal + 'T12:00:00') : null;
+  const summaryDay  = dateObj ? dateObj.toLocaleDateString('en-AU',{weekday:'long'}).toUpperCase() : '—';
+  const summaryDate = dateObj ? dateObj.toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'}) : '—';
+
+  // Per-student cards
+  const studentCards = students.map(s => {
+    const name    = fullName(s) || '(no name)';
+    const contact = [s.phone, s.email].filter(Boolean).join(' · ');
+    const potCount = s.pots.length;
+
+    const potRows = potCount === 0
+      ? `<tr><td colspan="8" style="padding:4mm 2mm;color:#bbb;font-style:italic;font-size:8pt;">No pots recorded</td></tr>`
+      : s.pots.map((p, pi) => {
+          const firedDiam = p.diameter ? Math.round(p.diameter * (1 - SHRINK_RATE)) : null;
+          const diamStr   = p.diameter ? `${p.diameter} → ${firedDiam}` : '–';
+          return `<tr>
+            <td class="pc-num">${pi + 1}</td>
+            <td class="pc-desc">${e((p.description||'').trim() || '—')}</td>
+            <td class="pc-clay">${e(p.clay || '—')}</td>
+            <td class="pc-glaze">${e(p.glaze || 'Not specified')}</td>
+            <td class="pc-diam">${diamStr}</td>
+            <td class="pc-cb"><div class="cb"></div></td>
+            <td class="pc-cb"><div class="cb"></div></td>
+            <td class="pc-cb"><div class="cb"></div></td>
+          </tr>`;
+        }).join('');
+
+    return `<div class="student-card">
+      <div class="sc-head">
+        <div class="sc-left">
+          <span class="sc-name">${e(name)}</span>
+          ${contact ? `<span class="sc-contact">${e(contact)}</span>` : ''}
+        </div>
+        <span class="sc-potcount">${potCount} pot${potCount !== 1 ? 's' : ''}</span>
+      </div>
+      <table class="pot-table">
+        <thead>
+          <tr>
+            <th class="pc-num">#</th>
+            <th class="pc-desc">Description</th>
+            <th class="pc-clay">Clay</th>
+            <th class="pc-glaze">Glaze</th>
+            <th class="pc-diam">⌀ wet → fired</th>
+            <th class="pc-cb">Fired</th>
+            <th class="pc-cb">Contacted</th>
+            <th class="pc-cb">Collected</th>
+          </tr>
+        </thead>
+        <tbody>${potRows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kiln &amp; Crate Checklist — ${e(classInfo)}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 10mm 12mm 22mm;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Mono', 'Courier New', monospace; font-size: 9pt; color: #1A1410; background: white; }
+
+  /* ── Page header ── */
+  .page-header { margin-bottom: 5mm; }
+  .ph-eyebrow { font-size: 7pt; letter-spacing: 0.22em; text-transform: uppercase; color: #666; margin-bottom: 1.5mm; }
+  .ph-title   { display: flex; align-items: baseline; justify-content: space-between;
+                font-family: Georgia, serif; font-size: 26pt; font-weight: normal; font-style: normal;
+                color: #000; line-height: 1; margin-bottom: 3mm; }
+  .ph-title-date { font-family: Georgia, serif; font-size: 26pt; font-weight: normal; font-style: normal;
+                   color: #000; white-space: nowrap; }
+  .ph-rule    { height: 0; border: none; border-top: 1.5pt solid #000; margin-bottom: 4mm; }
+
+  /* ── Summary box ── */
+  .summary-box {
+    display: grid;
+    grid-template-columns: 2fr 1.4fr 1fr 0.9fr 1fr;
+    border: 0.75pt solid #888;
+    margin-bottom: 6mm;
+  }
+  .sb-cell {
+    padding: 2.5mm 3mm;
+    border-right: 0.75pt solid #888;
+  }
+  .sb-cell:last-child { border-right: none; }
+  .sb-label { font-size: 6.5pt; letter-spacing: 0.18em; text-transform: uppercase; color: #666; margin-bottom: 1.5mm; }
+  .sb-value { font-size: 9pt; color: #000; line-height: 1.35; }
+
+  /* ── Student card ── */
+  .student-card { margin-bottom: 5mm; page-break-inside: avoid; border: 0.75pt solid #888; }
+
+  .sc-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 2.5mm 3mm 2mm;
+    border-bottom: 0.5pt solid #888;
+    background: #D0D0D0;
+  }
+  .sc-left    { display: flex; align-items: baseline; gap: 4mm; flex-wrap: wrap; }
+  .sc-name    { font-family: Georgia, serif; font-size: 13pt; font-style: normal; font-weight: normal; color: #000; }
+  .sc-contact { font-size: 9pt; font-weight: 600; color: #222; letter-spacing: 0.02em; }
+  .sc-potcount{ font-size: 9pt; font-weight: 600; color: #222; letter-spacing: 0.06em; white-space: nowrap; }
+
+  /* ── Per-student pot table ── */
+  .pot-table { width: 100%; border-collapse: collapse; }
+  .pot-table thead th {
+    font-size: 7pt; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
+    color: #000; padding: 2mm 2.5mm; text-align: left;
+    border-bottom: 0.5pt solid #888; background: #E8E8E8;
+  }
+  .pot-table tbody tr                  { border-top: 0.5pt solid #CCC; background: #FFFFFF; }
+  .pot-table tbody tr:nth-child(even)  { background: #F2F2F2; }
+  .pot-table tbody td { padding: 2mm 2.5mm; vertical-align: top; font-size: 7.5pt; }
+
+  .pc-num   { width: 6mm;  color: #555; font-size: 7pt; }
+  .pc-desc  { }
+  .pc-clay  { width: 28mm; font-size: 7.5pt; color: #222; }
+  .pc-glaze { width: 40mm; font-size: 7.5pt; color: #222; }
+  .pc-diam  { width: 22mm; font-size: 7.5pt; color: #444; white-space: nowrap; }
+  .pc-cb    { width: 16mm; text-align: center; }
+
+  .cb {
+    width: 4.5mm; height: 4.5mm;
+    border: 0.75pt solid #555;
+    display: inline-block;
+    border-radius: 0.5pt;
+  }
+
+
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="ph-eyebrow">${e(studio)} — Kiln &amp; Crate Checklist</div>
+  <div class="ph-title">
+    <span>${e(classInfo)}</span>
+    ${dateObj ? `<span class="ph-title-date">${dateObj.toLocaleDateString('en-AU',{day:'2-digit',month:'2-digit',year:'numeric'})}</span>` : ''}
+  </div>
+  <div class="ph-rule"></div>
+</div>
+
+<div class="summary-box">
+  <div class="sb-cell">
+    <div class="sb-label">Class</div>
+    <div class="sb-value">${e(classInfo)}</div>
+  </div>
+  <div class="sb-cell">
+    <div class="sb-label">Date</div>
+    <div class="sb-value">${summaryDay}<br>${summaryDate}</div>
+  </div>
+  <div class="sb-cell">
+    <div class="sb-label">Time</div>
+    <div class="sb-value">${e(timeInfo || '—')}</div>
+  </div>
+  <div class="sb-cell">
+    <div class="sb-label">Clients</div>
+    <div class="sb-value">${students.length}</div>
+  </div>
+  <div class="sb-cell">
+    <div class="sb-label">Total Pots</div>
+    <div class="sb-value">${tp}</div>
+  </div>
+</div>
+
+${studentCards}
+
+<script>
+document.fonts.ready.then(() => {
+  requestAnimationFrame(() => { window.print(); window.close(); });
+});
+<\/script>
+</body>
+</html>`;
+
+  const w = window.open('', '_blank');
+  if (!w) { toast('Allow popups to print the checklist'); return; }
+  w.document.write(html);
+  w.document.close();
+  toast('Opening checklist for print…');
+}
+
+// ════════════════════════════════════════
+// EXCEL EXPORT
+// ════════════════════════════════════════
+function exportExcel() {
+  if(!students.length){toast('No students to export');return;}
+  const wb=XLSX.utils.book_new();
+  const tp=students.reduce((n,s)=>n+s.pots.length,0);
+
+  // Sheet 1: Summary
+  const ws1=XLSX.utils.aoa_to_sheet([
+    ['Dimboola Pottery Classes — Class Record'],[], 
+    ['Class Name',cn()],['Date',dateLong()],
+    ['Time',document.getElementById('classTime').value],
+    ['Studio',sn()],['Total Students',students.length],
+    ['Total Pots',tp],['Exported',new Date().toLocaleString('en-AU')]
+  ]);
+  ws1['!cols']=[{wch:20},{wch:42}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Class Summary');
+
+  // Sheet 2: Student Roll
+  const rollH=['#','First Name','Last Name','Phone','Email','Postcode','Note','Source','Acuity ID','Cert Code'];
+  const rollR=students.map((s,i)=>[i+1,s.firstName,s.lastName,s.phone,s.email,s.postcode,s.note,s.source,s.acuityId,s.certCode]);
+  const ws2=XLSX.utils.aoa_to_sheet([rollH,...rollR]);
+  ws2['!cols']=[{wch:4},{wch:14},{wch:14},{wch:16},{wch:30},{wch:10},{wch:20},{wch:8},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Student Roll');
+
+  // Sheet 3: Pots & Glazes
+  const potH=['Student First','Student Last','Pot #','Total Pots','Description','⌀ Wet (mm)','⌀ Fired (mm)','Clay','Glaze'];
+  const potR=[];
+  students.forEach(s=>{
+    if(s.pots.length===0){potR.push([s.firstName,s.lastName,'—',0,'','','','','']);}
+    else s.pots.forEach((p,i)=>{
+      const firedDiam = p.diameter ? Math.round(p.diameter*(1-SHRINK_RATE)) : '';
+      potR.push([s.firstName,s.lastName,i+1,s.pots.length,p.description,p.diameter||'',firedDiam,p.clay,p.glaze]);
+    });
+  });
+  const ws3=XLSX.utils.aoa_to_sheet([potH,...potR]);
+  ws3['!cols']=[{wch:14},{wch:14},{wch:6},{wch:10},{wch:28},{wch:12},{wch:12},{wch:16},{wch:28}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Pots & Glazes');
+
+  const fname=cn().replace(/[^a-zA-Z0-9 ]/g,'').trim().replace(/\s+/g,'_');
+  const dt=document.getElementById('classDate').value||'undated';
+  XLSX.writeFile(wb,`${fname}_${dt}.xlsx`);
+  toast('Excel file downloaded — save to Dropbox');
+}
+
+// ════════════════════════════════════════
+
+// ════════════════════════════════════════
+// EXCEL RESTORE
+// ════════════════════════════════════════
+function restoreFromExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('restoreStatus');
+  status.textContent = 'Reading file…';
+  status.style.color = 'var(--text-muted)';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+
+      // Validate required sheets
+      const required = ['Class Summary','Student Roll','Pots & Glazes'];
+      const missing = required.filter(s => !wb.SheetNames.includes(s));
+      if (missing.length) {
+        status.textContent = '⚠ Not a valid app backup — missing sheet(s): ' + missing.join(', ');
+        status.style.color = '#c0392b';
+        input.value = '';
+        return;
+      }
+
+      // Class Summary
+      const sum = XLSX.utils.sheet_to_json(wb.Sheets['Class Summary'], {header:1});
+      const sumMap = {};
+      sum.forEach(row => { if (row[0] && row[1] != null) sumMap[String(row[0]).trim()] = row[1]; });
+      const className  = sumMap['Class Name'] || '';
+      const classDate  = sumMap['Date']        || '';
+      const classTime  = sumMap['Time']        || '';
+      const studioName = sumMap['Studio']      || 'Dimboola Pottery Classes';
+
+      // Student Roll
+      const rollRows = XLSX.utils.sheet_to_json(wb.Sheets['Student Roll'], {header:1});
+      if (rollRows.length < 2) { throw new Error('Student Roll sheet appears empty'); }
+      const rollHead = rollRows[0].map(h => String(h||'').trim());
+      const col = h => rollHead.indexOf(h);
+
+      const studentList = [];
+      for (let i = 1; i < rollRows.length; i++) {
+        const r = rollRows[i];
+        if (!r || r.every(v => v == null || v === '')) continue;
+        studentList.push({
+          id: uid++,
+          firstName : String(r[col('First Name')] || '').trim(),
+          lastName  : String(r[col('Last Name')]  || '').trim(),
+          phone     : String(r[col('Phone')]       || '').trim(),
+          email     : String(r[col('Email')]       || '').trim(),
+          postcode  : String(r[col('Postcode')]    || '').trim(),
+          note      : String(r[col('Note')]        || '').trim(),
+          source    : String(r[col('Source')]      || 'manual').trim(),
+          acuityId  : String(r[col('Acuity ID')]   || '').trim(),
+          certCode  : String(r[col('Cert Code')]   || '').trim(),
+          pots      : []
+        });
+      }
+
+      // Pots & Glazes
+      const potRows = XLSX.utils.sheet_to_json(wb.Sheets['Pots & Glazes'], {header:1});
+      if (potRows.length > 1) {
+        const potHead = potRows[0].map(h => String(h||'').trim());
+        const pc = h => potHead.indexOf(h);
+        for (let i = 1; i < potRows.length; i++) {
+          const r = potRows[i];
+          if (!r || r.every(v => v == null || v === '')) continue;
+          const first = String(r[pc('Student First')] || '').trim();
+          const last  = String(r[pc('Student Last')]  || '').trim();
+          const desc  = String(r[pc('Description')]   || '').trim();
+          const clay  = String(r[pc('Clay')]          || 'White Stoneware').trim();
+          const glaze = String(r[pc('Glaze')]         || '').trim();
+          const wetD  = r[pc('\u2300 Wet (mm)')];
+          const diam  = (wetD != null && wetD !== '' && !isNaN(Number(wetD))) ? Number(wetD) : null;
+          if (String(r[pc('Pot #')]) === '\u2014') continue; // skip "no pots" placeholder rows
+          const student = studentList.find(s => s.firstName === first && s.lastName === last);
+          if (student) {
+            student.pots.push({ description: desc, clay, glaze, diameter: diam });
+          }
+        }
+      }
+
+      if (!studentList.length) { throw new Error('No students found in Student Roll sheet'); }
+
+      // Parse date string (e.g. "Sunday 12 April 2026") back to YYYY-MM-DD
+      let isoDate = '';
+      if (classDate) {
+        const parsed = new Date(String(classDate));
+        if (!isNaN(parsed)) {
+          isoDate = parsed.toISOString().split('T')[0];
+        }
+      }
+
+      // Confirm before overwriting existing data
+      if (students.length > 0) {
+        if (!confirm('This will replace the current ' + students.length + ' student(s) with ' + studentList.length + ' students from the backup.\n\nClass: ' + className + '\nDate: ' + classDate + '\n\nProceed?')) {
+          status.textContent = 'Restore cancelled.';
+          input.value = '';
+          return;
+        }
+      }
+
+      // Apply to app state
+      students = studentList;
+      document.getElementById('className').value   = className;
+      document.getElementById('studioName').value  = studioName;
+      document.getElementById('classTime').value   = classTime || '';
+      if (isoDate) document.getElementById('classDate').value = isoDate;
+
+      renderAll();
+      updateSum();
+      syncInfo();
+
+      const tp = students.reduce((n,s) => n + s.pots.length, 0);
+      status.textContent = '✓ Restored: ' + students.length + ' students, ' + tp + ' pots';
+      status.style.color = 'var(--glaze-green)';
+      input.value = '';
+      toast('Restored ' + students.length + ' students from backup');
+
+    } catch(err) {
+      status.textContent = '⚠ Error: ' + err.message;
+      status.style.color = '#c0392b';
+      input.value = '';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// HTML EXPORT
+// ════════════════════════════════════════
+function exportHTML() {
+  if(!students.length){toast('No students to export');return;}
+  const tp=students.reduce((n,s)=>n+s.pots.length,0);
+  const rows=students.map((s,i)=>{
+    const pList=s.pots.length===0
+      ? '<em style="color:#bbb">No pots recorded</em>'
+      : s.pots.map((p,pi)=>{
+          const firedDiam = p.diameter ? Math.round(p.diameter*(1-SHRINK_RATE)) : null;
+          const diamStr = p.diameter ? `&nbsp;·&nbsp;<span style="color:#888">⌀ ${p.diameter} → ${firedDiam} mm</span>` : '';
+          return `<div style="padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px;">
+            <strong>Pot ${pi+1}/${s.pots.length}</strong> — ${e(p.description||'—')}${diamStr}
+            &nbsp;·&nbsp;<span style="color:#4A6741">Glaze: ${e(p.glaze||'not specified')}</span>
+            &nbsp;·&nbsp;<span style="color:#aaa">${e(p.clay)}</span>
+          </div>`;
+        }).join('');
+    return `<tr style="background:${i%2===0?'#fff':'#fafaf8'}">
+      <td style="padding:10px 8px;color:#8B5E3C;font-weight:bold;vertical-align:top">${i+1}</td>
+      <td style="padding:10px 8px;vertical-align:top">
+        <div style="font-size:16px;font-family:Georgia,serif;color:#1A1410">${e(fullName(s)||'—')}</div>
+        ${s.postcode?`<div style="font-size:10px;color:#aaa">Postcode: ${e(s.postcode)}</div>`:''}
+        ${s.phone?`<div style="font-size:10px;color:#aaa">${e(s.phone)}</div>`:''}
+        ${s.email?`<div style="font-size:10px;color:#aaa">${e(s.email)}</div>`:''}
+        ${s.note?`<div style="font-size:10px;color:#C4956A;font-style:italic;margin-top:3px">${e(s.note)}</div>`:''}
+      </td>
+      <td style="padding:10px 8px;vertical-align:top;font-size:10px;color:#aaa">${s.source==='acuity'?'Acuity':'Walk-in'}</td>
+      <td style="padding:10px 8px;vertical-align:top">${pList}</td>
+    </tr>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>${e(cn())} — ${e(dateLong())}</title>
+<style>body{font-family:Georgia,serif;background:#F5F0EA;color:#1A1410;margin:0;padding:0}
+.wrap{max-width:900px;margin:0 auto;padding:40px 28px}
+h1{font-size:30px;font-weight:300;font-style:italic;color:#1A1410;margin-bottom:4px}
+.meta{font-size:12px;color:#9B8878;font-family:monospace;margin-bottom:26px}
+table{width:100%;border-collapse:collapse;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+th{background:#2C2218;color:#F5F0EA;padding:9px 8px;text-align:left;font-size:10px;letter-spacing:0.1em;font-family:monospace;text-transform:uppercase}
+.foot{margin-top:20px;font-size:10px;color:#bbb;font-family:monospace}
+</style></head><body><div class="wrap">
+<h1>${e(cn())}</h1>
+<div class="meta">${e(sn())} · ${e(dateLong())} · ${students.length} students · ${tp} pots</div>
+<table><thead><tr><th>#</th><th>Student</th><th>Source</th><th>Pots &amp; Glazes</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<div class="foot">Exported ${new Date().toLocaleString('en-AU')} — Dimboola Pottery Classes Workshop Manager</div>
+</div></body></html>`;
+
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  const fname=cn().replace(/[^a-zA-Z0-9 ]/g,'').trim().replace(/\s+/g,'_');
+  a.download=`${fname}_${document.getElementById('classDate').value||'undated'}_record.html`;
+  a.click();
+  toast('HTML record downloaded — save to Dropbox');
+}
+
+// ════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════
+function updateSum() {
+  const tp=students.reduce((n,s)=>n+s.pots.length,0);
+  const html=`<span class="summary-stat">${students.length}</span> student${students.length!==1?'s':''} &nbsp;·&nbsp; <span class="summary-stat">${tp}</span> pot${tp!==1?'s':''} total`;
+  document.getElementById('sumA').innerHTML=html;
+  const b=document.getElementById('sumB'); if(b)b.innerHTML=html;
+}
+function clearAll() {
+  if(!students.length)return;
+  if(!confirm('Clear all students and pot data for this session?'))return;
+  students=[];uid=1;renderAll();toast('Cleared');
+}
+function hideSection(id){document.getElementById(id).classList.remove('visible');}
+const fullName = s=>(s.firstName+' '+s.lastName).trim();
+const nameTag  = s=>{ const l=s.lastName?s.lastName.charAt(0).toUpperCase()+'.':''; return (s.firstName+(l?' '+l:'')).trim(); };
+const e = str=>String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+</script>
+</body>
+</html>

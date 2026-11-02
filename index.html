@@ -1264,7 +1264,6 @@ function printGlazeSheet() {
   const classInfo = cn();
   const dateInfo  = dateLong();
   const timeInfo  = document.getElementById('classTime').value || '';
-  const meta      = [dateInfo, timeInfo].filter(Boolean).join(' · ');
 
   const pages = [];
   for (let i = 0; i < students.length; i += perPage) pages.push(students.slice(i, i + perPage));
@@ -1282,7 +1281,7 @@ function printGlazeSheet() {
     }).join('');
     return `<div class="sheet${pi < pages.length - 1 ? ' brk' : ''}">
       <div class="eyebrow">${e(sn())} — Glaze sheet${pages.length > 1 ? ` · page ${pi + 1} of ${pages.length}` : ''}</div>
-      <div class="head"><div class="title">${e(classInfo)}</div><div class="meta">${e(meta)}</div></div>
+      <div class="head"><div class="title">${e(classInfo)}${dateInfo ? ' — ' + e(dateInfo) : ''}</div>${timeInfo ? `<div class="meta">${e(timeInfo)}</div>` : ''}</div>
       <div class="rule"></div>
       <div class="grid">${rows}</div>
       <div class="foot">Write items and glazes after class, then enter them in the app (Pots &amp; Glazes tab)</div>
@@ -1302,7 +1301,7 @@ function printGlazeSheet() {
   .sheet { height: ${pageH}mm; display: flex; flex-direction: column; overflow: hidden; }
   .sheet.brk { page-break-after: always; }
   .eyebrow { font-size: 6.5pt; letter-spacing: 0.22em; text-transform: uppercase; color: #444; }
-  .head { display: flex; justify-content: space-between; align-items: baseline; margin: 1mm 0 2mm; }
+  .head { display: flex; justify-content: flex-start; align-items: baseline; gap: 6mm; margin: 1mm 0 2mm; }
   .title { font-family: 'Petrona', Georgia, serif; font-size: 20pt; line-height: 1; }
   .meta { font-size: 9pt; }
   .rule { height: 0.3mm; background: #1A1410; }

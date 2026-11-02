@@ -1,5 +1,5 @@
 # Print System Reference — Dimboola Pottery Workshop Manager
-### How `pottery-studio.html` generates and styles each of its three print outputs
+### How `index.html` generates and styles each of its three print outputs
 ### Companion to `thermal-label-design-guide.md` (that file covers physical thermal-printer constraints; this one covers the app's own architecture — which code to touch, and how the three print outputs differ from each other)
 
 ---
@@ -43,7 +43,7 @@ waiting for web fonts to load before printing (critical for the canvas-measureme
 **Landscape content wider than the roll (Name Tags):** `printNameTags()`'s `@page` is declared directly in the label's own natural shape (`100mm 62mm`) with no CSS rotation of any kind — content is a plain top-to-bottom flex layout, same structure as `printPotLabels()`'s compact design. Getting it onto the physically-62mm-wide roll is a print-dialog job, not a CSS one: the printing instructions (in the Name Tag preview section, and the toast/help text) tell the user to select **Landscape** orientation in the system print dialog. See thermal-label-design-guide.md §1 for why a `transform: rotate()` CSS wrapper was tried first and abandoned — it doesn't survive Chrome's print pipeline reliably.
 
 ### Decision rule when asked to change print text/layout
-1. Is it Name Tags, Pot Labels, or the Crate Checklist? → edit the `<style>` inside `printNameTags()` / `printPotLabels()` / `printCrateChecklist()` (in the `<script>` section of `pottery-studio.html`).
+1. Is it Name Tags, Pot Labels, or the Crate Checklist? → edit the `<style>` inside `printNameTags()` / `printPotLabels()` / `printCrateChecklist()` (in the `<script>` section of `index.html`).
 2. Is it the Class Roll? → edit the relevant classes in the main `<style>` block and/or the `@media print` rules there. There is no popup to look for.
 
 ---

@@ -37,8 +37,8 @@
   .app-wrap { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 0 20px 80px; }
 
   header { padding: 36px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
-  .studio-mark { font-family: 'Petrona', Georgia, serif; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-  h1 { font-family: 'Petrona', Georgia, serif; font-size: 38px; font-weight: 300; font-style: italic; color: var(--kiln-black); line-height: 1; }
+  .studio-mark { font-family: 'Petrona', serif; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  h1 { font-family: 'Petrona', serif; font-size: 38px; font-weight: 300; font-style: italic; color: var(--kiln-black); line-height: 1; }
   h1 span { font-style: normal; font-weight: 500; color: var(--clay-dark); }
   .header-date { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; text-align: right; }
 
@@ -52,7 +52,7 @@
 
   /* PANEL */
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 22px; margin-bottom: 18px; }
-  .panel-title { font-family: 'Petrona', Georgia, serif; font-size: 18px; color: var(--kiln-black); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .panel-title { font-family: 'Petrona', serif; font-size: 18px; color: var(--kiln-black); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
   .num { width: 22px; height: 22px; background: var(--clay-warm); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 10px; flex-shrink: 0; }
 
   /* FIELDS */
@@ -78,7 +78,7 @@
   .sc-head { background: var(--kiln-dark); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .sc-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
   .sc-num { font-size: 10px; color: var(--clay-light); opacity: 0.55; white-space: nowrap; }
-  .sc-name { font-family: 'Petrona', Georgia, serif; font-size: 17px; color: var(--ash-white); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sc-name { font-family: 'Petrona', serif; font-size: 17px; color: var(--ash-white); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .badge { font-size: 9px; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.05em; white-space: nowrap; flex-shrink: 0; }
   .badge-acuity { background: rgba(74,103,65,0.3); color: #8BC87F; }
   .badge-manual { background: rgba(61,90,107,0.3); color: #8BB8CF; }
@@ -127,14 +127,14 @@
 
   /* CLASS ROLL */
   .roll-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
-  .roll-classname { font-family: 'Petrona', Georgia, serif; font-size: 26px; font-weight: 300; font-style: italic; color: var(--kiln-black); }
+  .roll-classname { font-family: 'Petrona', serif; font-size: 26px; font-weight: 300; font-style: italic; color: var(--kiln-black); }
   .roll-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
   .roll-table { width: 100%; border-collapse: collapse; }
   .roll-table th { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); padding: 8px 10px; border-bottom: 2px solid var(--border); text-align: left; }
   .roll-table td { padding: 11px 10px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: top; }
   .roll-table tr:last-child td { border-bottom: none; }
   .roll-table tr:hover td { background: var(--surface-raised); }
-  .roll-name { font-family: 'Petrona', Georgia, serif; font-size: 16px; color: var(--kiln-black); }
+  .roll-name { font-family: 'Petrona', serif; font-size: 16px; color: var(--kiln-black); }
   .roll-sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; line-height: 1.5; }
   .arrived-cb { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 2px; cursor: pointer; appearance: none; -webkit-appearance: none; display: block; }
   .arrived-cb:checked { background: var(--glaze-green); border-color: var(--glaze-green); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='8'%3E%3Cpath d='M1 4l3 3L10 1' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; }
@@ -148,7 +148,7 @@
   .pot-label { width: 236px; min-height: 112px; border: 1px solid #ccc; border-radius: 2px; background: white; padding: 11px 13px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
   .pot-label::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--clay-warm); }
   .pl-studio { font-size: 7px; letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 3px; }
-  .pl-name { font-family: 'Petrona', Georgia, serif; font-size: 17px; font-weight: 500; color: #1A1410; line-height: 1.1; margin-bottom: 1px; }
+  .pl-name { font-family: 'Petrona', serif; font-size: 17px; font-weight: 500; color: #1A1410; line-height: 1.1; margin-bottom: 1px; }
   .pl-class { font-size: 9px; color: #777; margin-bottom: 5px; }
   .pl-div { height: 1px; background: #ddd; margin: 4px 0; }
   .pl-desc { font-size: 11px; color: #1A1410; font-weight: 500; line-height: 1.3; margin-bottom: 2px; }
@@ -160,10 +160,10 @@
   .pl-count { font-size: 9px; background: #1A1410; color: white; padding: 2px 7px; border-radius: 10px; }
 
   /* NAME TAG — clean minimal */
-  .nametag { width: 236px; height: 96px; border: 2px solid #1A1410; border-radius: 2px; background: white; padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .nt-studio { font-size: 7px; letter-spacing: 0.22em; text-transform: uppercase; color: #aaa; margin-bottom: 5px; font-family: 'DM Mono', monospace; }
-  .nt-name { font-family: 'Petrona', Georgia, serif; font-size: 38px; font-weight: 500; color: #1A1410; line-height: 1; letter-spacing: -0.01em; }
-  .nt-class { font-size: 9px; color: #aaa; margin-top: 5px; font-family: 'DM Mono', monospace; }
+  .nametag { width: 236px; height: 96px; border: 2px solid #1A1410; border-radius: 2px; background: white; padding: 10px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+  .nt-studio { font-size: 7px; letter-spacing: 0.22em; text-transform: uppercase; color: #aaa; margin-bottom: 5px; font-family: 'DM Mono', monospace; text-align: center; }
+  .nt-name { font-family: 'Petrona', serif; font-size: 28px; font-weight: 500; color: #1A1410; line-height: 1; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+  .nt-class { font-size: 9px; color: #aaa; margin-top: 5px; font-family: 'DM Mono', monospace; text-align: center; }
 
   /* EXPORT PANEL */
   .export-panel { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 2px; padding: 16px 20px; margin-bottom: 16px; }
@@ -201,14 +201,22 @@
     body { background: white; }
     body::before { display: none; }
     .app-wrap { max-width: 100%; padding: 0; }
+    /* .tab-pane visibility is left to the existing screen rule (line ~41) —
+       only the active tab is on screen when print is triggered, so only it
+       should print. Forcing every .tab-pane to display:block here used to
+       print all four tabs regardless of which one was active. */
     header, .tab-bar, .panel, .bottom-bar, .export-panel { display: none !important; }
-    .tab-pane { display: block !important; }
-    .preview-section { display: block !important; margin: 0; }
-    .preview-section .action-row, .preview-section > p, .preview-section .section-label { display: none !important; }
-    .labels-grid { gap: 4mm; }
-    .pot-label, .nametag { page-break-inside: avoid; box-shadow: none; }
-    /* Roll print */
-    .roll-only-print .tab-pane:not(#tab-roll) { display: none !important; }
+    /* Both label previews (.pot-label, .nametag) are on-screen-only now —
+       actual printing goes through printPotLabels()/printNameTags(), each
+       a self-contained popup with its own @page (thermal-label-design-guide.md
+       §1). Keep .preview-section hidden unconditionally in-page print. */
+    .preview-section { display: none !important; margin: 0; }
+
+    /* Class Roll: the attendance table lives inside a .panel (hidden by the
+       generic rule above) — show it again so "Print Roll" and a plain
+       Cmd/Ctrl+P from this tab print the roll. */
+    #tab-roll .panel { display: block !important; }
+    #tab-roll .roll-actions { display: none !important; }
   }
 
   @media (max-width: 640px) {
@@ -366,9 +374,9 @@
           <div class="roll-classname" id="rollTitle">Class Roll</div>
           <div class="roll-meta" id="rollMeta">—</div>
         </div>
-        <div style="display:flex;gap:9px;flex-wrap:wrap;">
+        <div class="roll-actions" style="display:flex;gap:9px;flex-wrap:wrap;">
           <button class="btn btn-secondary" onclick="window.print()">🖨 Print Roll</button>
-          <button class="btn btn-blue" onclick="genNameTags()">🏷 Print Name Tags</button>
+          <button class="btn btn-blue" onclick="genNameTags()">🏷 Generate Name Tags ▸</button>
         </div>
       </div>
       <div id="rollWrap"></div>
@@ -377,7 +385,7 @@
     <!-- NAME TAG PREVIEW -->
     <div class="preview-section" id="nameTagSection">
       <div class="section-label">Name Tag Preview — Brother QL-820NWB · 62mm DK Roll</div>
-      <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">Apron-distance readable. Print via Ctrl/Cmd+P — minimum margins, no headers/footers.</p>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">Apron-distance readable. Prints 100×62mm landscape — click "Print Name Tags" below (not Ctrl/Cmd+P), then in the system print dialog select <strong>Landscape</strong> orientation and the "62mm Roll" length closest to 100mm.</p>
       <div id="nameTagGrid" class="labels-grid"></div>
       <div class="action-row" style="margin-top:14px;">
         <button class="btn btn-dark" onclick="printNameTags()">🖨 Print Name Tags</button>
@@ -432,13 +440,7 @@
     </div>
 
     <div class="panel">
-      <div class="panel-title"><span class="num">5</span> Client Name Tags</div>
-      <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">Prints one name tag per student for the Brother QL-820NWB (62mm DK roll). Shows studio name, full client name, class type, and date — use for apron name badges at the start of class, or for labelling crates and bags on the shelf.</p>
-      <button class="btn btn-dark" onclick="printNameTags()">🖨 Print Name Tags</button>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title"><span class="num">6</span> Pot Labels</div>
+      <div class="panel-title"><span class="num">5</span> Pot Labels</div>
       <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">Generates one adhesive label per pot for the Brother QL-820NWB (62mm DK roll). Each label shows student name, class, date, pot description, clay body, glaze, and item numbering.</p>
       <button class="btn btn-dark" onclick="genPotLabels()">Generate Pot Labels ▸</button>
 
@@ -462,9 +464,6 @@
 // ════════════════════════════════════════
 const CLAY = ['White Stoneware','Buff Stoneware'];
 const SHRINK_RATE = 0.12; // 12% linear shrinkage wet → glaze fired
-
-// Returns the embedded @font-face CSS for injection into print popups
-const embeddedFontCSS = () => document.getElementById('embeddedFonts').textContent;
 const GLAZES = [
   'Moon White (gloss, thick)',
   'Moon White (gloss, thin)',
@@ -526,6 +525,32 @@ const dateShort = () => {
   const v = document.getElementById('classDate').value;
   return v ? new Date(v+'T12:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'}) : 'Date not set';
 };
+// Fixed-width DD/MM/YYYY for the print label only — dateShort() varies from
+// 10 to 18 characters depending on month name length ("1 May 2026" vs
+// "23 September 2026"), which made the date column in the grid frame
+// unpredictable to size. This is always exactly 10 characters. Built
+// directly from the <input type="date"> value (already zero-padded
+// YYYY-MM-DD) rather than via toLocaleDateString, so it never drops a
+// leading zero.
+const dateCompact = () => {
+  const v = document.getElementById('classDate').value;
+  if (!v) return 'Date not set';
+  const [y, m, d] = v.split('-');
+  return `${d}/${m}/${y}`;
+};
+// Same idea as dateCompact(), split across two lines (DD/MM, then YYYY) so
+// the print label's date column can be much narrower — 5 characters wide
+// at most, instead of 10.
+const dateSplit = () => {
+  const v = document.getElementById('classDate').value;
+  if (!v) return { line1: 'Date', line2: 'not set' };
+  const [y, m, d] = v.split('-');
+  return { line1: `${d}/${m}`, line2: y };
+};
+
+// Embedded @font-face CSS (base64), re-used inside print popups so fonts work
+// under file:// and offline with no network dependency.
+const embeddedFontCSS = () => document.getElementById('embeddedFonts').textContent;
 
 // ════════════════════════════════════════
 // STUDENT CRUD
@@ -687,7 +712,7 @@ function renderPotsTab() {
     return `
     <div style="border:1px solid var(--border);border-radius:2px;margin-bottom:14px;overflow:hidden;">
       <div style="background:var(--kiln-dark);padding:9px 15px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-family:'Petrona',Georgia,serif;font-size:17px;font-style:italic;color:var(--ash-white);">${e(fullName(s)||'New Student')}</span>
+        <span style="font-family:'Petrona',serif;font-size:17px;font-style:italic;color:var(--ash-white);">${e(fullName(s)||'New Student')}</span>
         <span class="badge badge-pots">${s.pots.length} pot${s.pots.length!==1?'s':''}</span>
       </div>
       <div style="padding:14px 16px;">
@@ -779,7 +804,7 @@ function genNameTags() {
   const grid=document.getElementById('nameTagGrid');
   grid.innerHTML='';
   students.forEach(s=>{
-    const display=nameTag(s);
+    const display=fullName(s)||'Unknown';
     const tag=document.createElement('div');
     tag.className='nametag';
     tag.innerHTML=`
@@ -791,198 +816,6 @@ function genNameTags() {
   document.getElementById('nameTagSection').classList.add('visible');
   document.getElementById('nameTagSection').scrollIntoView({behavior:'smooth',block:'start'});
   toast(`${students.length} name tag${students.length!==1?'s':''} ready to print`);
-}
-
-// ════════════════════════════════════════
-// PRINT NAME TAGS — popup · Brother QL-820NWB · 62×100mm
-// ════════════════════════════════════════
-function printNameTags() {
-  if (!students.length) { toast('No students to make name tags for'); return; }
-
-  /*
-   * @page: 62mm × 100mm portrait (what the QL-820NWB feeds).
-   * Content is laid out at 100mm × 62mm inside a .rotated container,
-   * then CSS-rotated -90° so text runs along the 100mm tape length.
-   * All dimensions in mm. Dividers are filled divs (not CSS borders).
-   */
-
-  const labelsHtml = students.map((s, li) => {
-    const display = fullName(s) || 'Unknown';
-    const isLast  = li === students.length - 1;
-
-    return `
-    <div class="page${isLast ? ' last' : ''}">
-      <div class="rotated">
-        <div class="card">
-          <div class="nt-header">${e(sn())}</div>
-          <div class="rule"></div>
-          <div class="nt-name-zone">
-            <div class="nt-name">${e(display)}</div>
-          </div>
-          <div class="rule"></div>
-          <div class="nt-footer">
-            <span class="nt-class">${e(cn())}</span>
-            <span class="nt-date">${e(dateShort())}</span>
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Name Tags \u2014 ${e(cn())}</title>
-<style>
-  ${embeddedFontCSS()}
-  @page { size: 62mm 100mm; margin: 0; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'DM Mono', 'Courier New', monospace;
-    background: white;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Portrait page: 62mm x 100mm — one label per page */
-  .page {
-    width: 62mm;
-    height: 100mm;
-    page-break-after: always;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-  .page.last { page-break-after: auto; }
-
-  /* Rotated container: 100mm wide x 62mm tall, turned -90deg */
-  .rotated {
-    width: 100mm;
-    height: 62mm;
-    transform: rotate(-90deg);
-    transform-origin: center center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Card fills the rotated space */
-  .card {
-    width: 92mm;
-    height: 54mm;
-    display: flex;
-    flex-direction: column;
-    padding: 2.5mm 3mm;
-    overflow: hidden;
-  }
-
-  /* ── Header: studio name ── */
-  .nt-header {
-    font-size: 2.8mm;
-    font-weight: 400;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #1A1410;
-    padding-bottom: 2.5mm;
-    flex-shrink: 0;
-  }
-
-  /* ── Filled-div rule (not CSS border) ── */
-  .rule {
-    height: 0.4mm;
-    width: 100%;
-    background: #1A1410;
-    flex-shrink: 0;
-  }
-
-  /* ── Name zone: fills available space, vertically centres ── */
-  .nt-name-zone {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-  }
-  .nt-name {
-    font-family: 'Petrona', Georgia, serif;
-    font-size: 10mm;
-    font-weight: 500;
-    color: #1A1410;
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-  }
-
-  /* ── Footer: class type + date ── */
-  .nt-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding-top: 2.5mm;
-    flex-shrink: 0;
-  }
-  .nt-class {
-    font-size: 3.2mm;
-    font-weight: 400;
-    color: #1A1410;
-  }
-  .nt-date {
-    font-size: 3.2mm;
-    font-weight: 400;
-    color: #1A1410;
-    white-space: nowrap;
-  }
-</style>
-</head>
-<body>
-${labelsHtml}
-<script>
-  /* ── Auto-scale client names to fit label width ──
-   * Runs AFTER fonts are ready so measurements are accurate.
-   * Iteratively reduces font-size until the text fits within
-   * the available card width, with a floor of 5mm to stay legible.
-   */
-  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function() {
-    var BASE_MM = 10;
-    var MIN_MM  = 5;
-    var STEP    = 0.25;
-
-    document.querySelectorAll('.nt-name-zone').forEach(function(zone) {
-      var nameEl   = zone.querySelector('.nt-name');
-      var zoneW    = zone.clientWidth;
-      var current  = BASE_MM;
-
-      /* Reset to base size for clean measurement */
-      nameEl.style.fontSize = current + 'mm';
-      nameEl.style.whiteSpace = 'nowrap';
-
-      /* Step down until text fits or we hit the floor */
-      while (nameEl.scrollWidth > zoneW && current > MIN_MM) {
-        current -= STEP;
-        nameEl.style.fontSize = Math.max(current, MIN_MM) + 'mm';
-      }
-
-      /* If still too wide at minimum size, allow ellipsis as last resort */
-      if (nameEl.scrollWidth > zoneW) {
-        nameEl.style.overflow = 'hidden';
-        nameEl.style.textOverflow = 'ellipsis';
-      }
-    });
-
-    requestAnimationFrame(function() { window.print(); window.close(); });
-  });
-<\/script>
-</body>
-</html>`;
-
-  const popup = window.open('', '_blank', 'width=400,height=600');
-  if (!popup) { toast('Pop-up blocked \u2014 allow pop-ups for this page and try again'); return; }
-  popup.document.write(html);
-  popup.document.close();
-  toast(`${students.length} name tag${students.length !== 1 ? 's' : ''} sent to print`);
 }
 
 // ════════════════════════════════════════
@@ -1030,7 +863,7 @@ function genPotLabels() {
 }
 
 // ════════════════════════════════════════
-// PRINT POT LABELS — popup · Brother QL-820NWB · 62×100mm
+// PRINT POT LABELS — popup · Brother QL-820NWB · 62×45mm
 // ════════════════════════════════════════
 function printPotLabels() {
   const tp = students.reduce((n,s) => n + s.pots.length, 0);
@@ -1038,45 +871,43 @@ function printPotLabels() {
   if (!tp) { toast('Add pot details in the Pots & Glazes tab first'); return; }
 
   /*
-   * @page: 62mm × 100mm portrait (what the QL-820NWB feeds).
-   * Content is laid out at 100mm × 62mm inside a .rotated container,
-   * then CSS-rotated -90° so text runs along the 100mm tape length.
-   * All dimensions in mm. All text #000 — thermal needs full black.
+   * @page: 62mm × 45mm landscape (62mm roll width, 45mm feed length).
+   * No rotation needed — 62mm width already matches the roll, and the
+   * label is naturally wider than it is tall, so content lays out directly.
+   * All dimensions in mm. All text #1A1410 — near-black, prints clean on thermal.
    * Divider is a filled div, not a border (borders render dashed on thermal).
+   * Client name auto-fits via fitNames() below, based on the design sketches
+   * worked through with George — see thermal-label-design-guide.md.
    */
 
   const allPots = [];
   students.forEach(s => s.pots.forEach((p, idx) => allPots.push({s, p, idx})));
 
   const labelsHtml = allPots.map(({s, p, idx}, li) => {
-    const total     = s.pots.length;
-    const item      = total > 1 ? `Item ${idx+1} of ${total}` : 'Single item';
-    const firedDiam = p.diameter ? Math.round(p.diameter * (1 - SHRINK_RATE)) : null;
-    const diamLine  = p.diameter
-      ? `<div class="pl-diam">\u00D8 ${p.diameter} \u2192 ${firedDiam} mm (wet \u2192 fired)</div>` : '';
-    const isLast    = li === allPots.length - 1;
+    const total    = s.pots.length;
+    const item     = total > 1 ? `Item ${idx+1} of ${total}` : 'Single item';
+    const isLast   = li === allPots.length - 1;
+    const descClay = [(p.description || 'Pot — no description'), p.clay].filter(Boolean).join(' · ');
+    const dateLines = dateSplit();
 
     return `
     <div class="page${isLast ? ' last' : ''}">
-      <div class="rotated">
-        <div class="card">
-          <div class="card-top">
-            <div class="pl-studio">${e(sn())}</div>
-            <div class="pl-name">${e(fullName(s)||'Unknown')}</div>
-            <div class="pl-class">${e(cn())}</div>
+      <div class="card">
+        <div class="pl-studio">${e(sn())}</div>
+        <div class="pl-name">${e(fullName(s)||'Unknown')}</div>
+        <div class="pl-frame">
+          <div class="pl-frame-hrule-top"></div>
+          <div class="pl-class-col">${e(cn())}</div>
+          <div class="pl-frame-vrule"></div>
+          <div class="pl-date-col">
+            <div>${e(dateLines.line1)}</div>
+            <div>${e(dateLines.line2)}</div>
           </div>
-          <div class="pl-div"></div>
-          <div class="card-body">
-            <div class="pl-desc">${e(p.description||'Pot \u2014 no description')}</div>
-            <div class="pl-clay">${e(p.clay)}</div>
-            <div class="pl-glaze">Glaze: ${e(p.glaze||'Not specified')}</div>
-            ${diamLine}
-          </div>
-          <div class="pl-footer">
-            <div class="pl-date">${e(dateShort())}</div>
-            <div class="pl-count">${e(item)}</div>
-          </div>
+          <div class="pl-frame-hrule-bottom"></div>
         </div>
+        <div class="pl-desc">${e(descClay)}</div>
+        <div class="pl-glaze">Glaze: ${e(p.glaze||'Not specified')}</div>
+        <div class="pl-count">${e(item)}</div>
       </div>
     </div>`;
   }).join('');
@@ -1085,10 +916,10 @@ function printPotLabels() {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pot Labels \u2014 ${e(cn())}</title>
+<title>Pot Labels — ${e(cn())}</title>
 <style>
   ${embeddedFontCSS()}
-  @page { size: 62mm 100mm; margin: 0; }
+  @page { size: 62mm 45mm; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'DM Mono', monospace;
@@ -1097,103 +928,168 @@ function printPotLabels() {
     print-color-adjust: exact;
   }
 
-  /* Portrait page: 62mm × 100mm — one label per page */
+  /* Landscape page: 62mm wide (roll width) x 45mm tall — one label per page */
   .page {
     width: 62mm;
-    height: 100mm;
+    height: 45mm;
     page-break-after: always;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
   }
   .page.last { page-break-after: auto; }
 
-  /* Rotated container: 100mm wide × 62mm tall, turned -90° */
-  .rotated {
-    width: 100mm;
-    height: 62mm;
-    transform: rotate(-90deg);
-    transform-origin: center center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Card fills the rotated space */
+  /* Card fills the page. Padding = margins: 3mm top, 4mm sides, 4mm bottom.
+     Top trimmed from 5mm to make room for the new I-beam rule frame below. */
   .card {
-    width: 92mm;
-    height: 54mm;
+    width: 62mm;
+    height: 45mm;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 2.5mm 3mm;
+    padding: 3mm 4mm 4mm 4mm;
     overflow: hidden;
   }
 
+  /* Line 1 — studio name, 6pt all caps, touches line 2 below */
   .pl-studio {
-    font-size: 2.5mm;
-    letter-spacing: 0.18em;
+    font-size: 6pt;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #000;
-    margin-bottom: 0.8mm;
+    color: #1A1410;
+    line-height: 1.1;
   }
+
+  /* Line 2 — client name, Petrona serif, auto-fit width via fitNames() below.
+     Touches line 1 above and line 3 below (0mm gap). 20pt cap, 8pt floor. */
   .pl-name {
     font-family: 'Petrona', Georgia, serif;
-    font-size: 6.5mm;
+    font-size: 20pt;
     font-weight: 500;
-    color: #000;
-    line-height: 1.1;
-    margin-bottom: 0.3mm;
+    color: #1A1410;
+    line-height: 1.3;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .pl-class {
-    font-size: 3.2mm;
-    color: #000;
+    overflow: visible;
+    margin-bottom: 1mm;
   }
 
-  /* Filled div rule — CSS borders render dashed on thermal */
-  .pl-div {
-    height: 0.4mm;
-    background: #000;
-    margin: 1.5mm 0;
-    flex-shrink: 0;
+  /* True grid frame around class name + date, so the vertical rule physically
+     joins the top and bottom horizontal rules (no floating gaps). The grid
+     has 3 rows (top rule / content / bottom rule) and 3 columns (class /
+     vertical rule / date). The vertical rule spans grid-row 1/4, so it runs
+     the full frame height regardless of how tall the content row is. Extra
+     breathing room above and below the text lives in the column padding,
+     not in separate margins, so it doesn't break the rule/rule join.
+     Class column is weighted 2fr vs date's 1fr — the date is always short
+     ("11 June 2026"), so the class + organisation name gets most of the room. */
+  .pl-frame {
+    display: grid;
+    grid-template-columns: 4fr 0.5mm 1fr;
+    grid-template-rows: 0.5mm auto 0.5mm;
+    margin-bottom: 2.5mm;
   }
-
-  .card-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5mm;
-    overflow: hidden;
+  /* Explicit height on both horizontal rules — matching the explicit width
+     already set on the vertical rule below. Relying on the grid row track
+     alone (0.5mm) left the two rules rendering at slightly different
+     weights when printed; locking height directly on the elements fixes it. */
+  .pl-frame-hrule-top,
+  .pl-frame-hrule-bottom {
+    grid-column: 1 / 4;
+    height: 0.5mm;
+    background: #1A1410;
   }
-  .pl-desc {
-    font-size: 3.2mm;
-    color: #000;
-    font-weight: 500;
+  .pl-frame-hrule-top { grid-row: 1; }
+  .pl-frame-hrule-bottom { grid-row: 3; }
+  .pl-frame-vrule {
+    grid-row: 1 / 4;
+    grid-column: 2;
+    width: 0.5mm;
+    background: #1A1410;
+  }
+  /* Class name: line 1 runs full width, line 2 truncates with an ellipsis.
+     -webkit-line-clamp alone wasn't being respected as a grid item with an
+     "auto" row — a third line was bleeding through into the rule below it.
+     max-height is a hard backstop: even if line-clamp fails to visually
+     truncate, overflow:hidden + max-height guarantees nothing past 2 lines
+     is ever shown or affects the row's height.
+     max-height must include the padding, since box-sizing:border-box (set
+     globally above) counts padding inside height/max-height — 2 lines at
+     7pt/1.25 is 6.17mm, plus 2mm + 1.5mm padding = 9.67mm. The previous
+     6.2mm left only ~2.7mm for text, which is what sliced line 2 in half. */
+  .pl-class-col {
+    grid-row: 2;
+    grid-column: 1;
+    font-size: 7pt;
+    color: #1A1410;
     line-height: 1.25;
+    padding: 2mm 2mm 1.5mm 0;
+    max-height: 9.7mm;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
-  .pl-clay  { font-size: 3.2mm; color: #000; }
-  .pl-glaze { font-size: 3.2mm; color: #000; font-weight: 500; }
-  .pl-diam  { font-size: 3.2mm; color: #000; }
+  /* Date: always exactly two short, fixed-format lines (DD/MM, YYYY), so
+     no wrapping or truncation risk — no line-clamp needed here. Column is
+     narrower now (1fr vs class name's 4fr) since 5 characters is the most
+     it will ever need to hold. */
+  .pl-date-col {
+    grid-row: 2;
+    grid-column: 3;
+    font-size: 7pt;
+    color: #1A1410;
+    line-height: 1.25;
+    text-align: right;
+    padding: 2mm 0 1.5mm 2mm;
+  }
 
-  .pl-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    flex-shrink: 0;
-    margin-top: 1mm;
+  /* Line 4 — description + clay body, 7pt, 1mm below */
+  .pl-desc {
+    font-size: 7pt;
+    color: #1A1410;
+    margin-bottom: 1mm;
   }
-  .pl-date  { font-size: 3.2mm; font-weight: 400; color: #000; }
-  .pl-count { font-size: 3.2mm; font-weight: 400; color: #000; white-space: nowrap; }
+
+  /* Line 5 — glaze, 7pt */
+  .pl-glaze {
+    font-size: 7pt;
+    color: #1A1410;
+  }
+
+  /* Line 6 — item count, 8pt, right-aligned, anchored to the 4mm bottom
+     margin via margin-top: auto — absorbs whatever space is left above it */
+  .pl-count {
+    font-size: 8pt;
+    color: #1A1410;
+    text-align: right;
+    white-space: nowrap;
+    margin-top: auto;
+  }
 </style>
 </head>
 <body>
 ${labelsHtml}
 <script>
+  // Shrink the client name to fit the 54mm content width (62mm card minus
+  // 4mm left + 4mm right padding), stepping down from the 20pt cap to an
+  // 8pt floor. Runs once fonts are loaded so Petrona measures correctly.
+  function fitNames() {
+    var availableMm = 54;
+    var pxPerMm = 96 / 25.4;
+    var maxPt = 20, minPt = 8, stepPt = 0.5;
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    document.querySelectorAll('.pl-name').forEach(function(el) {
+      var pt = maxPt;
+      var text = el.textContent;
+      while (pt > minPt) {
+        ctx.font = '500 ' + pt + 'pt Petrona, Georgia, serif';
+        var widthMm = ctx.measureText(text).width / pxPerMm;
+        if (widthMm <= availableMm) break;
+        pt -= stepPt;
+      }
+      el.style.fontSize = pt + 'pt';
+    });
+  }
   document.fonts.ready.then(function() {
+    fitNames();
     requestAnimationFrame(function() { window.print(); window.close(); });
   });
 <\/script>
@@ -1205,6 +1101,150 @@ ${labelsHtml}
   popup.document.write(html);
   popup.document.close();
   toast(`${tp} pot label${tp !== 1 ? 's' : ''} sent to print`);
+}
+
+function printNameTags() {
+  if (!students.length) { toast('No students to make name tags for'); return; }
+
+  /*
+   * Brother QL-820NWB · 62mm DK roll — same architecture as printPotLabels():
+   * self-contained popup with its own @page, so the host page's A4 print
+   * rule never applies (see thermal-label-design-guide.md §1).
+   *
+   * @page is declared 100mm x 62mm — the label's own natural landscape
+   * shape — with NO CSS transform/rotation. A CSS `transform: rotate()`
+   * used to fake the rotation here, but that doesn't survive Chrome's
+   * print pipeline reliably (confirmed on a real test print: inconsistent
+   * alignment, name/footer overlap). Getting a landscape label onto the
+   * portrait 62mm roll is instead a print-dialog job: select "Landscape"
+   * orientation in the system print dialog (⌥⌘P → the native panel, not
+   * Chrome's own dropdown), plus the "62mm Roll" length closest to 100mm.
+   * See thermal-label-design-guide.md §1.
+   */
+
+  const studioVal = sn();
+  const classVal  = cn();
+  const dateVal   = dateShort();
+
+  const labelsHtml = students.map((s, i) => {
+    const isLast = i === students.length - 1;
+    return `
+    <div class="page${isLast ? ' last' : ''}">
+      <div class="nt-studio">${e(studioVal)}</div>
+      <div class="nt-name-zone"><div class="nt-name">${e(fullName(s) || 'Unknown')}</div></div>
+      <div class="nt-footer">${e(classVal)} &nbsp;·&nbsp; ${e(dateVal)}</div>
+    </div>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Name Tags — ${e(classVal)}</title>
+<style>
+  ${embeddedFontCSS()}
+  @page { size: 100mm 62mm; margin: 1.5mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Mono', monospace;
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Label authored directly in its natural landscape shape — select
+     Landscape orientation in the print dialog to fit the portrait roll. */
+  .page {
+    width: 100mm;
+    height: 62mm;
+    display: flex;
+    flex-direction: column;
+    padding: 4mm 6mm;
+    page-break-after: always;
+    overflow: hidden;
+  }
+  .page.last { page-break-after: auto; }
+
+  .nt-studio {
+    font-size: 7pt;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #555;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* Name zone takes all remaining space and centres the hero name.
+     Font size starts at the 44pt cap; fitNames() below shrinks it per
+     label so First + Last always fits on one line. */
+  .nt-name-zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  .nt-name {
+    font-family: 'Petrona', serif;
+    font-weight: 500;
+    color: #1A1410;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 44pt;
+  }
+
+  .nt-footer {
+    font-size: 9pt;
+    color: #555;
+    text-align: center;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+${labelsHtml}
+<script>
+  // Shrink the client name to fit the 88mm content width (100mm box minus
+  // 6mm left + 6mm right padding), stepping down from the 44pt cap to a
+  // 10pt floor — low enough that even an unusually long double-barrelled
+  // name still lands on one line rather than overflowing (Petrona's
+  // letterforms run wider than Cormorant Garamond at the same point size,
+  // so the floor here is lower than printPotLabels()'s). Same
+  // canvas-measurement technique as fitNames() in printPotLabels(). Runs
+  // once fonts are loaded so Petrona measures correctly.
+  function fitNames() {
+    var availableMm = 88;
+    var pxPerMm = 96 / 25.4;
+    var maxPt = 44, minPt = 10, stepPt = 0.5;
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    document.querySelectorAll('.nt-name').forEach(function(el) {
+      var pt = maxPt;
+      var text = el.textContent;
+      while (pt > minPt) {
+        ctx.font = '500 ' + pt + 'pt Petrona, Georgia, serif';
+        var widthMm = ctx.measureText(text).width / pxPerMm;
+        if (widthMm <= availableMm) break;
+        pt -= stepPt;
+      }
+      el.style.fontSize = pt + 'pt';
+    });
+  }
+  document.fonts.ready.then(function() {
+    fitNames();
+    requestAnimationFrame(function() { window.print(); window.close(); });
+  });
+<\/script>
+</body>
+</html>`;
+
+  const popup = window.open('', '_blank', 'width=400,height=650');
+  if (!popup) { toast('Pop-up blocked — allow pop-ups for this page and try again'); return; }
+  popup.document.write(html);
+  popup.document.close();
+  toast(`${students.length} name tag${students.length !== 1 ? 's' : ''} sent to print`);
 }
 
 // ════════════════════════════════════════
@@ -1884,6 +1924,7 @@ function cjiReset() {
   document.getElementById('cjiFileInput').value = '';
 }
 
+
 // ════════════════════════════════════════
 // UTILITIES
 // ════════════════════════════════════════
@@ -1900,7 +1941,6 @@ function clearAll() {
 }
 function hideSection(id){document.getElementById(id).classList.remove('visible');}
 const fullName = s=>(s.firstName+' '+s.lastName).trim();
-const nameTag  = s=>{ const l=s.lastName?s.lastName.charAt(0).toUpperCase()+'.':''; return (s.firstName+(l?' '+l:'')).trim(); };
 const e = str=>String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
 </script>

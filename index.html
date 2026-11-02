@@ -475,8 +475,23 @@ const GLAZES = [
   'Pink',
   'Turquoise',
   'Black-Brown',
-  'Blue-on-Black'
+  'Blue on Black'
 ];
+// Old glaze names -> current names, applied when an Excel backup is restored so
+// older class records pick up the new naming. Horsley Matt and Blanc Cremeau
+// have no current equivalent: they are left as saved and shown in the dropdown
+// as "(previous name)".
+const GLAZE_RENAMES = {
+  'Moon White (gloss, thick)': 'White gloss, thick',
+  'Moon White (gloss, thin)':  'White gloss, thin',
+  'Bottle Green (clear)':      'Green',
+  'EC Matt':                   'Matt White',
+  'EC Matt, very thin':        'Matt White, thin',
+  'Chrome Pink':               'Pink',
+  'Turquoise Matt':            'Turquoise',
+  'Black-Brown (Tenmoku)':     'Black-Brown'
+};
+
 
 // ════════════════════════════════════════
 // STATE
@@ -1556,6 +1571,7 @@ function restoreFromExcel(input) {
       }
 
       // Pots & Glazes
+      let glazesRenamed = 0;
       const potRows = XLSX.utils.sheet_to_json(wb.Sheets['Pots & Glazes'], {header:1});
       if (potRows.length > 1) {
         const potHead = potRows[0].map(h => String(h||'').trim());
@@ -1567,7 +1583,9 @@ function restoreFromExcel(input) {
           const last  = String(r[pc('Student Last')]  || '').trim();
           const desc  = String(r[pc('Description')]   || '').trim();
           const clay  = String(r[pc('Clay')]          || 'White Stoneware').trim();
-          const glaze = String(r[pc('Glaze')]         || '').trim();
+          const glazeRaw = String(r[pc('Glaze')]      || '').trim();
+          const glaze = GLAZE_RENAMES[glazeRaw] || glazeRaw;
+          if (glaze !== glazeRaw) glazesRenamed++;
           const wetD  = r[pc('\u2300 Wet (mm)')];
           const diam  = (wetD != null && wetD !== '' && !isNaN(Number(wetD))) ? Number(wetD) : null;
           if (String(r[pc('Pot #')]) === '\u2014') continue; // skip "no pots" placeholder rows
@@ -1610,7 +1628,7 @@ function restoreFromExcel(input) {
       syncInfo();
 
       const tp = students.reduce((n,s) => n + s.pots.length, 0);
-      status.textContent = '✓ Restored: ' + students.length + ' students, ' + tp + ' pots';
+      status.textContent = '✓ Restored: ' + students.length + ' students, ' + tp + ' pots' + (glazesRenamed ? ' (' + glazesRenamed + ' glaze name' + (glazesRenamed!==1?'s':'') + ' updated to new names)' : '');
       status.style.color = 'var(--glaze-green)';
       input.value = '';
       toast('Restored ' + students.length + ' students from backup');

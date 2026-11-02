@@ -465,16 +465,17 @@
 const CLAY = ['White Stoneware','Buff Stoneware'];
 const SHRINK_RATE = 0.12; // 12% linear shrinkage wet → glaze fired
 const GLAZES = [
-  'Moon White (gloss, thick)',
-  'Moon White (gloss, thin)',
-  'Bottle Green (clear)',
-  'EC Matt',
-  'EC Matt, very thin',
-  'Horsley Matt',
-  'Chrome Pink',
-  'Turquoise Matt',
-  'Blanc Cremeau',
-  'Black-Brown (Tenmoku)'
+  'White gloss, thick',
+  'White gloss, thin',
+  'Green',
+  'Matt White',
+  'Matt White, thin',
+  'Yellow Ash',
+  'Opal',
+  'Pink',
+  'Turquoise',
+  'Black-Brown',
+  'Blue-on-Black'
 ];
 
 // ════════════════════════════════════════
@@ -701,6 +702,7 @@ function renderPotsTab() {
           <select onchange="setPot(${s.id},${pi},'glaze',this.value)">
             <option value="">— select —</option>
             ${GLAZES.map(g=>`<option value="${e(g)}"${g===p.glaze?' selected':''}>${e(g)}</option>`).join('')}
+            ${p.glaze && !GLAZES.includes(p.glaze) ? `<option value="${e(p.glaze)}" selected>${e(p.glaze)} (previous name)</option>` : ''}
           </select></div>
         <div class="fg"><label>Clay</label>
           <select onchange="setPot(${s.id},${pi},'clay',this.value)">

@@ -1,10 +1,10 @@
 # Print System Reference — Dimboola Pottery Workshop Manager
-### How `index.html` generates and styles each of its three print outputs
-### Companion to `thermal-label-design-guide.md` (that file covers physical thermal-printer constraints; this one covers the app's own architecture — which code to touch, and how the three print outputs differ from each other)
+### How `index.html` generates and styles each of its four print outputs
+### Companion to `thermal-label-design-guide.md` (that file covers physical thermal-printer constraints; this one covers the app's own architecture — which code to touch, and how the four print outputs differ from each other)
 
 ---
 
-## 0. The three print outputs, at a glance
+## 0. The four print outputs, at a glance
 
 | Output | Button | Trigger | Printer target |
 |---|---|---|---|
@@ -12,10 +12,13 @@
 | Name Tags | "🖨 Print Name Tags" (in the preview section) | `printNameTags()` — opens a **popup** with its own complete HTML document | 62mm DK thermal roll |
 | Pot Labels | "🖨 Print Labels" | `printPotLabels()` — opens a **popup** with its own complete HTML document | 62mm DK thermal roll |
 | Kiln & Crate Checklist | "🖨 Print Crate Checklist" | `printCrateChecklist()` — opens a **popup** with its own complete HTML document | A4, normal printer |
+| Glaze Sheet (pre-class pots & glazes form) | "🖨 Print Glaze Sheet" (Pots & Glazes tab) | `printGlazeSheet()` — opens a **popup** with its own complete HTML document | A4 landscape (up to 4 clients) or A3 landscape (5–12 per page), normal printer |
 
-There are only **two underlying mechanisms**, not four — see §1. Knowing which one a given output uses tells you exactly which CSS to edit, and which CSS to *ignore* because it only affects an on-screen preview.
+There are only **two underlying mechanisms**, not five — see §1. Knowing which one a given output uses tells you exactly which CSS to edit, and which CSS to *ignore* because it only affects an on-screen preview.
 
 **2026-07-20:** Name Tags moved from mechanism A to mechanism B, so the roll's proper 100×62mm landscape shape (thermal-label-design-guide.md §1) could be used instead of printing at A4 via the host page. The roll-header "🏷 Generate Name Tags ▸" button still only builds the on-screen preview grid (`genNameTags()`, mirroring "Generate Pot Labels ▸"); the actual print now happens via the dedicated button inside the preview section, which calls `printNameTags()`. An initial version of `printNameTags()` used a CSS `transform: rotate()` trick to fit the landscape label onto a portrait `@page`; that was replaced the same day after a real test print showed inconsistent alignment and overlapping text — see the `@page`/orientation note in §1 below.
+
+**2026-11-02:** Added the Glaze Sheet (§6) and a 30mm left/right page margin on it for lever-arch hole punching. The app file is now `index.html` (previously `pottery-studio.html`), served by GitHub Pages. Fonts (Petrona, DM Mono) are embedded as base64 in the page and reused in every print popup via `embeddedFontCSS()`, replacing the per-popup Google Fonts `<link>`; SheetJS is still loaded from a CDN.
 
 ---
 
@@ -29,8 +32,8 @@ There are only **two underlying mechanisms**, not four — see §1. Knowing whic
 
 **Implication:** `.roll-table` *is* the print styling here — there is no separate print-only markup to author. If you want to change how the roll table looks on paper, edit that class and/or the `@media print` block directly in the main stylesheet.
 
-### B. Self-contained popup document (Name Tags, Pot Labels, Crate Checklist)
-`printNameTags()`, `printPotLabels()`, and `printCrateChecklist()` each build a **complete, separate HTML document** as a JS template string — its own `<head>`, its own `<style>` with its own `@page`, its own Google Fonts `<link>` — and write it into a blown-open popup window (`window.open('', '_blank', ...)`), then:
+### B. Self-contained popup document (Name Tags, Pot Labels, Crate Checklist, Glaze Sheet)
+`printNameTags()`, `printPotLabels()`, `printCrateChecklist()`, and `printGlazeSheet()` each build a **complete, separate HTML document** as a JS template string — its own `<head>`, its own `<style>` with its own `@page`, its own embedded font CSS (`embeddedFontCSS()`) — and write it into a blown-open popup window (`window.open('', '_blank', ...)`), then:
 ```js
 document.fonts.ready.then(() => {
   requestAnimationFrame(() => { window.print(); window.close(); });
@@ -43,7 +46,7 @@ waiting for web fonts to load before printing (critical for the canvas-measureme
 **Landscape content wider than the roll (Name Tags):** `printNameTags()`'s `@page` is declared directly in the label's own natural shape (`100mm 62mm`) with no CSS rotation of any kind — content is a plain top-to-bottom flex layout, same structure as `printPotLabels()`'s compact design. Getting it onto the physically-62mm-wide roll is a print-dialog job, not a CSS one: the printing instructions (in the Name Tag preview section, and the toast/help text) tell the user to select **Landscape** orientation in the system print dialog. See thermal-label-design-guide.md §1 for why a `transform: rotate()` CSS wrapper was tried first and abandoned — it doesn't survive Chrome's print pipeline reliably.
 
 ### Decision rule when asked to change print text/layout
-1. Is it Name Tags, Pot Labels, or the Crate Checklist? → edit the `<style>` inside `printNameTags()` / `printPotLabels()` / `printCrateChecklist()` (in the `<script>` section of `index.html`).
+1. Is it Name Tags, Pot Labels, the Crate Checklist, or the Glaze Sheet? → edit the `<style>` inside `printNameTags()` / `printPotLabels()` / `printCrateChecklist()` / `printGlazeSheet()` (in the `<script>` section of `index.html`).
 2. Is it the Class Roll? → edit the relevant classes in the main `<style>` block and/or the `@media print` rules there. There is no popup to look for.
 
 ---
@@ -92,12 +95,13 @@ Full detail in `thermal-label-design-guide.md`. Summary:
 - Text colour `#1A1410` (warm near-black), never pure `#000`.
 - No large solid black fills.
 
-### A4 (Class Roll, Crate Checklist)
+### A4 / A3 (Class Roll, Crate Checklist, Glaze Sheet)
 This is a normal inkjet/laser printer, not the thermal head — the thermal constraints above **do not apply** here:
 - Standard CSS `border`/`border-bottom` etc. are used freely and render fine (see `.summary-box`, `.pot-table thead th`, `.student-card` in `printCrateChecklist()`).
-- Headings use `'Petrona', Georgia, serif` (e.g. `.ph-title` at 26pt, `.sc-name` at 13pt) — Petrona is now the one serif face used app-wide (screen UI, all print/export outputs), loaded via its own Google Fonts `<link>` in each popup's `<head>`; body/data uses `'DM Mono', 'Courier New', monospace` at a 9pt baseline, dropping to 7–7.5pt for dense table cells.
+- Headings use `'Petrona', Georgia, serif` (e.g. `.ph-title` at 26pt, `.sc-name` at 13pt) — Petrona is now the one serif face used app-wide (screen UI, all print/export outputs), embedded in the page as base64 and injected into each popup's `<head>` via `embeddedFontCSS()`; body/data uses `'DM Mono', 'Courier New', monospace` at a 9pt baseline, dropping to 7–7.5pt for dense table cells.
 - Colour palette is greyscale, not the thermal near-black: `#000` for primary text/headings, `#222`/`#444` secondary, `#666` labels/eyebrows, `#888`/`#CCC` rules and borders, `#D0D0D0`/`#E8E8E8`/`#F2F2F2` for header bands and zebra-striped rows.
 - Crate Checklist margins are asymmetric — `14mm 10mm 12mm 22mm` (top/right/bottom/left) — the wide 22mm left margin is deliberate, for hole-punch filing. Preserve that asymmetry if the page layout changes.
+- Glaze Sheet margins are `10mm 30mm` (top/bottom, left/right) — the 30mm side margins leave room for lever-arch punch holes on both edges, so the sheet can be filed either way up. Usable area is therefore 237 × 190mm (A4 landscape) or 360 × 277mm (A3 landscape).
 - `page-break-inside: avoid` on `.student-card` keeps one client's pot table from splitting across a page boundary.
 
 ---
@@ -106,8 +110,21 @@ This is a normal inkjet/laser printer, not the thermal head — the thermal cons
 
 - [ ] Identify which of the two architectures (§1) the output uses, so you edit the right `<style>` block — don't edit `.pot-label` in the main stylesheet expecting it to affect the printed pot label.
 - [ ] If touching the thermal roll (Name Tags, Pot Labels): re-check every item in `thermal-label-design-guide.md` §9's checklist — border-as-filled-div, weight caps, rule join technique, `max-height` backstop on any clamped text, fixed-width dates.
-- [ ] If touching A4 output (Class Roll, Crate Checklist): CSS borders are fine; keep the Georgia-headings / DM-Mono-body split and the existing 22mm hole-punch left margin unless asked to change it.
+- [ ] If touching A4/A3 output (Class Roll, Crate Checklist, Glaze Sheet): CSS borders are fine; keep the Petrona-headings / DM-Mono-body split, the Crate Checklist's 22mm hole-punch left margin, and the Glaze Sheet's 30mm left/right margins unless asked to change them.
 - [ ] Any new or changed date/name field: reuse or extend the helpers in §3 rather than inlining a new `toLocaleDateString` call, especially inside a constrained column.
 - [ ] Escape every interpolated user value with `e()`.
 - [ ] For popup-based outputs, keep the `document.fonts.ready` → `requestAnimationFrame` → `window.print()` → `window.close()` sequence — printing before web fonts load is what caused the original `fitNames()` mis-measurement issue during development.
 - [ ] Test-print for real before calling a change done — see §0 to route to the correct trigger button.
+
+---
+
+## 6. Glaze Sheet (`printGlazeSheet()`)
+
+A pre-class form, printed before each class so glaze choices can be handwritten during the workshop and keyed into the Pots & Glazes tab afterwards. It is designed to use as little ink as possible.
+
+- **Paper:** `students.length > 4` → A3 landscape, 12 clients per page; otherwise A4 landscape, 4 per page. `@page { size: A4|A3 landscape; margin: 10mm 30mm; }` — vertical usable height is 190mm / 277mm (`pageH` in the code), and `.sheet` is fixed to that height with `overflow:hidden`. More clients than fit → multiple `.sheet` pages.
+- **Heading:** left-aligned `Class name — Date` in the same large serif size, with the time in the smaller mono size beside it.
+- **Rows:** one row per client — a 68mm name column, then 4–6 pot columns (`cols = min(6, max(4, most pots on any client))`, so there is always at least one spare cell for an extra pot). `grid-template-columns: 68mm repeat(cols, minmax(0,1fr))`; `minmax(0,…)` keeps columns equal even with a long legacy glaze name. Rows are `flex:1 1 0; max-height:42mm`.
+- **Pot cell:** numbered, with an `ITEM` heading (plus a `Buff / White` clay label to circle or underline) and a `GLAZE` heading; saved item/glaze values print beneath the headings, otherwise the space is blank for handwriting. Values use `.v` (9pt, wrapped, clamped to ~2 lines). Notes are deliberately not printed. No dotted rules.
+- **Data source:** `students[].pots[]` = `{description, clay, glaze}`. Edited in the Pots & Glazes tab — Grid view (default; one card per client, `+ pot` adds a pot) or List view, switched with the Grid/List toggle (`setPotsView`).
+- **Printing it:** an A3 sheet sent to an A4-only printer is shrunk by the browser's "fit to page"; choose an A3 printer/paper size and scale 100% for true size.

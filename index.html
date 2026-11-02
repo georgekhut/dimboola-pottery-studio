@@ -93,8 +93,7 @@
   /* POT ROWS */
   .pots-title { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
   .pots-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-  .pot-row { display: grid; grid-template-columns: 26px 1fr 90px 190px 130px auto; gap: 8px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
-  .diam-display { font-size: 10px; color: var(--glaze-green); margin-top: 3px; letter-spacing: 0.01em; min-height: 14px; }
+  .pot-row { display: grid; grid-template-columns: 26px 1fr 190px 130px auto; gap: 8px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
   .pot-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
   .pot-num { width: 26px; height: 26px; background: var(--clay-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--clay-dark); font-weight: 500; margin-top: 19px; flex-shrink: 0; }
   .btn-rm-pot { background: none; border: 1px solid var(--border); color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 11px; padding: 7px 9px; cursor: pointer; height: 31px; margin-top: 19px; border-radius: 1px; transition: all 0.15s; }
@@ -154,7 +153,6 @@
   .pl-desc { font-size: 11px; color: #1A1410; font-weight: 500; line-height: 1.3; margin-bottom: 2px; }
   .pl-clay { font-size: 9px; color: #999; margin-bottom: 2px; }
   .pl-glaze { font-size: 10px; color: var(--glaze-green); font-weight: 500; margin-bottom: 2px; }
-  .pl-diam { font-size: 9px; color: #888; margin-bottom: 3px; letter-spacing: 0.01em; }
   .pl-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 3px; }
   .pl-date { font-size: 8px; color: #aaa; }
   .pl-count { font-size: 9px; background: #1A1410; color: white; padding: 2px 7px; border-radius: 10px; }
@@ -463,7 +461,6 @@
 // CONSTANTS
 // ════════════════════════════════════════
 const CLAY = ['White Stoneware','Buff Stoneware'];
-const SHRINK_RATE = 0.12; // 12% linear shrinkage wet → glaze fired
 const GLAZES = [
   'White gloss, thick',
   'White gloss, thin',
@@ -583,7 +580,7 @@ function addStudent(d={}) {
 }
 function removeStudent(id) { students=students.filter(s=>s.id!==id); renderAll(); updateSum(); }
 function setField(id,f,v) { const s=students.find(s=>s.id===id); if(s){s[f]=v;} updateSum(); }
-function addPot(sid) { const s=students.find(s=>s.id===sid); if(s){s.pots.push({description:'',clay:'White Stoneware',glaze:'',diameter:null});renderPotsTab();updateSum();} }
+function addPot(sid) { const s=students.find(s=>s.id===sid); if(s){s.pots.push({description:'',clay:'White Stoneware',glaze:''});renderPotsTab();updateSum();} }
 function removePot(sid,pi) { const s=students.find(s=>s.id===sid); if(s){s.pots.splice(pi,1);renderPotsTab();updateSum();} }
 function setPot(sid,pi,f,v) { const s=students.find(s=>s.id===sid); if(s&&s.pots[pi])s.pots[pi][f]=v; }
 
@@ -675,18 +672,6 @@ function renderRoll() {
   </table>`;
 }
 
-function updateDiamDisplay(input, sid, pi) {
-  const val = parseInt(input.value);
-  const el = document.getElementById(`diam-${sid}-${pi}`);
-  if (!el) return;
-  if (val && val > 0) {
-    const fired = Math.round(val * (1 - SHRINK_RATE));
-    el.textContent = `⌀ ${val} → ${fired} mm`;
-  } else {
-    el.textContent = '';
-  }
-}
-
 // ════════════════════════════════════════
 // RENDER: POTS TAB
 // ════════════════════════════════════════
@@ -698,21 +683,12 @@ function renderPotsTab() {
   }
   w.innerHTML = students.map(s=>{
     const potsHtml = s.pots.map((p,pi)=>{
-      const diamFired = p.diameter ? Math.round(p.diameter * (1 - SHRINK_RATE)) : '';
-      const diamDisplay = p.diameter
-        ? `⌀ ${p.diameter} → ${diamFired} mm`
-        : '';
       return `
       <div class="pot-row">
         <div class="pot-num">${pi+1}</div>
         <div class="fg"><label>Description</label>
           <input value="${e(p.description)}" placeholder="e.g. Oval plate"
             oninput="setPot(${s.id},${pi},'description',this.value)" /></div>
-        <div class="fg"><label>⌀ Wet mm</label>
-          <input type="number" min="1" max="999" value="${e(p.diameter)}" placeholder="e.g. 276"
-            oninput="setPot(${s.id},${pi},'diameter',this.value?parseInt(this.value):null);updateDiamDisplay(this,${s.id},${pi})" />
-          <div class="diam-display" id="diam-${s.id}-${pi}">${diamDisplay}</div>
-        </div>
         <div class="fg"><label>Glaze</label>
           <select onchange="setPot(${s.id},${pi},'glaze',this.value)">
             <option value="">— select —</option>
@@ -850,10 +826,6 @@ function genPotLabels() {
       const label=document.createElement('div');
       label.className='pot-label';
       const item=total>1?`Item ${idx+1} of ${total}`:'Single item';
-      const firedDiam = p.diameter ? Math.round(p.diameter * (1 - SHRINK_RATE)) : null;
-      const diamLine = p.diameter
-        ? `<div class="pl-diam">⌀ ${p.diameter} → ${firedDiam} mm (wet → fired)</div>`
-        : '';
       label.innerHTML=`
         <div>
           <div class="pl-studio">${e(sn())}</div>
@@ -865,7 +837,6 @@ function genPotLabels() {
           <div class="pl-desc">${e(p.description||'Pot — no description')}</div>
           <div class="pl-clay">${e(p.clay)}</div>
           <div class="pl-glaze">Glaze: ${e(p.glaze||'Not specified')}</div>
-          ${diamLine}
         </div>
         <div class="pl-footer">
           <div class="pl-date">${e(dateShort())}</div>
@@ -1289,16 +1260,13 @@ function printCrateChecklist() {
     const potCount = s.pots.length;
 
     const potRows = potCount === 0
-      ? `<tr><td colspan="8" style="padding:4mm 2mm;color:#bbb;font-style:italic;font-size:8pt;">No pots recorded</td></tr>`
+      ? `<tr><td colspan="7" style="padding:4mm 2mm;color:#bbb;font-style:italic;font-size:8pt;">No pots recorded</td></tr>`
       : s.pots.map((p, pi) => {
-          const firedDiam = p.diameter ? Math.round(p.diameter * (1 - SHRINK_RATE)) : null;
-          const diamStr   = p.diameter ? `${p.diameter} → ${firedDiam}` : '–';
           return `<tr>
             <td class="pc-num">${pi + 1}</td>
             <td class="pc-desc">${e((p.description||'').trim() || '—')}</td>
             <td class="pc-clay">${e(p.clay || '—')}</td>
             <td class="pc-glaze">${e(p.glaze || 'Not specified')}</td>
-            <td class="pc-diam">${diamStr}</td>
             <td class="pc-cb"><div class="cb"></div></td>
             <td class="pc-cb"><div class="cb"></div></td>
             <td class="pc-cb"><div class="cb"></div></td>
@@ -1320,7 +1288,6 @@ function printCrateChecklist() {
             <th class="pc-desc">Description</th>
             <th class="pc-clay">Clay</th>
             <th class="pc-glaze">Glaze</th>
-            <th class="pc-diam">⌀ wet → fired</th>
             <th class="pc-cb">Fired</th>
             <th class="pc-cb">Contacted</th>
             <th class="pc-cb">Collected</th>
@@ -1399,7 +1366,6 @@ function printCrateChecklist() {
   .pc-desc  { }
   .pc-clay  { width: 28mm; font-size: 7.5pt; color: #222; }
   .pc-glaze { width: 40mm; font-size: 7.5pt; color: #222; }
-  .pc-diam  { width: 22mm; font-size: 7.5pt; color: #444; white-space: nowrap; }
   .pc-cb    { width: 16mm; text-align: center; }
 
   .cb {
@@ -1490,17 +1456,16 @@ function exportExcel() {
   XLSX.utils.book_append_sheet(wb,ws2,'Student Roll');
 
   // Sheet 3: Pots & Glazes
-  const potH=['Student First','Student Last','Pot #','Total Pots','Description','⌀ Wet (mm)','⌀ Fired (mm)','Clay','Glaze'];
+  const potH=['Student First','Student Last','Pot #','Total Pots','Description','Clay','Glaze'];
   const potR=[];
   students.forEach(s=>{
-    if(s.pots.length===0){potR.push([s.firstName,s.lastName,'—',0,'','','','','']);}
+    if(s.pots.length===0){potR.push([s.firstName,s.lastName,'—',0,'','','']);}
     else s.pots.forEach((p,i)=>{
-      const firedDiam = p.diameter ? Math.round(p.diameter*(1-SHRINK_RATE)) : '';
-      potR.push([s.firstName,s.lastName,i+1,s.pots.length,p.description,p.diameter||'',firedDiam,p.clay,p.glaze]);
+      potR.push([s.firstName,s.lastName,i+1,s.pots.length,p.description,p.clay,p.glaze]);
     });
   });
   const ws3=XLSX.utils.aoa_to_sheet([potH,...potR]);
-  ws3['!cols']=[{wch:14},{wch:14},{wch:6},{wch:10},{wch:28},{wch:12},{wch:12},{wch:16},{wch:28}];
+  ws3['!cols']=[{wch:14},{wch:14},{wch:6},{wch:10},{wch:28},{wch:16},{wch:28}];
   XLSX.utils.book_append_sheet(wb,ws3,'Pots & Glazes');
 
   const fname=cn().replace(/[^a-zA-Z0-9 ]/g,'').trim().replace(/\s+/g,'_');
@@ -1586,12 +1551,10 @@ function restoreFromExcel(input) {
           const glazeRaw = String(r[pc('Glaze')]      || '').trim();
           const glaze = GLAZE_RENAMES[glazeRaw] || glazeRaw;
           if (glaze !== glazeRaw) glazesRenamed++;
-          const wetD  = r[pc('\u2300 Wet (mm)')];
-          const diam  = (wetD != null && wetD !== '' && !isNaN(Number(wetD))) ? Number(wetD) : null;
           if (String(r[pc('Pot #')]) === '\u2014') continue; // skip "no pots" placeholder rows
           const student = studentList.find(s => s.firstName === first && s.lastName === last);
           if (student) {
-            student.pots.push({ description: desc, clay, glaze, diameter: diam });
+            student.pots.push({ description: desc, clay, glaze });
           }
         }
       }
@@ -1651,10 +1614,8 @@ function exportHTML() {
     const pList=s.pots.length===0
       ? '<em style="color:#bbb">No pots recorded</em>'
       : s.pots.map((p,pi)=>{
-          const firedDiam = p.diameter ? Math.round(p.diameter*(1-SHRINK_RATE)) : null;
-          const diamStr = p.diameter ? `&nbsp;·&nbsp;<span style="color:#888">⌀ ${p.diameter} → ${firedDiam} mm</span>` : '';
           return `<div style="padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px;">
-            <strong>Pot ${pi+1}/${s.pots.length}</strong> — ${e(p.description||'—')}${diamStr}
+            <strong>Pot ${pi+1}/${s.pots.length}</strong> — ${e(p.description||'—')}
             &nbsp;·&nbsp;<span style="color:#4A6741">Glaze: ${e(p.glaze||'not specified')}</span>
             &nbsp;·&nbsp;<span style="color:#aaa">${e(p.clay)}</span>
           </div>`;
@@ -1813,8 +1774,7 @@ function cjiParseRows(rows) {
         pots.push({
           description: desc,
           clay: 'White Stoneware',
-          glaze: '',
-          diameter: null
+          glaze: ''
         });
       }
     });
@@ -1900,7 +1860,7 @@ function cjiImport() {
       source    : 'manual',
       acuityId  : '',
       certCode  : '',
-      pots      : r.pots.map(p => ({ description: p.description, clay: p.clay, glaze: p.glaze, diameter: p.diameter }))
+      pots      : r.pots.map(p => ({ description: p.description, clay: p.clay, glaze: p.glaze }))
     });
   });
 

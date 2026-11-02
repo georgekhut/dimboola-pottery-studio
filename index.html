@@ -195,6 +195,31 @@
   .cji-merge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
   .cji-merge-row label { font-size: 11px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
+  /* POTS GRID (mirrors the printed Glaze Sheet: one row per client, one column per pot) */
+  .view-toggle { margin-left: auto; display: inline-flex; border: 1px solid var(--border); border-radius: 1px; overflow: hidden; }
+  .view-toggle button { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 12px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; }
+  .view-toggle button + button { border-left: 1px solid var(--border); }
+  .view-toggle button.active { background: var(--kiln-dark); color: var(--ash-white); }
+  .pg-scroll { overflow-x: auto; }
+  .pg { min-width: 100%; }
+  .pg-row { display: grid; grid-template-columns: 112px repeat(var(--cols, 4), minmax(158px, 1fr)) 58px; gap: 8px; align-items: start; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .pg-row:last-child { border-bottom: none; }
+  .pg-head { padding: 0 0 6px; border-bottom: 2px solid var(--border); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+  .pg-who { font-family: 'Petrona', Georgia, serif; font-size: 15px; line-height: 1.15; padding-top: 5px; color: var(--kiln-black); word-break: break-word; }
+  .pg-cell { position: relative; display: flex; flex-direction: column; gap: 4px; }
+  .pg-cell input, .pg-cell select { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 1px; padding: 6px 7px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-primary); outline: none; width: 100%; min-width: 0; }
+  .pg-cell input:focus, .pg-cell select:focus { border-color: var(--clay-warm); background-color: #fff; }
+  .pg-cell.has-pot input, .pg-cell.has-pot select { background-color: #fff; }
+  .pg-top { display: grid; grid-template-columns: 1fr 54px; gap: 4px; }
+  .pg-top .pg-clay { font-size: 10px; padding-left: 5px; padding-right: 15px; background-position: right 5px center; }
+  .pg-cell select { appearance: none; -webkit-appearance: none; padding-right: 20px; text-overflow: ellipsis; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%239B8878'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; }
+  .pg-x { position: absolute; top: -6px; right: -4px; width: 16px; height: 16px; line-height: 14px; padding: 0; font-size: 9px; border: 1px solid var(--border); border-radius: 50%; background: var(--surface); color: var(--text-muted); cursor: pointer; display: none; }
+  .pg-cell.has-pot:hover .pg-x, .pg-cell.has-pot:focus-within .pg-x { display: block; }
+  .pg-x:hover { border-color: #c0392b; color: #c0392b; }
+  .pg-add { padding-top: 3px; }
+  .pg-add .btn { padding: 6px 8px; font-size: 10px; }
+
   /* TOAST */
   .toast { position: fixed; bottom: 22px; right: 22px; background: var(--kiln-black); color: var(--ash-white); padding: 11px 18px; border-radius: 2px; font-size: 11px; letter-spacing: 0.06em; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; z-index: 999; }
   .toast.show { opacity: 1; transform: translateY(0); }
@@ -403,7 +428,12 @@
   <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
   <div class="tab-pane" id="tab-pots">
     <div class="panel">
-      <div class="panel-title"><span class="num">3</span> Pots Made — Enter After Class</div>
+      <div class="panel-title"><span class="num">3</span> Pots Made — Enter After Class
+        <div class="view-toggle" role="group" aria-label="View">
+          <button type="button" id="vtGrid" class="active" onclick="setPotsView('grid')">Grid</button>
+          <button type="button" id="vtList" onclick="setPotsView('list')">List</button>
+        </div>
+      </div>
       <div id="potsWrap"></div>
     </div>
     <div class="bottom-bar">
@@ -503,6 +533,7 @@ const GLAZE_RENAMES = {
 // STATE
 // ════════════════════════════════════════
 let students = [];
+let potsView = 'grid';   // Pots & Glazes tab view: 'grid' (mirrors the printed glaze sheet) or 'list'
 let uid = 1;
 
 // ════════════════════════════════════════
@@ -684,12 +715,79 @@ function renderRoll() {
 // ════════════════════════════════════════
 // RENDER: POTS TAB
 // ════════════════════════════════════════
+function setPotsView(v) {
+  potsView = v === 'list' ? 'list' : 'grid';
+  document.getElementById('vtGrid').classList.toggle('active', potsView === 'grid');
+  document.getElementById('vtList').classList.toggle('active', potsView === 'list');
+  renderPotsTab();
+}
+
+// Glaze <option> list. A saved glaze that is no longer in GLAZES is kept as a selected
+// "(previous name)" option so it is never silently dropped.
+function glazeOptionsHtml(selected) {
+  return `<option value="">— select —</option>`
+    + GLAZES.map(g=>`<option value="${e(g)}"${g===selected?' selected':''}>${e(g)}</option>`).join('')
+    + (selected && !GLAZES.includes(selected) ? `<option value="${e(selected)}" selected>${e(selected)} (previous name)</option>` : '');
+}
+
 function renderPotsTab() {
   const w = document.getElementById('potsWrap');
   if (!students.length) {
     w.innerHTML = `<p style="font-size:12px;color:var(--text-muted);">Add students in the Class Setup tab first.</p>`;
     return;
   }
+  if (potsView === 'grid') renderPotsGrid(w); else renderPotsList(w);
+  // update second summary
+  const tp=students.reduce((n,s)=>n+s.pots.length,0);
+  document.getElementById('sumB').innerHTML=`<span class="summary-stat">${students.length}</span> students &nbsp;·&nbsp; <span class="summary-stat">${tp}</span> pots`;
+}
+
+// Grid view — same shape as the printed Glaze Sheet. An empty cell becomes a pot the
+// first time something is entered in it (no re-render, so focus is never lost).
+function renderPotsGrid(w) {
+  const cols = Math.min(8, Math.max(4, students.reduce((m,s)=>Math.max(m,s.pots.length),0)));
+  const clayOpts = sel => CLAY.map(c=>`<option value="${e(c)}"${c===sel?' selected':''}>${e(c.replace(' Stoneware',''))}</option>`).join('');
+  const head = `<div class="pg-row pg-head"><div>Client</div>`
+    + Array.from({length:cols},(_,i)=>`<div>Pot ${i+1}</div>`).join('') + `<div></div></div>`;
+  const rows = students.map(s=>{
+    let cells = '';
+    for (let i = 0; i < cols; i++) {
+      const p = s.pots[i], has = !!p;
+      cells += `<div class="pg-cell${has?' has-pot':''}" data-sid="${s.id}" data-pi="${has?i:''}">
+        <div class="pg-top">
+          <input class="pg-item" placeholder="Item" value="${has?e(p.description):''}" oninput="gridSet(this,'description',this.value)" />
+          <select class="pg-clay" title="Clay body" onchange="gridSet(this,'clay',this.value)">${clayOpts(has?p.clay:'White Stoneware')}</select>
+        </div>
+        <select class="pg-glaze" onchange="gridSet(this,'glaze',this.value)">${glazeOptionsHtml(has?p.glaze:'')}</select>
+        <button type="button" class="pg-x" onclick="gridRemove(this)" title="Remove this pot">✕</button>
+      </div>`;
+    }
+    return `<div class="pg-row"><div class="pg-who">${e(fullName(s)||'New Student')}</div>${cells}
+      <div class="pg-add"><button type="button" class="btn btn-ghost" onclick="addPot(${s.id})">+ pot</button></div></div>`;
+  }).join('');
+  w.innerHTML = `<div class="pg-scroll"><div class="pg" style="--cols:${cols}">${head}${rows}</div></div>`;
+}
+
+function gridSet(el, field, value) {
+  const cell = el.closest('.pg-cell');
+  const s = students.find(x => x.id === +cell.dataset.sid);
+  if (!s) return;
+  if (cell.dataset.pi === '') {            // first entry in an empty cell → create the pot
+    s.pots.push({description:'', clay:'White Stoneware', glaze:''});
+    cell.dataset.pi = s.pots.length - 1;
+    cell.classList.add('has-pot');
+  }
+  s.pots[+cell.dataset.pi][field] = value;
+  updateSum();
+}
+
+function gridRemove(btn) {
+  const cell = btn.closest('.pg-cell');
+  if (cell.dataset.pi === '') return;
+  removePot(+cell.dataset.sid, +cell.dataset.pi);
+}
+
+function renderPotsList(w) {
   w.innerHTML = students.map(s=>{
     const potsHtml = s.pots.map((p,pi)=>{
       return `
@@ -700,9 +798,7 @@ function renderPotsTab() {
             oninput="setPot(${s.id},${pi},'description',this.value)" /></div>
         <div class="fg"><label>Glaze</label>
           <select onchange="setPot(${s.id},${pi},'glaze',this.value)">
-            <option value="">— select —</option>
-            ${GLAZES.map(g=>`<option value="${e(g)}"${g===p.glaze?' selected':''}>${e(g)}</option>`).join('')}
-            ${p.glaze && !GLAZES.includes(p.glaze) ? `<option value="${e(p.glaze)}" selected>${e(p.glaze)} (previous name)</option>` : ''}
+            ${glazeOptionsHtml(p.glaze)}
           </select></div>
         <div class="fg"><label>Clay</label>
           <select onchange="setPot(${s.id},${pi},'clay',this.value)">
@@ -724,9 +820,6 @@ function renderPotsTab() {
       </div>
     </div>`;
   }).join('');
-  // update second summary
-  const tp=students.reduce((n,s)=>n+s.pots.length,0);
-  document.getElementById('sumB').innerHTML=`<span class="summary-stat">${students.length}</span> students &nbsp;·&nbsp; <span class="summary-stat">${tp}</span> pots`;
 }
 
 // ════════════════════════════════════════
@@ -1274,8 +1367,8 @@ function printGlazeSheet() {
       for (let i = 0; i < cols; i++) {
         const p = s.pots[i] || {};
         cells += `<div class="cell"><span class="pn">${i + 1}</span>
-          <div class="ln"><b>Item</b><span class="v">${e(p.description || '')}</span></div>
-          <div class="ln"><b>Glaze</b><span class="v">${e(p.glaze || '')}</span></div></div>`;
+          <div class="ln"><div class="hd"><b>Item</b><i class="clay">Buff / White</i></div><span class="v">${e(p.description || '')}</span></div>
+          <div class="ln"><div class="hd"><b>Glaze</b></div><span class="v">${e(p.glaze || '')}</span></div></div>`;
       }
       return `<div class="row"><div class="who">${e(fullName(s) || '(no name)')}</div>${cells}</div>`;
     }).join('');
@@ -1306,14 +1399,17 @@ function printGlazeSheet() {
   .meta { font-size: 9pt; }
   .rule { height: 0.3mm; background: #1A1410; }
   .grid { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-  .row { display: grid; grid-template-columns: 68mm repeat(${cols}, 1fr); flex: 1 1 0; max-height: 42mm; border-bottom: 0.2mm solid #777; }
+  .row { display: grid; grid-template-columns: 68mm repeat(${cols}, minmax(0, 1fr)); flex: 1 1 0; max-height: 42mm; border-bottom: 0.2mm solid #777; }
   .who { font-family: 'Petrona', Georgia, serif; font-size: 14pt; padding: 2mm 2mm 0 0; line-height: 1.1; }
   .cell { position: relative; border-left: 0.2mm solid #777; padding: 1.5mm 3mm 1mm 7mm; display: flex; flex-direction: column; }
   .pn { position: absolute; left: 1.8mm; top: 1.2mm; font-size: 7pt; color: #444; }
   /* Heading on its own line, writing space underneath (no rules). */
   .ln { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
-  .ln b { font-weight: 400; font-size: 6pt; letter-spacing: 0.14em; text-transform: uppercase; color: #444; flex-shrink: 0; padding-bottom: 0.8mm; }
-  .v { font-size: 9pt; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .hd { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 0.8mm; }
+  .ln b { font-weight: 400; font-size: 6pt; letter-spacing: 0.14em; text-transform: uppercase; color: #444; }
+  /* Clay body to circle or underline by hand — printed plain; the app's default clay is not a decision. */
+  .clay { font-style: normal; font-size: 6.5pt; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1410; }
+  .v { font-size: 9pt; line-height: 1.15; max-height: 2.3em; overflow: hidden; overflow-wrap: anywhere; }
   .foot { font-size: 6pt; color: #444; margin-top: 1.5mm; letter-spacing: 0.08em; }
 </style>
 </head>

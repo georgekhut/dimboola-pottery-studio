@@ -170,6 +170,27 @@
   .export-title { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; }
   .export-panel p { font-size: 11px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px; }
 
+  /* CLIENT JOBS IMPORT PANEL */
+  .cji-drop { border: 2px dashed var(--border); border-radius: 2px; padding: 22px 18px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; margin-bottom: 14px; display: block; }
+  .cji-drop:hover, .cji-drop.drag-over { border-color: var(--clay-warm); background: rgba(196,149,106,0.05); }
+  .cji-drop-icon { font-size: 24px; opacity: 0.4; margin-bottom: 6px; }
+  .cji-drop-label { font-size: 11px; color: var(--text-muted); line-height: 1.7; }
+  .cji-drop-label strong { color: var(--text-secondary); }
+  .cji-preview { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 2px; padding: 14px 16px; margin-bottom: 14px; display: none; }
+  .cji-preview.visible { display: block; }
+  .cji-preview-title { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px; }
+  .cji-row { display: grid; grid-template-columns: 20px 1fr 80px 1fr; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+  .cji-row:last-child { border-bottom: none; }
+  .cji-row-num { color: var(--text-muted); font-size: 10px; }
+  .cji-row-name { color: var(--text-primary); font-family: 'Petrona', Georgia, serif; font-size: 14px; }
+  .cji-row-qty { color: var(--text-muted); }
+  .cji-row-pots { color: var(--text-secondary); font-size: 10px; line-height: 1.5; }
+  .cji-status { font-size: 11px; margin-top: 10px; line-height: 1.6; }
+  .cji-hint { font-size: 10px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px; }
+  .cji-hint code { background: var(--clay-light); padding: 1px 5px; border-radius: 2px; font-size: 10px; color: var(--clay-dark); }
+  .cji-merge-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .cji-merge-row label { font-size: 11px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 5px; }
+
   /* TOAST */
   .toast { position: fixed; bottom: 22px; right: 22px; background: var(--kiln-black); color: var(--ash-white); padding: 11px 18px; border-radius: 2px; font-size: 11px; letter-spacing: 0.06em; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; z-index: 999; }
   .toast.show { opacity: 1; transform: translateY(0); }
@@ -259,6 +280,7 @@
         <button class="btn btn-primary" onclick="addStudent()">+ Add Student Manually</button>
         <button class="btn btn-ghost" onclick="toggleBox('boxOutlook')">↓ Import from Outlook</button>
         <button class="btn btn-ghost" onclick="toggleBox('boxNames')">↓ Paste Names</button>
+        <button class="btn btn-ghost" onclick="toggleBox('boxClientJobs')">↓ Import from Client Jobs Excel</button>
       </div>
 
       <!-- OUTLOOK IMPORT -->
@@ -289,6 +311,45 @@
         <div style="display:flex;gap:9px;">
           <button class="btn btn-primary" onclick="importNames()">Import Names</button>
           <button class="btn btn-secondary" onclick="toggleBox('boxNames')">Cancel</button>
+        </div>
+      </div>
+
+      <!-- CLIENT JOBS EXCEL IMPORT -->
+      <div class="import-box" id="boxClientJobs" style="display:none;">
+        <div class="section-label" style="margin-bottom:10px;">Import from Client Jobs Excel Database</div>
+        <p class="cji-hint">
+          Select your Client Jobs spreadsheet (.xlsx). The app expects columns:
+          <code>First Name</code> <code>Last Name</code> <code>Phone</code> <code>Email</code> <code>Post code</code>
+          <code>Type of class</code> and pot items in columns named <code>item 1</code> through <code>Item 5</code> (or more).<br>
+          Each item cell is imported as a pot description. Contact details and pot info are loaded ready for label and checklist printing.
+        </p>
+
+        <!-- Drop zone / file pick — label wraps the input so the click is native (works from file://) -->
+        <label class="cji-drop" id="cjiDrop"
+               ondragover="event.preventDefault();this.classList.add('drag-over')"
+               ondragleave="this.classList.remove('drag-over')"
+               ondrop="cjiHandleDrop(event)">
+          <div class="cji-drop-icon">📂</div>
+          <div class="cji-drop-label"><strong>Click to choose</strong> or drag &amp; drop your Client Jobs .xlsx file here</div>
+          <input type="file" id="cjiFileInput" accept=".xlsx,.xls" style="display:none" onchange="cjiLoadFile(this.files[0])">
+        </label>
+
+        <!-- Preview of parsed rows -->
+        <div class="cji-preview" id="cjiPreview">
+          <div class="cji-preview-title">Rows found — review before importing</div>
+          <div id="cjiPreviewRows"></div>
+          <div class="cji-status" id="cjiStatus"></div>
+        </div>
+
+        <!-- Merge vs Replace -->
+        <div class="cji-merge-row" id="cjiMergeRow" style="display:none;">
+          <label><input type="radio" name="cjiMode" value="replace" checked> Replace current students</label>
+          <label><input type="radio" name="cjiMode" value="merge"> Merge (add alongside existing students)</label>
+        </div>
+
+        <div style="display:flex;gap:9px;flex-wrap:wrap;" id="cjiActions">
+          <button class="btn btn-primary" id="cjiImportBtn" onclick="cjiImport()" style="display:none;">↑ Import These Clients</button>
+          <button class="btn btn-secondary" onclick="cjiReset();toggleBox('boxClientJobs')">Cancel</button>
         </div>
       </div>
     </div>
@@ -670,7 +731,7 @@ function renderPotsTab() {
 // IMPORT: OUTLOOK / ACUITY
 // ════════════════════════════════════════
 function toggleBox(id) {
-  const ids=['boxOutlook','boxNames'];
+  const ids=['boxOutlook','boxNames','boxClientJobs'];
   ids.forEach(i=>{ const el=document.getElementById(i); if(i===id)el.style.display=el.style.display==='none'?'block':'none'; else el.style.display='none'; });
 }
 
@@ -1616,6 +1677,253 @@ th{background:#2C2218;color:#F5F0EA;padding:9px 8px;text-align:left;font-size:10
   a.click();
   toast('HTML record downloaded — save to Dropbox');
 }
+
+// ════════════════════════════════════════
+// CLIENT JOBS EXCEL IMPORT
+// ════════════════════════════════════════
+
+// Holds parsed preview rows before committing
+let cjiParsed = [];
+
+function cjiHandleDrop(ev) {
+  ev.preventDefault();
+  document.getElementById('cjiDrop').classList.remove('drag-over');
+  const f = ev.dataTransfer.files[0];
+  if (f) cjiLoadFile(f);
+}
+
+function cjiLoadFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['xlsx','xls'].includes(ext)) {
+    cjiShowStatus('⚠ Please choose an .xlsx or .xls file', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'array' });
+      // Use the first sheet
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      cjiParseRows(rows);
+    } catch(err) {
+      cjiShowStatus('⚠ Could not read file: ' + err.message, 'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function cjiSanitise(v) {
+  // Convert to string, trim whitespace. The e() helper handles HTML escaping
+  // at render time; here we just make sure we have clean plain text.
+  return String(v == null ? '' : v).trim();
+}
+
+function cjiParseRows(rows) {
+  if (!rows || rows.length < 2) {
+    cjiShowStatus('⚠ File appears empty or has no data rows.', 'error');
+    return;
+  }
+
+  // Normalise header: lowercase + trim for matching
+  const rawHead = rows[0];
+  const head = rawHead.map(h => cjiSanitise(h).toLowerCase());
+
+  // Flexible column finder — case-insensitive, ignores leading/trailing spaces
+  const col = label => {
+    const target = label.toLowerCase();
+    const idx = head.indexOf(target);
+    return idx; // -1 if not found
+  };
+
+  // Locate item columns (item 1 … item N, case-insensitive)
+  const itemCols = [];
+  head.forEach((h, i) => {
+    if (/^item\s*\d+$/i.test(h)) itemCols.push(i);
+  });
+
+  // Minimum required columns
+  const reqCols = ['first name', 'last name'];
+  const missing = reqCols.filter(r => col(r) === -1);
+  if (missing.length) {
+    cjiShowStatus('⚠ Missing required columns: ' + missing.map(m => '"' + m + '"').join(', ') + '. Check the spreadsheet headers.', 'error');
+    return;
+  }
+
+  cjiParsed = [];
+
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    // Skip completely blank rows
+    if (!r || r.every(v => cjiSanitise(v) === '')) continue;
+
+    const firstName  = cjiSanitise(r[col('first name')]);
+    const lastName   = cjiSanitise(r[col('last name')]);
+    if (!firstName && !lastName) continue; // must have at least one name
+
+    const phone      = col('phone')      >= 0 ? cjiSanitise(r[col('phone')])      : '';
+    const email      = col('email')      >= 0 ? cjiSanitise(r[col('email')])      : '';
+    const postcode   = col('post code')  >= 0 ? cjiSanitise(r[col('post code')])  : '';
+    const classType  = col('type of class') >= 0 ? cjiSanitise(r[col('type of class')]) : '';
+
+    // Parse date if present — Excel stores dates as serial numbers
+    let classDate = '';
+    if (col('date') >= 0) {
+      const rawDate = r[col('date')];
+      if (rawDate !== '' && rawDate != null) {
+        // XLSX may return a JS Date already, or a serial number, or a string
+        if (rawDate instanceof Date) {
+          classDate = rawDate.toISOString().split('T')[0];
+        } else if (typeof rawDate === 'number') {
+          // Excel date serial → JS Date
+          const d = new Date(Math.round((rawDate - 25569) * 86400 * 1000));
+          classDate = d.toISOString().split('T')[0];
+        } else {
+          classDate = cjiSanitise(rawDate);
+        }
+      }
+    }
+
+    // Collect pot descriptions from item columns
+    const pots = [];
+    itemCols.forEach(ci => {
+      const desc = cjiSanitise(r[ci]);
+      if (desc) {
+        pots.push({
+          description: desc,
+          clay: 'White Stoneware',
+          glaze: '',
+          diameter: null
+        });
+      }
+    });
+
+    cjiParsed.push({ firstName, lastName, phone, email, postcode, classType, classDate, pots });
+  }
+
+  if (!cjiParsed.length) {
+    cjiShowStatus('⚠ No usable rows found — check that the spreadsheet has at least a First Name or Last Name value per row.', 'error');
+    return;
+  }
+
+  // Render preview
+  const container = document.getElementById('cjiPreviewRows');
+  container.innerHTML = '';
+  cjiParsed.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'cji-row';
+
+    const num = document.createElement('span');
+    num.className = 'cji-row-num';
+    num.textContent = i + 1;
+
+    const name = document.createElement('span');
+    name.className = 'cji-row-name';
+    name.textContent = (r.firstName + ' ' + r.lastName).trim() || '—';
+
+    const qty = document.createElement('span');
+    qty.className = 'cji-row-qty';
+    qty.textContent = r.pots.length + ' pot' + (r.pots.length !== 1 ? 's' : '');
+
+    const potList = document.createElement('span');
+    potList.className = 'cji-row-pots';
+    potList.textContent = r.pots.map(p => p.description).join(' · ') || '(no pots)';
+
+    row.appendChild(num);
+    row.appendChild(name);
+    row.appendChild(qty);
+    row.appendChild(potList);
+    container.appendChild(row);
+  });
+
+  const tp = cjiParsed.reduce((n, r) => n + r.pots.length, 0);
+  cjiShowStatus(
+    '✓ Found ' + cjiParsed.length + ' client' + (cjiParsed.length !== 1 ? 's' : '') +
+    ' with ' + tp + ' pot' + (tp !== 1 ? 's' : '') + ' total.',
+    'ok'
+  );
+
+  document.getElementById('cjiPreview').classList.add('visible');
+  document.getElementById('cjiMergeRow').style.display = 'flex';
+  document.getElementById('cjiImportBtn').style.display = '';
+}
+
+function cjiShowStatus(msg, type) {
+  const el = document.getElementById('cjiStatus');
+  el.textContent = msg;
+  el.style.color = type === 'error' ? '#c0392b' : 'var(--glaze-green)';
+  if (type === 'error') {
+    document.getElementById('cjiPreview').classList.add('visible');
+  }
+}
+
+function cjiImport() {
+  if (!cjiParsed.length) return;
+  const mode = document.querySelector('input[name="cjiMode"]:checked').value;
+
+  if (mode === 'replace' && students.length > 0) {
+    if (!confirm('This will replace the current ' + students.length + ' student(s) with ' + cjiParsed.length + ' clients from the spreadsheet.\n\nProceed?')) return;
+    students = [];
+    uid = 1;
+  }
+
+  cjiParsed.forEach(r => {
+    students.push({
+      id: uid++,
+      firstName : r.firstName,
+      lastName  : r.lastName,
+      phone     : r.phone,
+      email     : r.email,
+      postcode  : r.postcode,
+      note      : r.classType || '',
+      source    : 'manual',
+      acuityId  : '',
+      certCode  : '',
+      pots      : r.pots.map(p => ({ description: p.description, clay: p.clay, glaze: p.glaze, diameter: p.diameter }))
+    });
+  });
+
+  // If all rows share the same classDate, offer to set the class date
+  const dates = [...new Set(cjiParsed.map(r => r.classDate).filter(Boolean))];
+  if (dates.length === 1) {
+    const existing = document.getElementById('classDate').value;
+    if (!existing || existing !== dates[0]) {
+      if (confirm('The spreadsheet has a date of ' + dates[0] + '.\nSet this as the class date?')) {
+        document.getElementById('classDate').value = dates[0];
+      }
+    }
+  }
+
+  // If all rows share the same classType, offer to set the class name
+  const types = [...new Set(cjiParsed.map(r => r.classType).filter(Boolean))];
+  if (types.length === 1) {
+    const existing = document.getElementById('className').value.trim();
+    if (!existing || existing === 'Pottery Class') {
+      document.getElementById('className').value = types[0];
+    }
+  }
+
+  renderAll();
+  updateSum();
+  syncInfo();
+
+  const tp = students.reduce((n, s) => n + s.pots.length, 0);
+  toast('Imported ' + cjiParsed.length + ' clients · ' + tp + ' pots');
+  cjiReset();
+  toggleBox('boxClientJobs');
+}
+
+function cjiReset() {
+  cjiParsed = [];
+  document.getElementById('cjiPreviewRows').innerHTML = '';
+  document.getElementById('cjiPreview').classList.remove('visible');
+  document.getElementById('cjiMergeRow').style.display = 'none';
+  document.getElementById('cjiImportBtn').style.display = 'none';
+  document.getElementById('cjiStatus').textContent = '';
+  document.getElementById('cjiFileInput').value = '';
+}
+
 
 // ════════════════════════════════════════
 // UTILITIES

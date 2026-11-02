@@ -34,7 +34,9 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Mono', monospace; background: var(--ash-white); color: var(--text-primary); min-height: 100vh; font-size: 13px; }
   body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
-  .app-wrap { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 0 20px 80px; }
+  .app-wrap { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 0 28px 80px; }
+  /* Keep running text a readable line length now that the app is wider. */
+  .panel > p, .export-panel p, .import-hint, .cji-hint { max-width: 90ch; }
 
   header { padding: 36px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
   .studio-mark { font-family: 'Petrona', serif; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }

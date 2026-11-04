@@ -1,0 +1,239 @@
+<body>
+<div class="app-wrap">
+
+  <header>
+    <div>
+      <div class="studio-mark">Dimboola Pottery Classes</div>
+      <h1>Workshop <span>Manager</span></h1>
+    </div>
+    <div class="header-date" id="headerDate"></div>
+  </header>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('setup')">① Class Setup</button>
+    <button class="tab-btn" onclick="switchTab('roll')">② Class Roll</button>
+    <button class="tab-btn" onclick="switchTab('pots')">③ Pots &amp; Glazes</button>
+    <button class="tab-btn" onclick="switchTab('print')">④ Print &amp; Export</button>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TAB 1: CLASS SETUP -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="tab-pane active" id="tab-setup">
+    <div class="panel">
+      <div class="panel-title"><span class="num">1</span> Class Details</div>
+      <div class="field-row">
+        <div class="fg">
+          <label>Class / Workshop Name</label>
+          <input type="text" id="className" placeholder="e.g. Plate &amp; Platter Workshop" oninput="syncInfo()" />
+        </div>
+        <div class="fg">
+          <label>Date of Class</label>
+          <input type="date" id="classDate" oninput="syncInfo()" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="fg">
+          <label>Studio Name (for labels)</label>
+          <input type="text" id="studioName" value="Dimboola Pottery Classes" />
+        </div>
+        <div class="fg">
+          <label>Class Time (optional)</label>
+          <input type="text" id="classTime" placeholder="e.g. 11:00 AM – 1:00 PM" />
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="num">2</span> Add Students</div>
+      <div id="studentsContainer"></div>
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="addStudent()">+ Add Student Manually</button>
+        <button class="btn btn-ghost" onclick="toggleBox('boxOutlook')">↓ Import from Outlook</button>
+        <button class="btn btn-ghost" onclick="toggleBox('boxNames')">↓ Paste Names</button>
+        <button class="btn btn-ghost" onclick="toggleBox('boxClientJobs')">↓ Import from Client Jobs Excel</button>
+      </div>
+
+      <!-- OUTLOOK IMPORT -->
+      <div class="import-box" id="boxOutlook" style="display:none;">
+        <div class="section-label" style="margin-bottom:10px;">Import from Outlook — Acuity Booking Notifications</div>
+        <p class="import-hint">
+          Open your Acuity booking notification(s) in Outlook and copy the body text. You can paste multiple bookings at once — the app will detect each one automatically and extract name, phone, email, postcode and Acuity ID.<br><br>
+          Each block should contain lines like: <code>Name: Jane Sample</code> &nbsp; <code>Phone: +61400123456</code> &nbsp; <code>Email: jane.sample@example.com</code> &nbsp; <code>post code...: 3424</code> &nbsp; <code>AcuityID=1000000001</code>
+        </p>
+        <div class="fg" style="margin-bottom:12px;">
+          <label>Paste notification text here (one or multiple bookings)</label>
+          <textarea id="outlookPaste" rows="9" placeholder="May 16, 2026 11:00am AEST&#10;Calendar: Dimboola Pottery Classes&#10;Name: Jane Sample&#10;Phone: +61400123456&#10;Email: jane.sample@example.com&#10;Certificate Code: A1B2C3D4&#10;&#10;About you...&#10;============&#10;What is your home address post code? ...: 3424&#10;&#10;AcuityID=1000000001"></textarea>
+        </div>
+        <div style="display:flex;gap:9px;">
+          <button class="btn btn-primary" onclick="importOutlook()">Import Students</button>
+          <button class="btn btn-secondary" onclick="toggleBox('boxOutlook')">Cancel</button>
+        </div>
+      </div>
+
+      <!-- NAMES IMPORT -->
+      <div class="import-box" id="boxNames" style="display:none;">
+        <div class="section-label" style="margin-bottom:10px;">Quick Name Import</div>
+        <p class="import-hint">One name per line (First Last). Use when you only have names from an Acuity booking list — no contact details will be captured.</p>
+        <div class="fg" style="margin-bottom:12px;">
+          <label>Names</label>
+          <textarea id="namesPaste" rows="5" placeholder="Georgia Powell&#10;Trish Penny&#10;Kristy Moloney&#10;Jo Klein"></textarea>
+        </div>
+        <div style="display:flex;gap:9px;">
+          <button class="btn btn-primary" onclick="importNames()">Import Names</button>
+          <button class="btn btn-secondary" onclick="toggleBox('boxNames')">Cancel</button>
+        </div>
+      </div>
+
+      <!-- CLIENT JOBS EXCEL IMPORT -->
+      <div class="import-box" id="boxClientJobs" style="display:none;">
+        <div class="section-label" style="margin-bottom:10px;">Import from Client Jobs Excel Database</div>
+        <p class="cji-hint">
+          Select your Client Jobs spreadsheet (.xlsx). The app expects columns:
+          <code>First Name</code> <code>Last Name</code> <code>Phone</code> <code>Email</code> <code>Post code</code>
+          <code>Type of class</code> and pot items in columns named <code>item 1</code> through <code>Item 5</code> (or more).<br>
+          Each item cell is imported as a pot description. Contact details and pot info are loaded ready for label and checklist printing.
+        </p>
+
+        <!-- Drop zone / file pick — label wraps the input so the click is native (works from file://) -->
+        <label class="cji-drop" id="cjiDrop"
+               ondragover="event.preventDefault();this.classList.add('drag-over')"
+               ondragleave="this.classList.remove('drag-over')"
+               ondrop="cjiHandleDrop(event)">
+          <div class="cji-drop-icon">📂</div>
+          <div class="cji-drop-label"><strong>Click to choose</strong> or drag &amp; drop your Client Jobs .xlsx file here</div>
+          <input type="file" id="cjiFileInput" accept=".xlsx,.xls" style="display:none" onchange="cjiLoadFile(this.files[0])">
+        </label>
+
+        <!-- Preview of parsed rows -->
+        <div class="cji-preview" id="cjiPreview">
+          <div class="cji-preview-title">Rows found — review before importing</div>
+          <div id="cjiPreviewRows"></div>
+          <div class="cji-status" id="cjiStatus"></div>
+        </div>
+
+        <!-- Merge vs Replace -->
+        <div class="cji-merge-row" id="cjiMergeRow" style="display:none;">
+          <label><input type="radio" name="cjiMode" value="replace" checked> Replace current students</label>
+          <label><input type="radio" name="cjiMode" value="merge"> Merge (add alongside existing students)</label>
+        </div>
+
+        <div style="display:flex;gap:9px;flex-wrap:wrap;" id="cjiActions">
+          <button class="btn btn-primary" id="cjiImportBtn" onclick="cjiImport()" style="display:none;">↑ Import These Clients</button>
+          <button class="btn btn-secondary" onclick="cjiReset();toggleBox('boxClientJobs')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div style="font-size:11px;color:var(--text-muted);"><span id="sumA">0 students · 0 pots</span></div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+        <button class="btn btn-blue" onclick="switchTab('roll')">View Class Roll →</button>
+        <button class="btn btn-dark" onclick="switchTab('pots')">Enter Pot Details →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TAB 2: CLASS ROLL -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="tab-pane" id="tab-roll">
+    <div class="panel">
+      <div class="roll-header">
+        <div>
+          <div class="roll-classname" id="rollTitle">Class Roll</div>
+          <div class="roll-meta" id="rollMeta">—</div>
+        </div>
+        <div class="roll-actions" style="display:flex;gap:9px;flex-wrap:wrap;">
+          <button class="btn btn-secondary" onclick="window.print()">🖨 Print Roll</button>
+          <button class="btn btn-blue" onclick="genNameTags()">🏷 Generate Name Tags ▸</button>
+        </div>
+      </div>
+      <div id="rollWrap"></div>
+    </div>
+
+    <!-- NAME TAG PREVIEW -->
+    <div class="preview-section" id="nameTagSection">
+      <div class="section-label">Name Tag Preview — Brother QL-820NWB · 62mm DK Roll</div>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">Apron-distance readable. Prints 100×62mm landscape — click "Print Name Tags" below (not Ctrl/Cmd+P), then in the system print dialog select <strong>Landscape</strong> orientation and the "62mm Roll" length closest to 100mm.</p>
+      <div id="nameTagGrid" class="labels-grid"></div>
+      <div class="action-row" style="margin-top:14px;">
+        <button class="btn btn-dark" onclick="printNameTags()">🖨 Print Name Tags</button>
+        <button class="btn btn-secondary" onclick="hideSection('nameTagSection')">Hide</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TAB 3: POTS & GLAZES -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="tab-pane" id="tab-pots">
+    <div class="panel">
+      <div class="panel-title"><span class="num">3</span> Pots Made — Enter After Class
+        <div class="view-toggle" role="group" aria-label="View">
+          <button type="button" id="vtGrid" class="active" onclick="setPotsView('grid')">Grid</button>
+          <button type="button" id="vtList" onclick="setPotsView('list')">List</button>
+        </div>
+      </div>
+      <div id="potsWrap"></div>
+    </div>
+    <div class="bottom-bar">
+      <div style="font-size:11px;color:var(--text-muted);"><span id="sumB">0 students · 0 pots</span></div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="printGlazeSheet()">🖨 Print Glaze Sheet</button>
+        <button class="btn btn-dark" onclick="switchTab('print')">Generate Labels &amp; Export →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!-- TAB 4: PRINT & EXPORT -->
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="tab-pane" id="tab-print">
+    <div class="export-panel">
+      <div class="export-title">Export &amp; Backup Class Record</div>
+      <p>Save a permanent record of this class — student details, contact info, pots made, glaze requests. Drop the downloaded file into your Dropbox folder for cloud backup.</p>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;">
+        <button class="btn btn-green" onclick="exportExcel()">↓ Download Excel (.xlsx)</button>
+        <button class="btn btn-secondary" onclick="exportHTML()">↓ Download HTML Record</button>
+      </div>
+    </div>
+
+    <div class="export-panel">
+      <div class="export-title">Restore from Excel Backup</div>
+      <p>Load a previously exported class record (.xlsx) back into the app — restores class details, all students, and their pots &amp; glazes. The file must have been exported by this app (sheets: Class Summary, Student Roll, Pots &amp; Glazes).</p>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;">
+        <label class="btn btn-secondary" style="cursor:pointer;">
+          ↑ Load Excel Backup (.xlsx)
+          <input type="file" id="restoreFileInput" accept=".xlsx" style="display:none;" onchange="restoreFromExcel(this)">
+        </label>
+        <span id="restoreStatus" style="font-size:11px;color:var(--text-muted);"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="num">4</span> Kiln &amp; Crate Checklist</div>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">Prints a full A4 checklist of all students and their pots — with a checkbox to tick off each pot as it's loaded into the kiln crate. Includes a kiln firing notes section. Left margin suits hole-punch filing.</p>
+      <button class="btn btn-dark" onclick="printCrateChecklist()">🖨 Print Crate Checklist</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="num">5</span> Pot Labels</div>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">Generates one adhesive label per pot for the Brother QL-820NWB (62mm DK roll). Each label shows student name, class, date, pot description, clay body, glaze, and item numbering.</p>
+      <button class="btn btn-dark" onclick="genPotLabels()">Generate Pot Labels ▸</button>
+
+      <div class="preview-section" id="potLabelSection">
+        <div class="section-label" style="margin-top:20px;">Pot Label Preview</div>
+        <div id="potLabelGrid" class="labels-grid"></div>
+        <div class="action-row" style="margin-top:14px;">
+          <button class="btn btn-dark" onclick="printPotLabels()">🖨 Print Labels</button>
+          <button class="btn btn-secondary" onclick="hideSection('potLabelSection')">Hide</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-wrap -->
+<div class="toast" id="toast"></div>
+

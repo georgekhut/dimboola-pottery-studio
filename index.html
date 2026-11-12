@@ -53,6 +53,7 @@
 
   /* PANEL */
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 2px; padding: 22px; margin-bottom: 18px; }
+  #jm_form.active, #jm_table.active { background: var(--kiln-black); color: #fff; }
   .panel-title { font-family: 'Petrona', serif; font-size: 18px; color: var(--kiln-black); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
   .num { width: 22px; height: 22px; background: var(--clay-warm); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; flex-shrink: 0; }
 
@@ -100,7 +101,7 @@
   /* POT ROWS */
   .pots-title { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
   .pots-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-  .pot-row { display: grid; grid-template-columns: 26px 1fr 190px 130px auto; gap: 8px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
+  .pot-row { display: grid; grid-template-columns: 26px 1fr 190px 130px 1fr auto; gap: 8px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
   .pot-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
   .pot-num { width: 26px; height: 26px; background: var(--clay-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--clay-dark); font-weight: 500; margin-top: 19px; flex-shrink: 0; }
   .btn-rm-pot { background: none; border: 1px solid var(--border); color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 7px 9px; cursor: pointer; height: 31px; margin-top: 19px; border-radius: 1px; transition: all 0.15s; }
@@ -203,7 +204,7 @@
   .view-toggle button.active { background: var(--kiln-dark); color: var(--ash-white); }
   .pg-scroll { overflow-x: auto; }
   .pg { min-width: 100%; }
-  .pg-row { display: grid; grid-template-columns: 112px repeat(var(--cols, 4), minmax(158px, 1fr)) 58px; gap: 8px; align-items: start; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .pg-row { display: grid; grid-template-columns: 150px repeat(var(--cols, 4), minmax(158px, 1fr)) 58px; gap: 8px; align-items: start; padding: 9px 0; border-bottom: 1px solid var(--border); }
   .pg-row:last-child { border-bottom: none; }
   .pg-head { padding: 0 0 6px; border-bottom: 2px solid var(--border); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
   .pg-who { font-family: 'Petrona', Georgia, serif; font-size: 15px; line-height: 1.15; padding-top: 5px; color: var(--kiln-black); word-break: break-word; }
@@ -218,6 +219,11 @@
   .pg-x { position: absolute; top: -6px; right: -4px; width: 16px; height: 16px; line-height: 14px; padding: 0; font-size: 9px; border: 1px solid var(--border); border-radius: 50%; background: var(--surface); color: var(--text-muted); cursor: pointer; display: none; }
   .pg-cell.has-pot:hover .pg-x, .pg-cell.has-pot:focus-within .pg-x { display: block; }
   .pg-x:hover { border-color: #c0392b; color: #c0392b; }
+  .pg-ship { margin-top: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-secondary); }
+  .pg-ship label { display: flex; align-items: center; gap: 5px; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; }
+  .pg-ship textarea { display: none; width: 100%; margin-top: 4px; min-height: 64px; background: #fff; border: 1px solid var(--border); border-radius: 1px; padding: 5px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; line-height: 1.4; resize: vertical; outline: none; }
+  .pg-ship.on textarea { display: block; }
+  .pg-ship textarea:focus { border-color: var(--clay-warm); }
   .pg-add { padding-top: 3px; }
   .pg-add .btn { padding: 6px 8px; font-size: 10px; }
 
@@ -247,6 +253,8 @@
        Cmd/Ctrl+P from this tab print the roll. */
     #tab-roll .panel { display: block !important; }
     #tab-roll .roll-actions { display: none !important; }
+    /* No phone/email on printed paper left in the workshop (SMS will get its own section). */
+    #tab-roll .roll-contact { display: none !important; }
   }
 
   @media (max-width: 640px) {
@@ -440,7 +448,6 @@
     <div class="bottom-bar">
       <div style="font-size:11px;color:var(--text-muted);"><span id="sumB">0 students · 0 pots</span></div>
       <div style="display:flex;gap:9px;flex-wrap:wrap;">
-        <button class="btn btn-secondary" onclick="printGlazeSheet()">🖨 Print Glaze Sheet</button>
         <button class="btn btn-dark" onclick="switchTab('print')">Generate Labels &amp; Export →</button>
       </div>
     </div>
@@ -472,13 +479,29 @@
     </div>
 
     <div class="panel">
-      <div class="panel-title"><span class="num">4</span> Kiln &amp; Crate Checklist</div>
-      <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">Prints a full A4 checklist of all students and their pots — with a checkbox to tick off each pot as it's loaded into the kiln crate. Includes a kiln firing notes section. Left margin suits hole-punch filing.</p>
-      <button class="btn btn-dark" onclick="printCrateChecklist()">🖨 Print Crate Checklist</button>
+      <div class="panel-title"><span class="num">4</span> Glazing Job Sheet</div>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.7;">A grid with one row per client and one column per pot. The <strong>Paper form</strong> is printed blank before class so items, glazes and notes can be handwritten; the <strong>Glazing table</strong> is filled from the app, to refer to while applying glazes. A4 holds 4 clients per page, A3 holds 12.</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button type="button" id="jm_form" class="btn btn-secondary active" onclick="setJobMode('form')">Paper form</button>
+        <button type="button" id="jm_table" class="btn btn-secondary" onclick="setJobMode('table')">Glazing table</button>
+      </div>
+      <div id="jobPreview" style="margin-bottom:14px;"></div>
+      <div class="action-row">
+        <button class="btn btn-dark" onclick="printJobSheet(jobMode,'A4')">🖨 Print A4</button>
+        <button class="btn btn-dark" onclick="printJobSheet(jobMode,'A3')">🖨 Print A3</button>
+        <button class="btn btn-secondary" onclick="renderJobPreview()">Refresh preview</button>
+      </div>
     </div>
 
     <div class="panel">
-      <div class="panel-title"><span class="num">5</span> Pot Labels</div>
+      <div class="panel-title"><span class="num">5</span> Kiln &amp; Crate Checklist</div>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">Prints a full A4 checklist (or an A3 version, scaled up) of all students and their pots — with a checkbox to tick off each pot as it's loaded into the kiln crate. Includes a kiln firing notes section. Left margin suits hole-punch filing.</p>
+      <button class="btn btn-dark" onclick="printCrateChecklist()">🖨 Print Crate Checklist</button>
+      <button class="btn btn-secondary" onclick="printCrateChecklist('A3')">🖨 Print A3 Version</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="num">6</span> Pot Labels</div>
       <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">Generates one adhesive label per pot for the Brother QL-820NWB (62mm DK roll). Each label shows student name, class, date, pot description, clay body, glaze, and item numbering.</p>
       <button class="btn btn-dark" onclick="genPotLabels()">Generate Pot Labels ▸</button>
 
@@ -493,7 +516,7 @@
     </div>
 
     <div class="panel">
-      <div class="panel-title"><span class="num">6</span> Carton Labels</div>
+      <div class="panel-title"><span class="num">7</span> Carton Labels</div>
       <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.7;">One 100×62mm label per carton or bag, for when a client's pots are packed together. Set the number of cartons per client and tick <strong>Ship</strong> for postal orders (adds SHIP, top right). Prints landscape like the name tags.</p>
       <div id="cartonList" style="margin-bottom:14px;"></div>
       <div class="action-row">
@@ -522,7 +545,8 @@ const GLAZES = [
   'Pink',
   'Turquoise',
   'Black-Brown',
-  'Blue on Black'
+  'Blue on Black',
+  "George's pick"
 ];
 // Old glaze names -> current names, applied when an Excel backup is restored so
 // older class records pick up the new naming. Horsley Matt and Blanc Cremeau
@@ -649,12 +673,26 @@ function removeStudent(id) { students=students.filter(s=>s.id!==id); renderAll()
 function setField(id,f,v) { const s=students.find(s=>s.id===id); if(s){s[f]=v;} updateSum(); }
 function addPot(sid) { const s=students.find(s=>s.id===sid); if(s){s.pots.push({description:'',clay:'White Stoneware',glaze:''});renderPotsTab();updateSum();} }
 function removePot(sid,pi) { const s=students.find(s=>s.id===sid); if(s){s.pots.splice(pi,1);renderPotsTab();updateSum();} }
+// Shipping: one Ship tick per client order, and the address for that shipment.
+function shipHtml(s) {
+  return `<div class="pg-ship${s.ship ? ' on' : ''}" data-sid="${s.id}">
+    <label><input type="checkbox" ${s.ship ? 'checked' : ''} onchange="setShip(${s.id}, this.checked, this)"> Ship</label>
+    <textarea placeholder="Ship to — name, street, suburb, state, postcode" oninput="setShipAddr(${s.id}, this.value)">${e(s.shipAddress || '')}</textarea>
+  </div>`;
+}
+function setShip(sid, on, el) {
+  const s = students.find(x => x.id === sid); if (!s) return;
+  s.ship = !!on;
+  const box = el && el.closest('.pg-ship'); if (box) box.classList.toggle('on', s.ship);
+  renderCartonList(); renderJobPreview();
+}
+function setShipAddr(sid, v) { const s = students.find(x => x.id === sid); if (s) s.shipAddress = v; }
 function setPot(sid,pi,f,v) { const s=students.find(s=>s.id===sid); if(s&&s.pots[pi])s.pots[pi][f]=v; }
 
 // ════════════════════════════════════════
 // RENDER ORCHESTRATOR
 // ════════════════════════════════════════
-function renderAll() { renderSetup(); renderRoll(); renderPotsTab(); updateSum(); syncInfo(); renderCartonList(); }
+function renderAll() { renderSetup(); renderRoll(); renderPotsTab(); updateSum(); syncInfo(); renderCartonList(); renderJobPreview(); }
 
 // ════════════════════════════════════════
 // RENDER: SETUP — STUDENT CARDS
@@ -722,7 +760,7 @@ function renderRoll() {
   }
   w.innerHTML = `<table class="roll-table">
     <thead><tr>
-      <th>#</th><th>Student</th><th>Postcode</th><th>Contact</th><th>Note</th><th>Source</th><th style="text-align:center">Arrived ✓</th>
+      <th>#</th><th>Student</th><th>Postcode</th><th class="roll-contact">Contact</th><th>Note</th><th>Source</th><th style="text-align:center">Arrived ✓</th>
     </tr></thead>
     <tbody>
     ${students.map((s,i)=>`
@@ -730,7 +768,7 @@ function renderRoll() {
         <td style="color:var(--text-muted);font-size:11px;">${i+1}</td>
         <td><div class="roll-name">${e(fullName(s)||'—')}</div></td>
         <td style="font-size:11px;color:var(--text-secondary);">${e(s.postcode)||'—'}</td>
-        <td><div class="roll-sub">${s.phone?e(s.phone)+'<br>':''}${e(s.email)}</div></td>
+        <td class="roll-contact"><div class="roll-sub">${s.phone?e(s.phone)+'<br>':''}${e(s.email)}</div></td>
         <td style="font-size:11px;color:var(--clay-dark);font-style:italic;">${e(s.note)}</td>
         <td><span class="badge ${s.source==='acuity'?'badge-acuity':'badge-manual'}">${s.source==='acuity'?'Acuity':'Walk-in'}</span></td>
         <td style="text-align:center;"><input type="checkbox" class="arrived-cb" /></td>
@@ -786,10 +824,11 @@ function renderPotsGrid(w) {
           <select class="pg-clay" title="Clay body" onchange="gridSet(this,'clay',this.value)">${clayOpts(has?p.clay:'White Stoneware')}</select>
         </div>
         <select class="pg-glaze" onchange="gridSet(this,'glaze',this.value)">${glazeOptionsHtml(has?p.glaze:'')}</select>
+        <input class="pg-note" placeholder="Note" value="${has?e(p.note||''):''}" oninput="gridSet(this,'note',this.value)" />
         <button type="button" class="pg-x" onclick="gridRemove(this)" title="Remove this pot">✕</button>
       </div>`;
     }
-    return `<div class="pg-row"><div class="pg-who">${e(fullName(s)||'New Student')}</div>${cells}
+    return `<div class="pg-row"><div><div class="pg-who">${e(fullName(s)||'New Student')}</div>${shipHtml(s)}</div>${cells}
       <div class="pg-add"><button type="button" class="btn btn-ghost" onclick="addPot(${s.id})">+ pot</button></div></div>`;
   }).join('');
   w.innerHTML = `<div class="pg-scroll"><div class="pg" style="--cols:${cols}">${head}${rows}</div></div>`;
@@ -800,7 +839,7 @@ function gridSet(el, field, value) {
   const s = students.find(x => x.id === +cell.dataset.sid);
   if (!s) return;
   if (cell.dataset.pi === '') {            // first entry in an empty cell → create the pot
-    s.pots.push({description:'', clay:'White Stoneware', glaze:''});
+    s.pots.push({description:'', clay:'White Stoneware', glaze:'', note:''});
     cell.dataset.pi = s.pots.length - 1;
     cell.classList.add('has-pot');
   }
@@ -831,6 +870,9 @@ function renderPotsList(w) {
           <select onchange="setPot(${s.id},${pi},'clay',this.value)">
             ${CLAY.map(c=>`<option value="${e(c)}"${c===p.clay?' selected':''}>${e(c)}</option>`).join('')}
           </select></div>
+        <div class="fg"><label>Note</label>
+          <input value="${e(p.note||'')}" placeholder="e.g. handles, gift"
+            oninput="setPot(${s.id},${pi},'note',this.value)" /></div>
         <button class="btn-rm-pot" onclick="removePot(${s.id},${pi})" title="Remove">✕</button>
       </div>`;
     }).join('');
@@ -841,6 +883,7 @@ function renderPotsList(w) {
         <span class="badge badge-pots">${s.pots.length} pot${s.pots.length!==1?'s':''}</span>
       </div>
       <div style="padding:14px 16px;">
+        <div style="margin-bottom:10px;max-width:340px;">${shipHtml(s)}</div>
         <div class="pots-title">Pots made in this class</div>
         ${potsHtml||`<p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">No pots added yet.</p>`}
         <button class="btn btn-ghost" style="margin-top:8px;" onclick="addPot(${s.id})">+ Add a pot</button>
@@ -1236,7 +1279,7 @@ function renderCartonList() {
     return `<div style="display:flex;align-items:center;gap:12px;padding:5px 0;font-size:12px;">
       <span style="flex:1;">${e(fullName(s) || 'Unknown')} <span style="color:var(--text-muted);">· ${s.pots.length} item${s.pots.length !== 1 ? 's' : ''}</span></span>
       <label>Cartons <input type="number" min="0" max="20" value="${s.cartons == null ? 1 : s.cartons}" style="width:52px;" onchange="students[${i}].cartons=Math.max(0,Math.min(20,parseInt(this.value)||0))"></label>
-      <label><input type="checkbox" ${s.ship ? 'checked' : ''} onchange="students[${i}].ship=this.checked"> Ship</label>
+      <label><input type="checkbox" ${s.ship ? 'checked' : ''} onchange="setShip(${s.id}, this.checked); renderPotsTab()"> Ship</label>
     </div>`;
   }).join('');
 }
@@ -1331,102 +1374,148 @@ ${labelsHtml}
 }
 
 // ═══════════════════════════════════════
-// GLAZE SHEET — print-before-class, handwrite-after-class
+// GLAZING JOB SHEET — paper form + glazing table, A4 or A3
 // ═══════════════════════════════════════
-// One row per client; name column on the left, then 4+ pot cells each holding an
-// Item line and a Glaze line. Anything already stored in the app is printed in the
-// cell; otherwise the line is left blank for handwriting. A4 landscape for up to
-// 4 clients, A3 landscape beyond that (12 clients per A3 page; more spill onto
-// further pages). Hairline rules only, no fills, to keep ink use low.
-function printGlazeSheet() {
-  if (!students.length) { toast('Add students first'); return; }
-
-  const big      = students.length > 4;
-  const paper    = big ? 'A3' : 'A4';
-  const perPage  = big ? 12 : 4;
-  const pageH    = big ? 277 : 190;               // mm of usable height (297/210 minus 10mm margins)
-  const maxPots  = students.reduce((m, s) => Math.max(m, s.pots.length), 0);
-  const cols     = Math.min(6, Math.max(4, maxPots));
-  const classInfo = cn();
-  const dateInfo  = dateLong();
+// Designed in Affinity (glaze-form-paper-A3.af / glaze-table-workshop-A3.af).
+// One grid, two modes:
+//   'form'  — blank form printed before class. Name pre-filled (blank name = empty
+//             box to hand-write), "SHIP TO / NOTES" space under it, then numbered
+//             pot cells with a "BUFF · WHITE" clay label. No field labels or lines.
+//   'table' — reference used while glazing. Same grid filled from the app: item,
+//             glaze (large), note, clay, plus "SHIP ▲" for posted orders.
+// Pot columns default to 4 and grow to fit the client with most pots (max 8).
+// A3 = 12 client rows per page, A4 = 4. Margins 30mm left (hole punch), 40mm right
+// (pencil notes), 10mm top/bottom. The on-screen preview uses this same markup.
+function jobSheetHtml(mode, paper, forPrint, firstPageOnly) {
+  const big     = paper === 'A3';
+  const perPage = big ? 12 : 4;
+  const pageH   = big ? 277 : 190;
+  const nameW   = big ? 75 : 55;
+  const maxPots = students.reduce((m, s) => Math.max(m, s.pots.length), 0);
+  const cols    = Math.min(8, Math.max(4, maxPots));
+  const classInfo = cn(), dateInfo = dateLong();
   const timeInfo  = document.getElementById('classTime').value || '';
+  const studio    = (sn() || 'Dimboola Pottery').replace(/ Classes$/i, '').toUpperCase();
+  const label     = mode === 'form' ? 'GLAZE SHEET' : 'GLAZING TABLE';
+  const foot = mode === 'form'
+    ? "Write items, glazes and notes after class, then enter them in the app (Pots &amp; Glazes tab). Shipping address: write under the client's name."
+    : 'Glazing table — printed from the app. ▲ = posted order.';
 
-  const pages = [];
+  let pages = [];
   for (let i = 0; i < students.length; i += perPage) pages.push(students.slice(i, i + perPage));
+  const total = pages.length;
+  if (firstPageOnly) pages = pages.slice(0, 1);
 
   const pagesHtml = pages.map((chunk, pi) => {
     const rows = chunk.map(s => {
       let cells = '';
       for (let i = 0; i < cols; i++) {
         const p = s.pots[i] || {};
-        cells += `<div class="cell"><span class="pn">${i + 1}</span>
-          <div class="ln"><div class="hd"><b>Item</b><i class="clay">Buff / White</i></div><span class="v">${e(p.description || '')}</span></div>
-          <div class="ln"><div class="hd"><b>Glaze</b></div><span class="v">${e(p.glaze || '')}</span></div></div>`;
+        if (mode === 'form') {
+          cells += `<div class="cell"><span class="pn">${i + 1}</span><span class="clay">BUFF · WHITE</span></div>`;
+        } else {
+          const clay = (p.clay || '').replace(/ Stoneware/i, '').toUpperCase();
+          cells += `<div class="cell"><span class="pn">${i + 1}</span><span class="clay">${e(clay)}</span>
+            <div class="it">${e(p.description || '')}</div><div class="gl">${e(p.glaze || '')}</div><div class="nt">${e((p.note || '').trim())}</div></div>`;
+        }
       }
-      return `<div class="row"><div class="who">${e(fullName(s) || '(no name)')}</div>${cells}</div>`;
+      const sub = mode === 'form' ? 'SHIP TO / NOTES ▸' : (s.ship ? 'SHIP ▲' : '');
+      return `<div class="row"><div class="who"><div class="nm">${e(fullName(s) || '')}</div><div class="ship">${sub}</div></div>${cells}</div>`;
     }).join('');
     return `<div class="sheet${pi < pages.length - 1 ? ' brk' : ''}">
-      <div class="eyebrow">${e(sn())} — Glaze sheet${pages.length > 1 ? ` · page ${pi + 1} of ${pages.length}` : ''}</div>
+      <div class="eyebrow">${e(studio)} — ${label}${total > 1 ? ` · PAGE ${pi + 1} OF ${total}` : ''}</div>
       <div class="head"><div class="title">${e(classInfo)}${dateInfo ? ' — ' + e(dateInfo) : ''}</div>${timeInfo ? `<div class="meta">${e(timeInfo)}</div>` : ''}</div>
       <div class="rule"></div>
       <div class="grid">${rows}</div>
-      <div class="foot">Write items and glazes after class, then enter them in the app (Pots &amp; Glazes tab)</div>
+      <div class="foot">${foot}</div>
     </div>`;
   }).join('');
 
-  const html = `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Glaze Sheet — ${e(classInfo)}</title>
+<title>${label === 'GLAZE SHEET' ? 'Glaze Sheet' : 'Glazing Table'} — ${e(classInfo)}</title>
 <style>
   ${embeddedFontCSS()}
-  @page { size: ${paper} landscape; margin: 10mm 30mm; }
+  @page { size: ${paper} landscape; margin: 10mm 40mm 10mm 30mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'IBM Plex Mono', 'Courier New', monospace; color: #1A1410; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: #000; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .sheet { height: ${pageH}mm; display: flex; flex-direction: column; overflow: hidden; }
   .sheet.brk { page-break-after: always; }
-  .eyebrow { font-size: 6.5pt; letter-spacing: 0.22em; text-transform: uppercase; color: #444; }
-  .head { display: flex; justify-content: flex-start; align-items: baseline; gap: 6mm; margin: 1mm 0 2mm; }
-  .title { font-family: 'Petrona', Georgia, serif; font-size: 20pt; line-height: 1; }
+  .eyebrow { font-size: 6.5pt; line-height: 1.2; }
+  .head { display: flex; justify-content: space-between; align-items: baseline; margin: 0.5mm 0 2.5mm; }
+  .title { font-family: 'Petrona', Georgia, serif; font-weight: 500; font-size: 20pt; line-height: 1.1; }
   .meta { font-size: 9pt; }
-  .rule { height: 0.3mm; background: #1A1410; }
+  .rule { height: 0.3mm; background: #000; }
   .grid { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-  .row { display: grid; grid-template-columns: 68mm repeat(${cols}, minmax(0, 1fr)); flex: 1 1 0; max-height: 42mm; border-bottom: 0.2mm solid #777; }
-  .who { font-family: 'Petrona', Georgia, serif; font-size: 14pt; padding: 2mm 2mm 0 0; line-height: 1.1; }
-  .cell { position: relative; border-left: 0.2mm solid #777; padding: 1.5mm 3mm 1mm 7mm; display: flex; flex-direction: column; }
-  .pn { position: absolute; left: 1.8mm; top: 1.2mm; font-size: 7pt; color: #444; }
-  /* Heading on its own line, writing space underneath (no rules). */
-  .ln { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
-  .hd { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 0.8mm; }
-  .ln b { font-weight: 400; font-size: 6pt; letter-spacing: 0.14em; text-transform: uppercase; color: #444; }
-  /* Clay body to circle or underline by hand — printed plain; the app's default clay is not a decision. */
-  .clay { font-style: normal; font-size: 6.5pt; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1410; }
-  .v { font-size: 9pt; line-height: 1.15; max-height: 2.3em; overflow: hidden; overflow-wrap: anywhere; }
-  .foot { font-size: 6pt; color: #444; margin-top: 1.5mm; letter-spacing: 0.08em; }
+  .row { display: grid; grid-template-columns: ${nameW}mm repeat(${cols}, minmax(0, 1fr)); flex: 1 1 0; max-height: ${big ? 21.25 : 38}mm; border-bottom: 0.2mm solid #777; }
+  .who { padding: 1.5mm 2mm 0 0; }
+  .nm { font-family: 'Petrona', Georgia, serif; font-weight: 500; font-size: 14pt; line-height: 1.15; min-height: 1.15em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .ship { font-size: ${mode === 'form' ? '5.5pt' : '8pt'}; margin-top: 1.5mm; }
+  .cell { position: relative; border-left: 0.2mm solid #777; ${mode === 'table' ? 'padding: 1.2mm 1.5mm 0 7mm; overflow: hidden;' : ''} }
+  .pn { position: absolute; left: 1.5mm; top: 1.5mm; font-size: 7pt; line-height: 1.2; }
+  .clay { position: absolute; right: 1.5mm; top: 1.5mm; font-size: 5.5pt; line-height: 1.2; }
+  .it, .gl, .nt { overflow: hidden; }
+  .it { font-family: 'Petrona', Georgia, serif; font-style: italic; font-weight: 500; font-size: 9pt; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; margin-right: 14mm; height: 1.25em; }
+  .gl { font-size: 11pt; line-height: 1.2; margin-top: 1mm; white-space: nowrap; text-overflow: ellipsis; }
+  .nt { font-family: 'Petrona', Georgia, serif; font-style: italic; font-weight: 500; font-size: 8pt; line-height: 1.1; margin-top: 0.8mm; max-height: 2.3em; }
+  .foot { font-size: ${mode === 'form' ? '10pt' : '6pt'}; line-height: 1.2; margin-top: 2mm; }
 </style>
 </head>
 <body>
 ${pagesHtml}
-<script>
+${forPrint ? `<script>
 document.fonts.ready.then(function() {
   requestAnimationFrame(function() { window.print(); window.close(); });
 });
-<\/script>
+<\/script>` : ''}
 </body>
 </html>`;
+}
 
+function jobSheetPaper(paper) { return paper === 'A3' || paper === 'A4' ? paper : (students.length > 4 ? 'A3' : 'A4'); }
+
+function printJobSheet(mode, paper) {
+  if (!students.length) { toast('Add students first'); return; }
+  paper = jobSheetPaper(paper);
+  const maxPots = students.reduce((m, s) => Math.max(m, s.pots.length), 0);
+  if (maxPots > 8) toast('More than 8 pots for one client — only 8 columns fit; note the rest by hand');
   const w = window.open('', '_blank');
-  if (!w) { toast('Allow popups to print the glaze sheet'); return; }
-  w.document.write(html);
+  if (!w) { toast('Allow popups to print the job sheet'); return; }
+  w.document.write(jobSheetHtml(mode, paper, true));
   w.document.close();
-  toast(`Opening ${paper} landscape glaze sheet…`);
+  toast(`Opening ${paper} landscape ${mode === 'form' ? 'paper form' : 'glazing table'}…`);
+}
+// Older entry points
+function printGlazeSheet(paper) { printJobSheet('form', paper); }
+function printGlazingTable(paper) { printJobSheet('table', paper); }
+
+// On-screen preview: the same markup in an iframe, scaled to fit, so it looks like the paper.
+let jobMode = 'form';
+function setJobMode(m) { jobMode = m; renderJobPreview(); }
+function renderJobPreview() {
+  const box = document.getElementById('jobPreview');
+  if (!box) return;
+  ['form', 'table'].forEach(m => { const b = document.getElementById('jm_' + m); if (b) b.classList.toggle('active', m === jobMode); });
+  if (!students.length) { box.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:10px 0;">Add students to see the job sheet.</div>'; return; }
+  const paper = jobSheetPaper();
+  const big = paper === 'A3';
+  const contentW = (big ? 420 : 297) - 70;        // mm between the 30mm and 40mm margins
+  const contentH = big ? 277 : 190;
+  const mm = 96 / 25.4;
+  const avail = Math.max(300, box.clientWidth || 700);
+  const k = Math.min(1, avail / (contentW * mm));
+  box.innerHTML = `<div style="width:${contentW * mm * k}px;height:${contentH * mm * k + 6}px;border:1px solid var(--border,#d8cfc4);background:#fff;overflow:hidden;">
+    <iframe style="width:${contentW}mm;height:${contentH}mm;border:0;transform:scale(${k});transform-origin:0 0;" srcdoc="${jobSheetHtml(jobMode, paper, false, true).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"></iframe></div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">Preview of page 1 · auto size would be ${paper} landscape (${students.length} client${students.length !== 1 ? 's' : ''}) · prints use the button you choose.</div>`;
 }
 
 // ════════════════════════════════════════
 // KILN & CRATE CHECKLIST
 // ════════════════════════════════════════
-function printCrateChecklist() {
+function printCrateChecklist(paper) {
+  paper = paper === 'A3' ? 'A3' : 'A4';   // A3 = same layout scaled up 141% (A4 stays the default)
   if (!students.length) { toast('No students to print'); return; }
 
   const tp       = students.reduce((n,s) => n + s.pots.length, 0);
@@ -1444,7 +1533,6 @@ function printCrateChecklist() {
   // Per-student cards
   const studentCards = students.map(s => {
     const name    = fullName(s) || '(no name)';
-    const contact = [s.phone, s.email].filter(Boolean).join(' · ');
     const potCount = s.pots.length;
 
     const potRows = potCount === 0
@@ -1465,7 +1553,6 @@ function printCrateChecklist() {
       <div class="sc-head">
         <div class="sc-left">
           <span class="sc-name">${e(name)}</span>
-          ${contact ? `<span class="sc-contact">${e(contact)}</span>` : ''}
         </div>
         <span class="sc-potcount">${potCount} pot${potCount !== 1 ? 's' : ''}</span>
       </div>
@@ -1494,11 +1581,11 @@ function printCrateChecklist() {
 <style>
   ${embeddedFontCSS()}
   @page {
-    size: A4;
+    size: ${paper};
     margin: 14mm 10mm 12mm 22mm;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 9pt; color: #1A1410; background: white; }
+  body { font-family: 'IBM Plex Mono', 'Courier New', monospace; font-size: 9pt; color: #1A1410; background: white;${paper === 'A3' ? ' zoom: 1.414;' : ''} }
 
   /* ── Page header ── */
   .page-header { margin-bottom: 5mm; }
@@ -1614,7 +1701,7 @@ document.fonts.ready.then(() => {
   if (!w) { toast('Allow popups to print the checklist'); return; }
   w.document.write(html);
   w.document.close();
-  toast('Opening checklist for print…');
+  toast(`Opening ${paper} checklist for print…`);
 }
 
 // ════════════════════════════════════════
@@ -1637,23 +1724,23 @@ function exportExcel() {
   XLSX.utils.book_append_sheet(wb,ws1,'Class Summary');
 
   // Sheet 2: Student Roll
-  const rollH=['#','First Name','Last Name','Phone','Email','Postcode','Note','Source','Acuity ID','Cert Code'];
-  const rollR=students.map((s,i)=>[i+1,s.firstName,s.lastName,s.phone,s.email,s.postcode,s.note,s.source,s.acuityId,s.certCode]);
+  const rollH=['#','First Name','Last Name','Phone','Email','Postcode','Note','Source','Acuity ID','Cert Code','Ship','Ship Address'];
+  const rollR=students.map((s,i)=>[i+1,s.firstName,s.lastName,s.phone,s.email,s.postcode,s.note,s.source,s.acuityId,s.certCode,s.ship?'Yes':'',s.shipAddress||'']);
   const ws2=XLSX.utils.aoa_to_sheet([rollH,...rollR]);
-  ws2['!cols']=[{wch:4},{wch:14},{wch:14},{wch:16},{wch:30},{wch:10},{wch:20},{wch:8},{wch:14},{wch:14}];
+  ws2['!cols']=[{wch:4},{wch:14},{wch:14},{wch:16},{wch:30},{wch:10},{wch:20},{wch:8},{wch:14},{wch:14},{wch:6},{wch:40}];
   XLSX.utils.book_append_sheet(wb,ws2,'Student Roll');
 
   // Sheet 3: Pots & Glazes
-  const potH=['Student First','Student Last','Pot #','Total Pots','Description','Clay','Glaze'];
+  const potH=['Student First','Student Last','Pot #','Total Pots','Description','Clay','Glaze','Note'];
   const potR=[];
   students.forEach(s=>{
-    if(s.pots.length===0){potR.push([s.firstName,s.lastName,'—',0,'','','']);}
+    if(s.pots.length===0){potR.push([s.firstName,s.lastName,'—',0,'','','','']);}
     else s.pots.forEach((p,i)=>{
-      potR.push([s.firstName,s.lastName,i+1,s.pots.length,p.description,p.clay,p.glaze]);
+      potR.push([s.firstName,s.lastName,i+1,s.pots.length,p.description,p.clay,p.glaze,p.note||'']);
     });
   });
   const ws3=XLSX.utils.aoa_to_sheet([potH,...potR]);
-  ws3['!cols']=[{wch:14},{wch:14},{wch:6},{wch:10},{wch:28},{wch:16},{wch:28}];
+  ws3['!cols']=[{wch:14},{wch:14},{wch:6},{wch:10},{wch:28},{wch:16},{wch:28},{wch:28}];
   XLSX.utils.book_append_sheet(wb,ws3,'Pots & Glazes');
 
   const fname=cn().replace(/[^a-zA-Z0-9 ]/g,'').trim().replace(/\s+/g,'_');
@@ -1719,6 +1806,8 @@ function restoreFromExcel(input) {
           source    : String(r[col('Source')]      || 'manual').trim(),
           acuityId  : String(r[col('Acuity ID')]   || '').trim(),
           certCode  : String(r[col('Cert Code')]   || '').trim(),
+          ship      : /^y/i.test(String(r[col('Ship')] || '')),
+          shipAddress: String(r[col('Ship Address')] || '').trim(),
           pots      : []
         });
       }
@@ -1742,7 +1831,7 @@ function restoreFromExcel(input) {
           if (String(r[pc('Pot #')]) === '\u2014') continue; // skip "no pots" placeholder rows
           const student = studentList.find(s => s.firstName === first && s.lastName === last);
           if (student) {
-            student.pots.push({ description: desc, clay, glaze });
+            student.pots.push({ description: desc, clay, glaze, note: String(r[pc('Note')] || '').trim() });
           }
         }
       }

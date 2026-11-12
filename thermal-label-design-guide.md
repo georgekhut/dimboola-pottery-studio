@@ -16,6 +16,7 @@ The app's three thermal labels were redesigned in Affinity in November 2026. Whe
 - **Overflow order:** shrink to a floor size, then shorten, then end with an ellipsis. On the pot label the note is the last thing cut.
 - **Pot label has no ship marker.** SHIP appears only on the carton label, top right.
 - **`@page` margin is 0** on all labels; position text absolutely in mm so the 3mm rule is explicit rather than left to the driver (the 1.5mm example in §1 is superseded).
+- **Carton label** (100 × 62mm): shows SHIP top right only when the client's whole order is posted. Client shipping addresses are never printed on any label or sheet.
 - **100 × 62mm labels** still print with Landscape chosen in the system dialog, margins None, scale 100.
 
 ---

@@ -1,6 +1,22 @@
 # Thermal Label Design Guide
 ## Brother QL-820NWB · 62mm DK Continuous Roll
-### Lessons learned through iterative test printing — Dimboola Pottery Classes, June–July 2026
+### Lessons learned through iterative test printing — Dimboola Pottery Classes, June–July 2026 (current-label update: November 2026)
+
+---
+
+## 0. Current labels (12 Nov 2026) — read this first
+
+The app's three thermal labels were redesigned in Affinity in November 2026. Where this section conflicts with the June–July notes below, **this section wins**; the later sections are kept as the history and reasoning behind the print-engine rules (borders, orientation, rules, line-clamp), which still apply.
+
+- **Labels:** pot label 62 × 29mm, client name tag 100 × 62mm, carton/bag label 100 × 62mm. Exact fields, fonts and positions are in `docs/print-system-reference.md` §7.
+- **Fonts:** IBM Plex Mono **SemiBold** (single weight, no italics) for label text; Petrona **Medium** (name tag) and **Medium Italic** (pot description). Nothing else is embedded. This replaces DM Mono and the 400/500 weight hierarchy in §2.
+- **Weight risk:** SemiBold is 600, which §2 warns can clog on the thermal head. It was chosen on purpose and has not yet been test printed. If it looks heavy or blurred, raise or lower print density first, and only then change weight (a lighter static weight means re-embedding).
+- **Colour:** plain black text, no fills (the `#1A1410` near-black in §4 is no longer used on labels).
+- **Minimum margin: 3mm on all four sides of every label.** Measure the printed ink, not the text box — descenders (g, j, p, q, y) and italic overhang eat into the margin. Verify with worst-case text: a long double-barrelled name, a long description with a note, and a descender in the bottom line. Current minimums: pot label 3.2mm, name tag 4.8mm, carton 6.2mm.
+- **Overflow order:** shrink to a floor size, then shorten, then end with an ellipsis. On the pot label the note is the last thing cut.
+- **Pot label has no ship marker.** SHIP appears only on the carton label, top right.
+- **`@page` margin is 0** on all labels; position text absolutely in mm so the 3mm rule is explicit rather than left to the driver (the 1.5mm example in §1 is superseded).
+- **100 × 62mm labels** still print with Landscape chosen in the system dialog, margins None, scale 100.
 
 ---
 
@@ -17,7 +33,7 @@
 
 The reliable approach: declare `@page` directly in the label's own landscape dimensions —
 ```css
-@page { size: 100mm 62mm; margin: 1.5mm; }
+@page { size: 100mm 62mm; margin: 0; }   /* absolute-position content with >=3mm inset instead */
 ```
 — author the content naturally (no rotation wrapper at all, just a normal top-to-bottom flex layout, same as the compact 62×45mm design below), and get the physical rotation from the **print dialog's own Landscape orientation setting** instead of CSS. This is a print-driver feature built for exactly this case, and it doesn't go through any of the fragile transform/pagination code paths that broke the CSS approach. In the system print dialog (⌥⌘P → native panel, not Chrome's own dropdown — see §8), select **Landscape** orientation together with the "62mm Roll" length closest to 100mm.
 
@@ -49,7 +65,7 @@ Serif fonts (e.g. Garamond, Times) have hairline thin strokes that thermal dot m
 
 **Update, July 2026:** Petrona is now the app's one serif face used everywhere a serif is called for — both hero name elements (Pot Labels, Name Tags) and the A4 outputs (Class Roll, Crate Checklist headings), replacing the mix of Cormorant Garamond/Georgia used previously. One consequence for auto-fit sizing: Petrona's letterforms run noticeably wider than Cormorant Garamond's at the same point size, so a `fitNames()`-style floor tuned for Cormorant Garamond can still overflow with Petrona — re-check the floor against a genuinely long test name (a double-barrelled surname) after any font change, not just a typical one.
 
-**Recommended:** `DM Mono`, `Courier New`, or any monospace system font for everything except a single large hero element, which may use a serif face (Petrona) if printed at 18pt or larger.
+**Recommended (historical — superseded by §0):** `DM Mono`, `Courier New`, or any monospace system font for everything except a single large hero element, which may use a serif face (Petrona) if printed at 18pt or larger.
 
 ### Font weight hierarchy for thermal printing
 
@@ -391,7 +407,8 @@ Increase density 1–2 notches to bring up lighter-weight text without blowing o
 - [ ] `@page` declared in the label's own natural (non-rotated) dimensions and injected in label's own `<style>` block — never a CSS `transform: rotate()` wrapper to fake landscape on a portrait page; that doesn't survive Chrome's print pipeline reliably (see §1)
 - [ ] For any label wider than 62mm, print instructions tell the user to select **Landscape** orientation in the system print dialog, not just the paper size
 - [ ] Monospace font used for body text; serif (Petrona) reserved for a single large (18pt+) hero element only, and test-printed to confirm
-- [ ] Font weights: `500` for name only, `400` for everything else
+- [ ] Fonts and weights follow §0 (Plex Mono SemiBold, Petrona Medium / Medium Italic); older 400/500 weight rules apply only to any label still using DM Mono
+- [ ] At least 3mm clear of printed ink on all four sides, measured with worst-case text (long name, long description plus note, descenders on the bottom line)
 - [ ] If the hero name auto-fits via canvas measurement, the floor point size has been checked against a genuinely long test name, not just a typical one — Petrona runs wider than Cormorant Garamond at the same size (see §2)
 - [ ] All rules are filled `<div>` elements — no CSS `border` properties
 - [ ] Every rule has its thickness set **explicitly** (`height` on horizontal, `width` on vertical) — don't rely on a grid track's size alone

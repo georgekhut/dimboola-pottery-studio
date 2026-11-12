@@ -1,7 +1,8 @@
 # Zoho Flow 1 — Acuity Booking → Zoho CRM Contact
 
 Status: **live and tested** (2 Nov 2026). Flow slug `acuity_booking_zoho_crm_contact` on flow.zoho.com.au (AU data centre).
-Plan: Zoho Flow free tier (100 tasks/month, 5 flows). Each booking uses ~4–5 tasks.
+Plan (updated 12 Nov 2026): **Zoho Flow Standard** (bought 9 Nov 2026; 5,000 tasks/month; renews 2026-12-09). The earlier free tier (100 tasks/month) was exhausted in the busy season. Each booking uses ~4–5 tasks.
+**CRM edition: Free** (org 7007534492). Free has no custom modules, so the CRM holds Contacts only. Pots, glazes, notes and shipping stay in the Workshop Manager app (see `app-data-and-autosave.md`). Decision made 12 Nov 2026; revisit only if the CRM is upgraded.
 
 ## What it does
 
@@ -49,6 +50,11 @@ Not mapped yet: Total Classes, Marketing Consent, Studio Notes.
 - **Live flows need "Apply changes".** After editing a live flow, click Done on the step, then *Apply changes* → Apply, or the edit is only a draft.
 - **Builder quirks:** dragging an action always appends to the end of the chain, or leaves an unconnected floating block. Connect by dragging from a block's output circle. If-else true branch is the right-hand circle.
 - **Testing needs a real trigger.** Make dummy bookings with plus-addresses (`george+test1@georgekhut.com`); check the History tab for per-step input/output. Dummy bookings send real client emails and are not auto-deleted from Acuity or the CRM.
+- **Plan vs edition:** a Zoho Flow subscription does not upgrade the CRM. CRM Free Edition has no custom modules (no Pots module).
+
+## Flow 2 (not built)
+
+No spec in the project docs. Proposal: a scheduled/webhook roll export for the next class — look up Contacts by Latest Booking Date, expand by Acuity quantity, and output a JSON file the app can import (hosted on GitHub Pages or Dropbox). Pots do **not** go to Zoho. Needs decisions: file location and quantity-expansion source.
 
 ## Open items
 
@@ -56,5 +62,4 @@ Not mapped yet: Total Classes, Marketing Consent, Studio Notes.
 2. Marketing Consent: depends on whether the Acuity intake form has a consent question.
 3. Total Classes, Studio Notes: unmapped.
 4. Rule for names on existing contacts (currently overwritten on every booking).
-5. Free-plan limit: 100 tasks/month — check against booking volume.
-6. Test records to delete by hand in the CRM: TEST3 (george+test1), TEST4/TEST5 (george+test4), mob2 (george+mob2).
+5. Test records to delete by hand in the CRM: TEST3 (george+test1), TEST4/TEST5 (george+test4), mob2 (george+mob2).

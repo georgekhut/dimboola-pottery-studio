@@ -1,0 +1,107 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Kiln gas schematic" id="kiln-gas-1">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="&lt;b&gt;Dimboola Pottery – 1.2 m³ LPG downdraft kiln: gas schematic (DRAFT, not for construction)&lt;/b&gt;&lt;br&gt;Tank → burners and pilots. J-tags = joints; see fittings schedule. All items marked TBC to be confirmed by licensed gasfitter." style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="1100" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 1: tank to shed entry -->
+        <mxCell id="tank" value="&lt;b&gt;LPG tank&lt;/b&gt;&lt;br&gt;vapour offtake&lt;br&gt;size / location TBC&lt;br&gt;(AS/NZS 1596 siting)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="20" y="170" width="110" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="svc" value="Tank service valve&lt;br&gt;+ outlet connection&lt;br&gt;(type TBC)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="160" y="200" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="pigtail" value="Pigtail / flexible hose&lt;br&gt;(rated assembly)&lt;br&gt;length TBC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="300" y="200" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="reg1" value="1st-stage regulator&lt;br&gt;outlet kPa TBC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="440" y="200" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="iso1" value="Isolation valve&lt;br&gt;(at tank)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="580" y="200" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="run" value="Supply pipe, tank → shed&lt;br&gt;material / size / length TBC&lt;br&gt;(buried or above-ground)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="720" y="200" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="iso2" value="Shed-entry&lt;br&gt;isolation valve" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="880" y="200" width="110" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 2: inside shed, to kiln isolating valve -->
+        <mxCell id="reg2" value="2nd-stage regulator&lt;br&gt;outlet kPa TBC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="20" y="400" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="filter" value="Filter / strainer&lt;br&gt;(if specified)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="160" y="400" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="tp" value="Test point&lt;br&gt;(pressure gauge)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="300" y="400" width="110" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="kiso" value="&lt;b&gt;Kiln gas isolating valve&lt;/b&gt;&lt;br&gt;(appliance boundary)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="440" y="400" width="140" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Type B zone -->
+        <mxCell id="zone" value="&lt;b&gt;Type B appliance zone&lt;/b&gt; – work by licensed Type B gasfitter only" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=none;strokeColor=#b85450;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=8;fontSize=11;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="620" y="320" width="600" height="380" as="geometry"/>
+        </mxCell>
+        <mxCell id="manifold" value="Burner manifold&lt;br&gt;size TBC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="640" y="400" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="sov" value="Main safety&lt;br&gt;shut-off valve" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="400" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="ctrl" value="Burner flow&lt;br&gt;control valve&lt;br&gt;(per burner)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="920" y="400" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="b1" value="&lt;b&gt;Burner 1&lt;/b&gt;&lt;br&gt;inlet thread / size TBC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="360" width="140" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="b2" value="&lt;b&gt;Burner 2 … N&lt;/b&gt;&lt;br&gt;repeat control valve + joints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="440" width="140" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Pilot line -->
+        <mxCell id="preg" value="Pilot regulator&lt;br&gt;(if required)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="780" y="580" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="psol" value="Pilot safety valve&lt;br&gt;/ flame-failure&lt;br&gt;device" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="920" y="580" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="pb" value="&lt;b&gt;Pilot burner(s)&lt;/b&gt;&lt;br&gt;tube OD / fitting TBC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="580" width="140" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges with joint tags -->
+        <mxCell id="e1" value="J1" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="tank" target="svc"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="J2" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="svc" target="pigtail"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="J3" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="pigtail" target="reg1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="J4" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="reg1" target="iso1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="J5" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="iso1" target="run"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="J6" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="run" target="iso2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" value="J7" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="iso2" target="reg2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" value="J8" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="reg2" target="filter"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" value="J9" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="filter" target="tp"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" value="J10" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="tp" target="kiso"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" value="J11" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="kiso" target="manifold"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" value="J12" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="manifold" target="sov"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e13" value="J13" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="sov" target="ctrl"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e14" value="J14" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="ctrl" target="b1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e15" value="J15" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;dashed=1;" edge="1" parent="1" source="ctrl" target="b2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e16" value="J16" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" edge="1" parent="1" source="manifold" target="preg"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e17" value="J17" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="preg" target="psol"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e18" value="J18" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;fontStyle=1;fontColor=#cc0000;" edge="1" parent="1" source="psol" target="pb"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;Green = tank · Blue = regulator · Yellow = valve / safety device · Grey = pipe, hose, fitting · Red = burner / pilot&lt;br&gt;Dashed red box = Type B appliance zone (from kiln isolating valve onward)&lt;br&gt;Dashed arrow = repeat per additional burner" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="20" y="500" width="560" height="90" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

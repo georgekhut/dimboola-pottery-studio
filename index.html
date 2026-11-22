@@ -309,6 +309,15 @@
           <input type="text" id="classTime" placeholder="e.g. 11:00 AM – 1:00 PM" />
         </div>
       </div>
+      <div class="field-row" id="sessionsRow" style="display:none;">
+        <div class="fg">
+          <label>Course sessions (this class runs over several dates)</label>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <span id="classSessionsInfo" style="font-size:12px;"></span>
+            <button class="btn btn-ghost" type="button" onclick="setClassSessions([])" style="padding:3px 10px;">Make one-off class</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="panel">
@@ -397,7 +406,8 @@
         <div class="section-label" style="margin-bottom:10px;">Import from Acuity appointment export (.csv)</div>
         <p class="cji-hint">
           In Acuity open <strong>Reports → Import/Export</strong>, set the dates, tick the intake forms (About you… and Bringing a friend?) and click <em>Export Appointments</em>. Choose the downloaded file here, then pick the class.<br>
-          The file has one row per booked seat. Extra seats on a booking are paired with the friend names given; any other seat becomes a <code>Guest of …</code> you can rename. Answers to "Is there anything we should know…" are shown below for you to read but are <strong>not imported</strong>, so they can never print.
+          The file has one row per booked seat. Extra seats on a booking are paired with the friend names given; any other seat becomes a <code>Guest of …</code> you can rename. If the same people are booked on several dates of one class (a course), the list also offers the <strong>whole course as one class</strong> — pick that to import it once.<br>
+           Answers to "Is there anything we should know…" are shown below for you to read but are <strong>not imported</strong>, so they can never print.
         </p>
         <label class="cji-drop" id="aciDrop"
                ondragover="event.preventDefault();this.classList.add('drag-over')"
@@ -410,6 +420,8 @@
         <div class="cji-preview" id="aciPreview">
           <div class="cji-preview-title">Choose the class — review before importing</div>
           <select id="aciClassSel" onchange="aciSelect()" style="margin-bottom:10px;max-width:100%;"></select>
+          <label for="aciNameInp" style="display:block;font-size:11px;margin-bottom:4px;">Class name for the roll and labels (edit if you like)</label>
+          <input type="text" id="aciNameInp" style="width:100%;box-sizing:border-box;margin-bottom:10px;">
           <div id="aciPreviewRows"></div>
           <div class="cji-status" id="aciStatus"></div>
         </div>
@@ -603,6 +615,7 @@ const GLAZE_RENAMES = {
 // STATE
 // ════════════════════════════════════════
 let students = [];
+let classSessions = [];   // ISO dates of every session when this class is a multi-session course (else [])
 let potsView = 'grid';   // Pots & Glazes tab view: 'grid' (mirrors the printed glaze sheet) or 'list'
 let uid = 1;
 
@@ -632,9 +645,24 @@ function switchTab(name) {
 // ════════════════════════════════════════
 // CLASS INFO
 // ════════════════════════════════════════
+function sessionsLabel() {
+  const f = iso => new Date(iso + 'T12:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  return classSessions.map(f).join(', ') + ' ' + classSessions[classSessions.length - 1].slice(0, 4);
+}
+function setClassSessions(arr) {
+  classSessions = (arr || []).filter(Boolean).slice().sort();
+  if (classSessions.length < 2) classSessions = [];
+  syncInfo();
+}
 function syncInfo() {
   document.getElementById('rollTitle').textContent = cn() || 'Class Roll';
-  const d = dateLong();
+  const multi = classSessions.length > 1;
+  const sRow = document.getElementById('sessionsRow');
+  if (sRow) {
+    sRow.style.display = multi ? '' : 'none';
+    document.getElementById('classSessionsInfo').textContent = multi ? sessionsLabel() + ' — firing and collection count from the last session' : '';
+  }
+  const d = multi ? 'Course: ' + sessionsLabel() : dateLong();
   const ti = document.getElementById('classTime').value;
   document.getElementById('rollMeta').textContent = [d,ti].filter(Boolean).join(' · ') || '—';
 }
@@ -1752,6 +1780,7 @@ function exportExcel() {
     ['Dimboola Pottery Classes — Class Record'],[], 
     ['Class Name',cn()],['Date',dateLong()],
     ['Time',document.getElementById('classTime').value],
+    ['Sessions',classSessions.join(', ')],
     ['Studio',sn()],['Total Students',students.length],
     ['Total Pots',tp],['Exported',new Date().toLocaleString('en-AU')]
   ]);
@@ -1818,6 +1847,7 @@ function restoreFromExcel(input) {
       const className  = sumMap['Class Name'] || '';
       const classDate  = sumMap['Date']        || '';
       const classTime  = sumMap['Time']        || '';
+      const sessionsStr = String(sumMap['Sessions'] || '');
       const studioName = sumMap['Studio']      || 'Dimboola Pottery Classes';
 
       // Student Roll
@@ -1897,6 +1927,7 @@ function restoreFromExcel(input) {
       document.getElementById('studioName').value  = studioName;
       document.getElementById('classTime').value   = classTime || '';
       if (isoDate) document.getElementById('classDate').value = isoDate;
+      setClassSessions(sessionsStr.match(/\d{4}-\d{2}-\d{2}/g) || []);
 
       renderAll();
       updateSum();
@@ -2295,6 +2326,27 @@ function aciPhone(raw) {
   return t;
 }
 
+// Names typed all-lower or ALL-CAPS are tidied ("irina bennewitz" → "Irina Bennewitz");
+// anything already mixed-case ("McDonald") is left exactly as typed.
+function aciTitle(n) {
+  const t = String(n || '');
+  const whole = /[A-Za-z]/.test(t) && (t === t.toLowerCase() || t === t.toUpperCase());
+  return t.split(/(\s+|-)/).map(w => {
+    if (!/[A-Za-z]/.test(w)) return w;
+    if (whole || /^[A-Z]{2}[a-z]+$/.test(w)) return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    return w;
+  }).join('').replace(/\bO'([a-z])/g, (m, c) => "O'" + c.toUpperCase());
+}
+// Only the first email address is imported (the CRM does the same).
+function aciFirstEmail(raw) {
+  const parts = String(raw || '').split(/[,;\s]+/).filter(Boolean);
+  return { first: parts[0] || '', extra: parts.slice(1).join(', ') };
+}
+// "My mum Sandra and sisters Amy and Kylee" is not one person's name.
+function aciLooksMulti(n) { return /\s(and|&)\s|,|\+|\//i.test(n) || n.trim().split(/\s+/).length > 3; }
+// Class name suggestion: the Acuity type without a trailing "(3 Wednesday afternoons, December)".
+function aciTidyType(t) { return t.replace(/\s*\([^)]*\)\s*$/, '').trim() || t; }
+
 function aciSplitName(n) {
   const p = aciDecode(n).split(/\s+/).filter(Boolean);
   return { firstName: p[0] || '', lastName: p.slice(1).join(' ') };
@@ -2349,35 +2401,60 @@ function aciBuild(rows) {
           const pc = aciPostcode(C.pc >= 0 ? r[C.pc] : '');
           const flags = [];
           if (pc.flag) flags.push(pc.flag);
+          const em = aciFirstEmail(cell(r, 'email'));
+          if (em.extra) flags.push('2nd email not imported: ' + em.extra);
           if (friends.length > brows.length - 1) flags.push(friends.length + ' friend' + (friends.length !== 1 ? 's' : '') + ' named but only ' + (brows.length - 1) + ' extra seat' + (brows.length - 1 !== 1 ? 's' : '') + ' booked');
           seats.push({
-            role: 'booker', firstName: cell(r, 'first'), lastName: cell(r, 'last'),
-            phone: aciPhone(cell(r, 'phone')), email: cell(r, 'email'),
-            postcode: pc.pc, acuityId: id, certCode: cert, flags, needs: cell(r, 'needs')
+            role: 'booker', firstName: aciTitle(cell(r, 'first')), lastName: aciTitle(cell(r, 'last')),
+            phone: aciPhone(cell(r, 'phone')), email: em.first,
+            postcode: pc.pc, acuityId: id, acuityIds: id ? [id] : [], certCode: cert, flags, needs: cell(r, 'needs')
           });
         } else if (friends[i - 1]) {
-          const f = friends[i - 1], nm = aciSplitName(f.name);
+          const f = friends[i - 1], nm = aciSplitName(aciTitle(f.name));
           seats.push({
             role: 'friend', firstName: nm.firstName, lastName: nm.lastName,
             phone: aciPhone(f.mobile), email: f.email,
-            postcode: '', acuityId: id, certCode: cert, flags: [], needs: ''
+            postcode: '', acuityId: id, acuityIds: id ? [id] : [], certCode: cert, needs: '',
+            flags: aciLooksMulti(f.name) ? ['friend answer looks like a sentence or several people — rename by hand'] : []
           });
         } else {
           seats.push({
-            role: 'guest', firstName: 'Guest', lastName: 'of ' + cell(brows[0], 'first'),
-            phone: '', email: '', postcode: '', acuityId: id, certCode: cert,
+            role: 'guest', firstName: 'Guest', lastName: 'of ' + aciTitle(cell(brows[0], 'first')),
+            phone: '', email: '', postcode: '', acuityId: id, acuityIds: id ? [id] : [], certCode: cert,
             flags: ['no friend named — rename by hand'], needs: ''
           });
         }
       });
     });
     groups.push({
-      key: g.key, type: g.type, iso: g.when.iso, sort: g.when.sort, nice: g.when.nice,
-      start: g.when.time, end: g.end ? g.end.time : '', seats
+      key: g.key, type: g.type, name: aciTidyType(g.type), iso: g.when.iso, lastIso: g.when.iso, sessions: [g.when.iso],
+      sort: g.when.sort, nice: g.when.nice, start: g.when.time, end: g.end ? g.end.time : '', seats
     });
   });
   groups.sort((a, b) => a.sort < b.sort ? -1 : a.sort > b.sort ? 1 : 0);
-  return { groups };
+
+  // 3. A course: the same class type with the same people on 2+ dates → one combined entry
+  const baseKey = s => s.role + '|' + (s.firstName + ' ' + s.lastName).toLowerCase() + '|' + s.email.toLowerCase();
+  const seatKeys = seats => { const seen = {}; return seats.map(s => { const b = baseKey(s); seen[b] = (seen[b] || 0) + 1; return b + '#' + seen[b]; }); };
+  const bySig = new Map();
+  groups.forEach(g => { const k = g.type + '||' + seatKeys(g.seats).sort().join(';'); if (!bySig.has(k)) bySig.set(k, []); bySig.get(k).push(g); });
+  const series = [];
+  bySig.forEach(list => {
+    if (list.length < 2) return;
+    const first = list[0];
+    const seats = first.seats.map(s => Object.assign({}, s, { acuityIds: s.acuityIds.slice() }));
+    const idx = new Map(); seatKeys(seats).forEach((k, i) => idx.set(k, seats[i]));
+    list.slice(1).forEach(g => seatKeys(g.seats).forEach((k, i) => { const t = idx.get(k); if (t) t.acuityIds.push(...g.seats[i].acuityIds); }));
+    const last = list[list.length - 1];
+    series.push(Object.assign({}, first, {
+      series: true, key: 'series|' + first.key, seats, sessions: list.map(g => g.iso), lastIso: last.iso,
+      nice: list.map(g => g.nice.replace(',', '').replace(/\s*\d{4}$/, '')).join(', ') + ' ' + last.iso.slice(0, 4)
+    }));
+    list.forEach(g => { g.inSeries = true; });
+  });
+  const all = series.concat(groups);
+  all.sort((a, b) => a.sort < b.sort ? -1 : a.sort > b.sort ? 1 : (a.series ? 0 : 1) - (b.series ? 0 : 1));
+  return { groups: all };
 }
 
 function aciHandleDrop(ev) {
@@ -2402,11 +2479,11 @@ function aciLoadFile(file) {
       const sel = document.getElementById('aciClassSel');
       sel.innerHTML = '';
       const today = new Date().toISOString().slice(0, 10);
-      let pick = aciGroups.findIndex(g => g.iso >= today); if (pick < 0) pick = 0;
+      let pick = aciGroups.findIndex(g => (g.lastIso || g.iso) >= today); if (pick < 0) pick = 0;
       aciGroups.forEach((g, i) => {
         const o = document.createElement('option');
         o.value = i;
-        o.textContent = g.nice + ' ' + g.start + ' — ' + g.type + ' (' + g.seats.length + ' seat' + (g.seats.length !== 1 ? 's' : '') + ')';
+        o.textContent = (g.series ? 'COURSE · ' + g.nice + ' · ' + g.sessions.length + ' sessions' : g.nice + ' ' + g.start) + ' — ' + g.type + (g.inSeries ? ' (this session only)' : '') + ' (' + g.seats.length + ' seat' + (g.seats.length !== 1 ? 's' : '') + ')';
         if (i === pick) o.selected = true;
         sel.appendChild(o);
       });
@@ -2423,6 +2500,7 @@ function aciSelect() { aciSel = parseInt(document.getElementById('aciClassSel').
 
 function aciRenderPreview() {
   const g = aciGroups[aciSel]; if (!g) return;
+  document.getElementById('aciNameInp').value = g.name;
   const box = document.getElementById('aciPreviewRows');
   box.innerHTML = '';
   let flags = 0;
@@ -2462,22 +2540,23 @@ function aciImport() {
     if (!confirm('This will replace the current ' + students.length + ' student(s) with ' + g.seats.length + ' seat(s) from the Acuity export.\n\nProceed?')) return;
     students = []; uid = 1;
   }
-  const have = new Set(students.map(s => s.acuityId).filter(Boolean));
+  const have = new Set(students.flatMap(s => (s.acuityIds || []).concat(s.acuityId || '')).filter(Boolean));
   let added = 0, skipped = 0;
   g.seats.forEach(x => {
-    if (x.acuityId && have.has(x.acuityId)) { skipped++; return; }
+    if (x.acuityIds.some(i => have.has(i))) { skipped++; return; }
     students.push({
       id: uid++, firstName: x.firstName, lastName: x.lastName, phone: x.phone, email: x.email,
-      postcode: x.postcode, note: '', source: 'acuity', acuityId: x.acuityId, certCode: x.certCode, pots: []
+      postcode: x.postcode, note: '', source: 'acuity', acuityId: x.acuityId, acuityIds: x.acuityIds.slice(), certCode: x.certCode, pots: []
     });
     added++;
   });
   const setIf = (id, v) => { const el = document.getElementById(id); if (el && v && (mode === 'replace' || !el.value.trim() || el.value === 'Pottery Class')) el.value = v; };
-  setIf('className', g.type);
+  setIf('className', (document.getElementById('aciNameInp').value || '').trim() || g.name);
   setIf('classDate', g.iso);
   setIf('classTime', g.end ? g.start + ' – ' + g.end : g.start);
+  if (mode === 'replace' || !classSessions.length) classSessions = g.series ? g.sessions.slice() : [];
   renderAll(); updateSum(); syncInfo();
-  toast('Imported ' + added + ' seat' + (added !== 1 ? 's' : '') + (skipped ? ' · ' + skipped + ' already in roll' : ''));
+  toast('Imported ' + added + ' seat' + (added !== 1 ? 's' : '') + (skipped ? ' · ' + skipped + ' already in roll' : '') + (g.series ? ' · course of ' + g.sessions.length + ' sessions' : ''));
   aciReset();
   toggleBox('boxAcuityCsv');
 }
@@ -2491,6 +2570,7 @@ function aciReset() {
   document.getElementById('aciImportBtn').style.display = 'none';
   document.getElementById('aciStatus').textContent = '';
   document.getElementById('aciFileInput').value = '';
+  document.getElementById('aciNameInp').value = '';
 }
 
 // ════════════════════════════════════════
@@ -2505,7 +2585,7 @@ function updateSum() {
 function clearAll() {
   if(!students.length)return;
   if(!confirm('Clear all students and pot data for this session?'))return;
-  students=[];uid=1;renderAll();toast('Cleared');
+  students=[];uid=1;classSessions=[];renderAll();toast('Cleared');
 }
 function hideSection(id){document.getElementById(id).classList.remove('visible');}
 const fullName = s=>(s.firstName+' '+s.lastName).trim();

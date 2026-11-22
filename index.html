@@ -101,9 +101,9 @@
   /* POT ROWS */
   .pots-title { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
   .pots-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-  .pot-row { display: grid; grid-template-columns: 26px 1fr 190px 130px 1fr auto; gap: 8px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
+  .pot-row { display: grid; grid-template-columns: 48px 1fr 190px 130px 1fr 104px auto; gap: 8px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
   .pot-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-  .pot-num { width: 26px; height: 26px; background: var(--clay-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--clay-dark); font-weight: 500; margin-top: 19px; flex-shrink: 0; }
+  .pot-num { width: 48px; height: 26px; background: var(--clay-light); border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--clay-dark); font-weight: 500; margin-top: 19px; flex-shrink: 0; }
   .btn-rm-pot { background: none; border: 1px solid var(--border); color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 7px 9px; cursor: pointer; height: 31px; margin-top: 19px; border-radius: 1px; transition: all 0.15s; }
   .btn-rm-pot:hover { border-color: #c0392b; color: #c0392b; }
 
@@ -216,6 +216,25 @@
   .pg-top .pg-clay { font-size: 10px; padding-left: 5px; padding-right: 15px; background-position: right 5px center; }
   .pg-cell select { appearance: none; -webkit-appearance: none; padding-right: 20px; text-overflow: ellipsis; cursor: pointer;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%239B8878'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; }
+  .pg-meta { display: grid; grid-template-columns: 38px 1fr; gap: 4px; align-items: center; }
+  .pg-cell:not(.has-pot) .pg-meta { display: none; }
+  .pg-id { font-size: 10px; letter-spacing: 0.04em; color: var(--clay-dark); background: var(--clay-light); border-radius: 9px; text-align: center; padding: 3px 0; font-weight: 500; }
+  .pg-no { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-muted); margin-right: 5px; }
+  .stage-sum { color: var(--text-muted); font-size: 11px; margin-left: 12px; }
+  .fr-card { border: 1px solid var(--border); border-radius: 2px; margin-bottom: 10px; background: var(--surface); }
+  .fr-head { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; flex-wrap: wrap; font-size: 12px; }
+  .fr-head:hover { background: rgba(196,149,106,0.08); }
+  .fr-type { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 9px; border-radius: 10px; font-weight: 500; }
+  .fr-bisque { background: #e9d9c3; color: #6b4a22; } .fr-glaze { background: #d3e2dc; color: #2c5b4a; }
+  .fr-date { font-family: 'Petrona', serif; font-size: 16px; }
+  .fr-n { color: var(--text-muted); }
+  .fr-status { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .fr-s-loading { color: #c8892b; } .fr-s-fired { color: #3f7d4e; } .fr-s-unloaded { color: var(--text-muted); }
+  .fr-notes { flex: 1; color: var(--text-secondary); font-style: italic; }
+  .fr-caret { color: var(--text-muted); }
+  .fr-body { padding: 4px 14px 16px; border-top: 1px dashed var(--border); }
+  .fr-grp { margin: 8px 0 12px; } .fr-grp-h { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+  .fr-pot { display: block; font-size: 12px; padding: 3px 0; cursor: pointer; }
   .pg-x { position: absolute; top: -6px; right: -4px; width: 16px; height: 16px; line-height: 14px; padding: 0; font-size: 9px; border: 1px solid var(--border); border-radius: 50%; background: var(--surface); color: var(--text-muted); cursor: pointer; display: none; }
   .pg-cell.has-pot:hover .pg-x, .pg-cell.has-pot:focus-within .pg-x { display: block; }
   .pg-x:hover { border-color: #c0392b; color: #c0392b; }
@@ -292,6 +311,7 @@
     <button class="tab-btn" onclick="switchTab('roll')">② Class Roll</button>
     <button class="tab-btn" onclick="switchTab('pots')">③ Pots &amp; Glazes</button>
     <button class="tab-btn" onclick="switchTab('print')">④ Print &amp; Export</button>
+    <button class="tab-btn" onclick="switchTab('firings')">⑤ Firings</button>
   </div>
 
   <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
@@ -511,6 +531,13 @@
   <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
   <!-- TAB 4: PRINT & EXPORT -->
   <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="tab-pane" id="tab-firings">
+    <div class="panel">
+      <div class="panel-title"><span class="num">5</span> Kiln Firings</div>
+      <div id="frBody"></div>
+    </div>
+  </div>
+
   <div class="tab-pane" id="tab-print">
     <div class="export-panel">
       <div class="export-title">Export &amp; Backup Class Record</div>
@@ -630,6 +657,24 @@ let classSessions = [];   // ISO dates of every session when this class is a mul
 let potsView = 'grid';   // Pots & Glazes tab view: 'grid' (mirrors the printed glaze sheet) or 'list'
 let uid = 1;
 
+// Roll number (s.no) and pot number (p.n) are assigned once and never reused, so a pot ID such as 03-2
+// (client 3, pot 2) stays the same if clients or pots are later removed. Stage runs Booked → Made →
+// Bisqued → Glazed → Ready → Collected OR Shipped.
+const POT_STAGES = [['booked','Booked'],['made','Made'],['bisqued','Bisqued'],['glazed','Glazed'],['ready','Ready'],['collected','Collected'],['shipped','Shipped']];
+function normPots(list) {
+  list = list || students;
+  let mx = list.reduce((m, s) => Math.max(m, +s.no || 0), 0);
+  list.forEach(s => {
+    if (!Array.isArray(s.pots)) s.pots = [];
+    if (!(+s.no > 0)) s.no = ++mx;
+    let pm = s.pots.reduce((m, p) => Math.max(m, +p.n || 0), +s.potSeq || 0);
+    s.pots.forEach(p => { if (!(+p.n > 0)) p.n = ++pm; if (!p.stage) p.stage = 'made'; });
+    s.potSeq = pm;
+  });
+}
+const potId = (s, p) => String(s.no).padStart(2, '0') + '-' + p.n;
+const stageOptsHtml = sel => POT_STAGES.map(([v, l]) => `<option value="${v}"${v === (sel || 'made') ? ' selected' : ''}>${l}</option>`).join('');
+
 // ════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════
@@ -648,9 +693,10 @@ function switchTab(name) {
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  const idx = ['setup','roll','pots','print'].indexOf(name);
+  const idx = ['setup','roll','pots','print','firings'].indexOf(name);
   document.querySelectorAll('.tab-btn')[idx].classList.add('active');
   renderAll();
+  if (name === 'firings') renderFirings();
 }
 
 // ════════════════════════════════════════
@@ -745,7 +791,7 @@ function addStudent(d={}) {
 }
 function removeStudent(id) { students=students.filter(s=>s.id!==id); renderAll(); updateSum(); }
 function setField(id,f,v) { const s=students.find(s=>s.id===id); if(s){s[f]=v;} updateSum(); }
-function addPot(sid) { const s=students.find(s=>s.id===sid); if(s){s.pots.push({description:'',clay:'White Stoneware',glaze:''});renderPotsTab();updateSum();} }
+function addPot(sid) { const s=students.find(s=>s.id===sid); if(s){s.pots.push({description:'',clay:'White Stoneware',glaze:'',stage:'made'});renderPotsTab();updateSum();} }
 function removePot(sid,pi) { const s=students.find(s=>s.id===sid); if(s){s.pots.splice(pi,1);renderPotsTab();updateSum();} }
 // Shipping: one Ship tick per client order, and the address for that shipment.
 function shipHtml(s) {
@@ -761,12 +807,12 @@ function setShip(sid, on, el) {
   renderCartonList(); renderJobPreview();
 }
 function setShipAddr(sid, v) { const s = students.find(x => x.id === sid); if (s) s.shipAddress = v; }
-function setPot(sid,pi,f,v) { const s=students.find(s=>s.id===sid); if(s&&s.pots[pi])s.pots[pi][f]=v; }
+function setPot(sid,pi,f,v) { const s=students.find(s=>s.id===sid); if(s&&s.pots[pi]){s.pots[pi][f]=v; if(f==='stage')updateSum();} }
 
 // ════════════════════════════════════════
 // RENDER ORCHESTRATOR
 // ════════════════════════════════════════
-function renderAll() { renderSetup(); renderRoll(); renderPotsTab(); updateSum(); syncInfo(); renderCartonList(); renderJobPreview(); }
+function renderAll() { normPots(); renderSetup(); renderRoll(); renderPotsTab(); updateSum(); syncInfo(); renderCartonList(); renderJobPreview(); }
 
 // ════════════════════════════════════════
 // RENDER: SETUP — STUDENT CARDS
@@ -790,7 +836,7 @@ function renderSetup() {
     <div class="student-card">
       <div class="sc-head">
         <div class="sc-left">
-          <span class="sc-num">${i+1}</span>
+          <span class="sc-num">${s.no||i+1}</span>
           <span class="sc-name">${e(full)}</span>
           ${srcBadge}
         </div>
@@ -839,7 +885,7 @@ function renderRoll() {
     <tbody>
     ${students.map((s,i)=>`
       <tr>
-        <td style="color:var(--text-muted);font-size:11px;">${i+1}</td>
+        <td style="color:var(--text-muted);font-size:11px;">${s.no||i+1}</td>
         <td><div class="roll-name">${e(fullName(s)||'—')}</div></td>
         <td style="font-size:11px;color:var(--text-secondary);">${e(s.postcode)||'—'}</td>
         <td class="roll-contact"><div class="roll-sub">${s.phone?e(s.phone)+'<br>':''}${e(s.email)}</div></td>
@@ -870,6 +916,7 @@ function glazeOptionsHtml(selected) {
 }
 
 function renderPotsTab() {
+  normPots();
   const w = document.getElementById('potsWrap');
   if (!students.length) {
     w.innerHTML = `<p style="font-size:12px;color:var(--text-muted);">Add students in the Class Setup tab first.</p>`;
@@ -878,7 +925,6 @@ function renderPotsTab() {
   if (potsView === 'grid') renderPotsGrid(w); else renderPotsList(w);
   // update second summary
   const tp=students.reduce((n,s)=>n+s.pots.length,0);
-  document.getElementById('sumB').innerHTML=`<span class="summary-stat">${students.length}</span> students &nbsp;·&nbsp; <span class="summary-stat">${tp}</span> pots`;
 }
 
 // Grid view — same shape as the printed Glaze Sheet. An empty cell becomes a pot the
@@ -899,10 +945,11 @@ function renderPotsGrid(w) {
         </div>
         <select class="pg-glaze" onchange="gridSet(this,'glaze',this.value)">${glazeOptionsHtml(has?p.glaze:'')}</select>
         <input class="pg-note" placeholder="Note" value="${has?e(p.note||''):''}" oninput="gridSet(this,'note',this.value)" />
+        <div class="pg-meta"><span class="pg-id" title="Pot ID: client number - pot number">${has?potId(s,p):''}</span><select class="pg-stage" title="Stage" onchange="gridSet(this,'stage',this.value)">${stageOptsHtml(has?p.stage:'made')}</select></div>
         <button type="button" class="pg-x" onclick="gridRemove(this)" title="Remove this pot">✕</button>
       </div>`;
     }
-    return `<div class="pg-row"><div><div class="pg-who">${e(fullName(s)||'New Student')}</div>${shipHtml(s)}</div>${cells}
+    return `<div class="pg-row"><div><div class="pg-who"><span class="pg-no">${String(s.no).padStart(2,'0')}</span>${e(fullName(s)||'New Student')}</div>${shipHtml(s)}</div>${cells}
       <div class="pg-add"><button type="button" class="btn btn-ghost" onclick="addPot(${s.id})">+ pot</button></div></div>`;
   }).join('');
   w.innerHTML = `<div class="pg-scroll"><div class="pg" style="--cols:${cols}">${head}${rows}</div></div>`;
@@ -913,9 +960,11 @@ function gridSet(el, field, value) {
   const s = students.find(x => x.id === +cell.dataset.sid);
   if (!s) return;
   if (cell.dataset.pi === '') {            // first entry in an empty cell → create the pot
-    s.pots.push({description:'', clay:'White Stoneware', glaze:'', note:''});
+    s.pots.push({description:'', clay:'White Stoneware', glaze:'', note:'', stage:'made'});
     cell.dataset.pi = s.pots.length - 1;
     cell.classList.add('has-pot');
+    normPots();
+    const idEl = cell.querySelector('.pg-id'); if (idEl) idEl.textContent = potId(s, s.pots[s.pots.length - 1]);
   }
   s.pots[+cell.dataset.pi][field] = value;
   updateSum();
@@ -932,7 +981,7 @@ function renderPotsList(w) {
     const potsHtml = s.pots.map((p,pi)=>{
       return `
       <div class="pot-row">
-        <div class="pot-num">${pi+1}</div>
+        <div class="pot-num" title="Pot ID">${potId(s,p)}</div>
         <div class="fg"><label>Description</label>
           <input value="${e(p.description)}" placeholder="e.g. Oval plate"
             oninput="setPot(${s.id},${pi},'description',this.value)" /></div>
@@ -947,6 +996,8 @@ function renderPotsList(w) {
         <div class="fg"><label>Note</label>
           <input value="${e(p.note||'')}" placeholder="e.g. handles, gift"
             oninput="setPot(${s.id},${pi},'note',this.value)" /></div>
+        <div class="fg"><label>Stage</label>
+          <select onchange="setPot(${s.id},${pi},'stage',this.value)">${stageOptsHtml(p.stage)}</select></div>
         <button class="btn-rm-pot" onclick="removePot(${s.id},${pi})" title="Remove">✕</button>
       </div>`;
     }).join('');
@@ -1783,6 +1834,7 @@ document.fonts.ready.then(() => {
 // ════════════════════════════════════════
 function exportExcel() {
   if(!students.length){toast('No students to export');return;}
+  normPots();
   const wb=XLSX.utils.book_new();
   const tp=students.reduce((n,s)=>n+s.pots.length,0);
 
@@ -1800,22 +1852,22 @@ function exportExcel() {
 
   // Sheet 2: Student Roll
   const rollH=['#','First Name','Last Name','Phone','Email','Postcode','Note','Source','Acuity ID','Cert Code','Ship','Ship Address'];
-  const rollR=students.map((s,i)=>[i+1,s.firstName,s.lastName,s.phone,s.email,s.postcode,s.note,s.source,s.acuityId,s.certCode,s.ship?'Yes':'',s.shipAddress||'']);
+  const rollR=students.map((s,i)=>[s.no||i+1,s.firstName,s.lastName,s.phone,s.email,s.postcode,s.note,s.source,s.acuityId,s.certCode,s.ship?'Yes':'',s.shipAddress||'']);
   const ws2=XLSX.utils.aoa_to_sheet([rollH,...rollR]);
   ws2['!cols']=[{wch:4},{wch:14},{wch:14},{wch:16},{wch:30},{wch:10},{wch:20},{wch:8},{wch:14},{wch:14},{wch:6},{wch:40}];
   XLSX.utils.book_append_sheet(wb,ws2,'Student Roll');
 
   // Sheet 3: Pots & Glazes
-  const potH=['Student First','Student Last','Pot #','Total Pots','Description','Clay','Glaze','Note'];
+  const potH=['Student First','Student Last','Pot #','Total Pots','Description','Clay','Glaze','Note','Pot ID','Stage'];
   const potR=[];
   students.forEach(s=>{
-    if(s.pots.length===0){potR.push([s.firstName,s.lastName,'—',0,'','','','']);}
+    if(s.pots.length===0){potR.push([s.firstName,s.lastName,'—',0,'','','','','','']);}
     else s.pots.forEach((p,i)=>{
-      potR.push([s.firstName,s.lastName,i+1,s.pots.length,p.description,p.clay,p.glaze,p.note||'']);
+      potR.push([s.firstName,s.lastName,i+1,s.pots.length,p.description,p.clay,p.glaze,p.note||'',potId(s,p),(POT_STAGES.find(x=>x[0]===p.stage)||['',''])[1]]);
     });
   });
   const ws3=XLSX.utils.aoa_to_sheet([potH,...potR]);
-  ws3['!cols']=[{wch:14},{wch:14},{wch:6},{wch:10},{wch:28},{wch:16},{wch:28},{wch:28}];
+  ws3['!cols']=[{wch:14},{wch:14},{wch:6},{wch:10},{wch:28},{wch:16},{wch:28},{wch:28},{wch:8},{wch:11}];
   XLSX.utils.book_append_sheet(wb,ws3,'Pots & Glazes');
 
   const fname=cn().replace(/[^a-zA-Z0-9 ]/g,'').trim().replace(/\s+/g,'_');
@@ -1873,6 +1925,7 @@ function restoreFromExcel(input) {
         if (!r || r.every(v => v == null || v === '')) continue;
         studentList.push({
           id: uid++,
+          no        : parseInt(r[col('#')], 10) || 0,
           firstName : String(r[col('First Name')] || '').trim(),
           lastName  : String(r[col('Last Name')]  || '').trim(),
           phone     : String(r[col('Phone')]       || '').trim(),
@@ -1907,7 +1960,10 @@ function restoreFromExcel(input) {
           if (String(r[pc('Pot #')]) === '\u2014') continue; // skip "no pots" placeholder rows
           const student = studentList.find(s => s.firstName === first && s.lastName === last);
           if (student) {
-            student.pots.push({ description: desc, clay, glaze, note: String(r[pc('Note')] || '').trim() });
+            const stLbl = String(r[pc('Stage')] || '').trim().toLowerCase();
+            const stage = (POT_STAGES.find(x => x[0] === stLbl) || [''])[0] || 'made';
+            const pn = parseInt(String(r[pc('Pot ID')] || '').split('-')[1], 10) || 0;
+            student.pots.push({ description: desc, clay, glaze, note: String(r[pc('Note')] || '').trim(), stage, n: pn });
           }
         }
       }
@@ -2590,8 +2646,10 @@ function aciReset() {
 function updateSum() {
   const tp=students.reduce((n,s)=>n+s.pots.length,0);
   const html=`<span class="summary-stat">${students.length}</span> student${students.length!==1?'s':''} &nbsp;·&nbsp; <span class="summary-stat">${tp}</span> pot${tp!==1?'s':''} total`;
+  const stc = {}; students.forEach(s => s.pots.forEach(p => { stc[p.stage || 'made'] = (stc[p.stage || 'made'] || 0) + 1; }));
+  const stTxt = POT_STAGES.filter(([v]) => stc[v]).map(([v, l]) => l + ' ' + stc[v]).join(' · ');
   document.getElementById('sumA').innerHTML=html;
-  const b=document.getElementById('sumB'); if(b)b.innerHTML=html;
+  const b=document.getElementById('sumB'); if(b)b.innerHTML=html + (stTxt ? `<span class="stage-sum">${stTxt}</span>` : '');
 }
 function clearAll() {
   if(!students.length)return;
@@ -2614,6 +2672,7 @@ const dfVal = id => (document.getElementById(id) || {}).value || '';
 const dfNewId = () => 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 function dfSnapshot() {
+  normPots();
   return {
     className: dfVal('className'), studioName: dfVal('studioName'),
     date: dfVal('classDate'), time: dfVal('classTime'),
@@ -2649,10 +2708,11 @@ function dfBlank() {
 const dfLatest = () => DF.data.classes.slice().sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)))[0];
 
 function dfParse(text) {
-  if (!text.trim()) return { app: DF_APP, version: 1, classes: [] };
+  if (!text.trim()) return { app: DF_APP, version: 1, classes: [], firings: [] };
   let j;
   try { j = JSON.parse(text); } catch (e) { throw new Error('That file is not valid JSON.'); }
   if (!j || j.app !== DF_APP || !Array.isArray(j.classes)) throw new Error('That file is not a Workshop Manager data file.');
+  if (!Array.isArray(j.firings)) j.firings = [];
   return j;
 }
 
@@ -2722,7 +2782,7 @@ async function dfCreate() {
     const f = await h.getFile();
     if (f.size > 0 && !confirm('"' + h.name + '" already has content.\n\nReplace it with a new, empty data file? (Use "Open data file" instead to keep what is in it.)')) return;
     if (DF.handle) await dfFlush();
-    DF.handle = h; DF.name = h.name; DF.data = { app: DF_APP, version: 1, classes: [] };
+    DF.handle = h; DF.name = h.name; DF.data = { app: DF_APP, version: 1, classes: [], firings: [] };
     DF.lastMod = 0; DF.state = 'ok'; DF.lastSnap = '';
     if (!DF.curId) DF.curId = null;
     await dfSave(true);
@@ -2808,6 +2868,140 @@ function dfRender() {
   ac.innerHTML = extra + '<select onchange="if(this.value)dfSwitch(this.value)" title="Classes in this data file">' + opts + '</select>' +
     B('secondary', 'dfNewClass()', 'New class') + B('ghost', 'dfBackup()', 'Backup copy') + B('ghost', 'dfRemoveClass()', 'Remove class') + B('ghost', 'dfOpen()', 'Other file…');
 }
+
+// ════════════════════════════════════════
+// FIRINGS — kiln-load records (bisque and glaze), kept in the data file so they can span classes
+// ════════════════════════════════════════
+// firing = { id, type:'bisque'|'glaze', date, notes, status:'loading'|'fired'|'unloaded', pots:[{c:classId, id:'03-2', label}] }
+// A pot is found again by class id + its pot ID, which stays the same when clients or pots are removed.
+// Marking a bisque firing Fired sets its pots to Bisqued; marking a glaze firing Fired sets them to Glazed;
+// marking a glaze firing Unloaded sets them to Ready. Stage can still be corrected by hand in Pots & Glazes.
+let firingOpen = null;
+const FIRING_STATUS = { loading: 'Loading', fired: 'Fired', unloaded: 'Unloaded' };
+const frKey = (c, id) => c + '|' + id;
+const frDate = iso => iso ? new Date(iso + 'T12:00:00').toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : 'no date';
+const frStageLabel = v => (POT_STAGES.find(x => x[0] === v) || ['', v || ''])[1];
+
+function frAllPots() {
+  const out = [];
+  if (!DF.data) return out;
+  DF.data.classes.forEach(c => {
+    const live = c.id === DF.curId;
+    const list = live ? students : ((c.data && c.data.students) || []);
+    if (!live) normPots(list);
+    list.forEach(s => (s.pots || []).forEach(p => {
+      out.push({ c, className: c.name, date: (c.data && c.data.date) || '', s, p, id: potId(s, p), key: frKey(c.id, potId(s, p)), who: fullName(s) || 'New Student' });
+    }));
+  });
+  return out;
+}
+const frInOther = (f, type) => new Set(((DF.data.firings || []).filter(x => x.type === type).flatMap(x => x.pots.map(r => frKey(r.c, r.id)))));
+function frReady() {
+  if (!DF.handle) { toast('Open or create a data file first'); return false; }
+  if (DF.state !== 'ok') { toast('Fix the red save warning first'); return false; }
+  return true;
+}
+async function frCommit() { await dfSave(false); renderAll(); renderFirings(); }
+
+async function frCreate() {
+  if (!frReady()) return;
+  const f = { id: 'f' + Date.now().toString(36), type: document.getElementById('frType').value, date: document.getElementById('frDate').value, notes: document.getElementById('frNotes').value.trim(), status: 'loading', pots: [] };
+  DF.data.firings.push(f); firingOpen = f.id;
+  await frCommit();
+}
+async function frAddPots(fid) {
+  if (!frReady()) return;
+  const f = DF.data.firings.find(x => x.id === fid); if (!f || f.status !== 'loading') return;
+  const all = frAllPots(); const have = new Set(f.pots.map(r => frKey(r.c, r.id)));
+  document.querySelectorAll('#frBody .fp-cb:checked').forEach(cb => {
+    const it = all.find(x => x.key === cb.value);
+    if (it && !have.has(it.key)) f.pots.push({ c: it.c.id, id: it.id, label: it.who + ' — ' + (it.p.description || 'pot') });
+  });
+  await frCommit();
+}
+async function frRemovePot(fid, idx) {
+  if (!frReady()) return;
+  const f = DF.data.firings.find(x => x.id === fid); if (!f || f.status !== 'loading') return;
+  f.pots.splice(idx, 1); await frCommit();
+}
+async function frSetStatus(fid, status) {
+  if (!frReady()) return;
+  const f = DF.data.firings.find(x => x.id === fid); if (!f) return;
+  const all = frAllPots();
+  const target = status === 'fired' ? (f.type === 'bisque' ? 'bisqued' : 'glazed') : (f.type === 'glaze' ? 'ready' : null);
+  if (!f.pots.length && !confirm('This firing has no pots in it. Continue?')) return;
+  if (target) f.pots.forEach(r => { const it = all.find(x => x.key === frKey(r.c, r.id)); if (it) it.p.stage = target; });
+  f.status = status;
+  await frCommit();
+  toast(status === 'fired' ? (f.pots.length + ' pots marked ' + frStageLabel(target)) : (target ? f.pots.length + ' pots marked Ready' : 'Firing unloaded'));
+}
+async function frDelete(fid) {
+  if (!frReady()) return;
+  const f = DF.data.firings.find(x => x.id === fid); if (!f) return;
+  if (!confirm('Delete this ' + f.type + ' firing record? Pot stages already changed by it are not reversed.')) return;
+  DF.data.firings = DF.data.firings.filter(x => x.id !== fid); if (firingOpen === fid) firingOpen = null;
+  await frCommit();
+}
+function frToggle(fid) { firingOpen = firingOpen === fid ? null : fid; renderFirings(); }
+function frSelClass(cid, on) { document.querySelectorAll('#frBody .fp-cb[data-c="' + cid + '"]').forEach(cb => { cb.checked = on; }); frCount(); }
+function frCount() { const n = document.querySelectorAll('#frBody .fp-cb:checked').length; const b = document.getElementById('frAddBtn'); if (b) b.textContent = '+ Add selected pots (' + n + ')'; }
+
+async function renderFirings() {
+  const w = document.getElementById('frBody'); if (!w) return;
+  if (!DF.handle || !DF.data) {
+    w.innerHTML = '<p style="font-size:12px;color:var(--text-muted);">Firings are stored in the data file, because one firing can hold pots from several classes. Use <b>Open data file</b> or <b>Create new data file</b> at the top of the page first.</p>';
+    return;
+  }
+  if (!DF.data.firings) DF.data.firings = [];
+  if (!DF.curId && !dfIsEmpty(dfSnapshot()) && DF.state === 'ok') await dfSave(false);
+  const all = frAllPots(); const byKey = {}; all.forEach(x => { byKey[x.key] = x; });
+  const today = new Date().toISOString().split('T')[0];
+  let html = `<div class="field-row-4" style="align-items:end;">
+    <div class="fg"><label>Firing</label><select id="frType"><option value="bisque">Bisque</option><option value="glaze">Glaze</option></select></div>
+    <div class="fg"><label>Date</label><input type="date" id="frDate" value="${today}"></div>
+    <div class="fg" style="grid-column: span 2;"><label>Notes (optional)</label><input type="text" id="frNotes" placeholder="e.g. programme, peak temperature, who loaded"></div>
+  </div><button class="btn btn-primary" onclick="frCreate()">+ New firing</button><div style="height:18px"></div>`;
+  const list = DF.data.firings.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.id).localeCompare(String(a.id)));
+  if (!list.length) html += '<p style="font-size:12px;color:var(--text-muted);">No firings recorded yet.</p>';
+  list.forEach(f => {
+    const open = f.id === firingOpen;
+    html += `<div class="fr-card"><div class="fr-head" onclick="frToggle('${f.id}')">
+      <span class="fr-type fr-${f.type}">${f.type === 'bisque' ? 'Bisque' : 'Glaze'}</span>
+      <span class="fr-date">${e(frDate(f.date))}</span>
+      <span class="fr-n">${f.pots.length} pot${f.pots.length !== 1 ? 's' : ''}</span>
+      <span class="fr-status fr-s-${f.status}">${FIRING_STATUS[f.status]}</span>
+      <span class="fr-notes">${e(f.notes || '')}</span><span class="fr-caret">${open ? '▾' : '▸'}</span></div>`;
+    if (open) {
+      html += '<div class="fr-body">';
+      if (f.pots.length) {
+        html += '<table class="roll-table"><thead><tr><th>Pot ID</th><th>Client — item</th><th>Class</th><th>Stage now</th><th></th></tr></thead><tbody>' +
+          f.pots.map((r, i) => { const it = byKey[frKey(r.c, r.id)];
+            return `<tr><td>${e(r.id)}</td><td>${e(it ? it.who + ' — ' + (it.p.description || 'pot') : r.label)}</td><td style="font-size:11px;color:var(--text-muted);">${e(it ? it.className : '(class removed)')}</td><td>${it ? e(frStageLabel(it.p.stage)) : '—'}</td>
+            <td>${f.status === 'loading' ? `<button class="btn-rm" onclick="frRemovePot('${f.id}',${i})">Remove</button>` : ''}</td></tr>`; }).join('') + '</tbody></table>';
+      } else html += '<p style="font-size:12px;color:var(--text-muted);">Nothing loaded yet.</p>';
+      if (f.status === 'loading') {
+        const used = frInOther(f, f.type), want = f.type === 'bisque' ? 'made' : 'bisqued';
+        const elig = all.filter(x => x.p.stage === want && !used.has(x.key));
+        html += `<div class="pots-title" style="margin-top:16px;">Add pots to this ${f.type} firing <span style="text-transform:none;letter-spacing:0;">(${f.type === 'bisque' ? 'stage Made' : 'stage Bisqued'}, not yet in a ${f.type} firing)</span></div>`;
+        if (!elig.length) html += `<p style="font-size:12px;color:var(--text-muted);">No pots are waiting for a ${f.type} firing.</p>`;
+        else {
+          const byClass = {}; elig.forEach(x => { (byClass[x.c.id] = byClass[x.c.id] || []).push(x); });
+          html += Object.values(byClass).map(g => `<div class="fr-grp"><div class="fr-grp-h">${e(g[0].className)} · ${e(g[0].date)}
+            <button class="btn btn-ghost" style="padding:2px 8px;font-size:9px;" onclick="frSelClass('${g[0].c.id}',true)">all</button><button class="btn btn-ghost" style="padding:2px 8px;font-size:9px;" onclick="frSelClass('${g[0].c.id}',false)">none</button></div>` +
+            g.map(x => `<label class="fr-pot"><input type="checkbox" class="fp-cb" data-c="${x.c.id}" value="${e(x.key)}" onchange="frCount()"> <b>${e(x.id)}</b> ${e(x.who)} — ${e(x.p.description || 'pot')} <span style="color:var(--text-muted);">${e((x.p.clay || '').replace(' Stoneware', ''))}${x.p.glaze ? ' · ' + e(x.p.glaze) : ''}</span></label>`).join('') + '</div>').join('');
+          html += `<button class="btn btn-primary" id="frAddBtn" onclick="frAddPots('${f.id}')">+ Add selected pots (0)</button>`;
+        }
+      }
+      html += '<div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap;">';
+      if (f.status === 'loading') html += `<button class="btn btn-green" onclick="frSetStatus('${f.id}','fired')">Mark fired → pots ${f.type === 'bisque' ? 'Bisqued' : 'Glazed'}</button>`;
+      if (f.status === 'fired') html += `<button class="btn btn-green" onclick="frSetStatus('${f.id}','unloaded')">Mark unloaded${f.type === 'glaze' ? ' → pots Ready' : ''}</button>`;
+      html += `<button class="btn btn-ghost" onclick="frDelete('${f.id}')">Delete firing</button></div></div>`;
+    }
+    html += '</div>';
+  });
+  w.innerHTML = html;
+}
+
 window.addEventListener('beforeunload', ev => {
   const pending = DF.handle ? (DF.state !== 'ok' || JSON.stringify(dfSnapshot()) !== DF.lastSnap) : (students.length > 0);
   if (pending) { ev.preventDefault(); ev.returnValue = ''; }

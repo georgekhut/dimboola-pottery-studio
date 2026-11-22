@@ -228,6 +228,12 @@
   .pg-add .btn { padding: 6px 8px; font-size: 10px; }
 
   /* TOAST */
+  .df-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: -8px 0 20px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 2px; font-size: 11px; letter-spacing: 0.04em; color: var(--text-secondary); }
+  .df-dot { width: 8px; height: 8px; border-radius: 50%; background: #b8a58f; flex-shrink: 0; }
+  .df-dot.ok { background: #3f7d4e; } .df-dot.warn { background: #c8892b; } .df-dot.bad { background: #c0392b; }
+  .df-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .df-bar .btn { padding: 5px 10px; font-size: 10px; }
+  .df-bar select { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 8px; max-width: 320px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); border-radius: 1px; }
   .toast { position: fixed; bottom: 22px; right: 22px; background: var(--kiln-black); color: var(--ash-white); padding: 11px 18px; border-radius: 2px; font-size: 11px; letter-spacing: 0.06em; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; z-index: 999; }
   .toast.show { opacity: 1; transform: translateY(0); }
 
@@ -275,6 +281,11 @@
     </div>
     <div class="header-date" id="headerDate"></div>
   </header>
+
+  <div class="df-bar" id="dfBar">
+    <span class="df-dot" id="dfDot"></span><span id="dfStatus"></span>
+    <span class="df-actions" id="dfActions"></span>
+  </div>
 
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('setup')">① Class Setup</button>
@@ -2591,6 +2602,217 @@ function hideSection(id){document.getElementById(id).classList.remove('visible')
 const fullName = s=>(s.firstName+' '+s.lastName).trim();
 const e = str=>String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+
+// ════════════════════════════════════════
+// DATA FILE — one JSON file on this computer, autosaved (Chrome/Edge)
+// ════════════════════════════════════════
+const DF_APP = 'dimboola-workshop-manager';
+const DF_TYPES = [{ description: 'Workshop Manager data', accept: { 'application/json': ['.json'] } }];
+const DF = { handle: null, name: '', data: null, curId: null, lastSnap: '', lastMod: 0, saving: false, state: 'none', msg: '', savedAt: null };
+const dfCan = () => typeof window.showSaveFilePicker === 'function' && typeof window.showOpenFilePicker === 'function';
+const dfVal = id => (document.getElementById(id) || {}).value || '';
+const dfNewId = () => 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+function dfSnapshot() {
+  return {
+    className: dfVal('className'), studioName: dfVal('studioName'),
+    date: dfVal('classDate'), time: dfVal('classTime'),
+    sessions: classSessions.slice(), uid: uid,
+    students: JSON.parse(JSON.stringify(students))
+  };
+}
+const dfIsEmpty = snap => !snap.students.length && !snap.className.trim();
+
+function dfLoadClass(c) {
+  const d = c.data;
+  document.getElementById('className').value = d.className || '';
+  document.getElementById('studioName').value = d.studioName || 'Dimboola Pottery Classes';
+  document.getElementById('classDate').value = d.date || '';
+  document.getElementById('classTime').value = d.time || '';
+  students = Array.isArray(d.students) ? d.students : [];
+  uid = Math.max(d.uid || 1, students.reduce((m, s) => Math.max(m, s.id || 0), 0) + 1);
+  setClassSessions(d.sessions || []);
+  DF.curId = c.id;
+  renderAll();
+  DF.lastSnap = JSON.stringify(dfSnapshot());
+}
+function dfBlank() {
+  document.getElementById('className').value = '';
+  document.getElementById('classDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('classTime').value = '';
+  students = []; uid = 1;
+  setClassSessions([]);
+  DF.curId = null;
+  renderAll();
+  DF.lastSnap = JSON.stringify(dfSnapshot());
+}
+const dfLatest = () => DF.data.classes.slice().sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)))[0];
+
+function dfParse(text) {
+  if (!text.trim()) return { app: DF_APP, version: 1, classes: [] };
+  let j;
+  try { j = JSON.parse(text); } catch (e) { throw new Error('That file is not valid JSON.'); }
+  if (!j || j.app !== DF_APP || !Array.isArray(j.classes)) throw new Error('That file is not a Workshop Manager data file.');
+  return j;
+}
+
+async function dfSave(force) {
+  if (!DF.handle) return;
+  DF.saving = true; dfRender();
+  try {
+    const f = await DF.handle.getFile();
+    if (!force && DF.lastMod && f.lastModified !== DF.lastMod) { DF.state = 'conflict'; return; }
+    const snap = dfSnapshot();
+    const s = JSON.stringify(snap);
+    let ent = DF.data.classes.find(c => c.id === DF.curId);
+    if (!dfIsEmpty(snap) || ent) {
+      if (!DF.curId) DF.curId = dfNewId();
+      const rec = { id: DF.curId, name: snap.className.trim() || 'Untitled class', updatedAt: new Date().toISOString(), data: snap };
+      if (ent) Object.assign(ent, rec); else DF.data.classes.push(rec);
+    }
+    DF.data.currentId = DF.curId;
+    const w = await DF.handle.createWritable();
+    await w.write(JSON.stringify(DF.data, null, 1));
+    await w.close();
+    DF.lastMod = (await DF.handle.getFile()).lastModified;
+    DF.lastSnap = s; DF.savedAt = new Date(); DF.state = 'ok'; DF.msg = '';
+  } catch (err) {
+    DF.state = 'error'; DF.msg = (err && err.name === 'NotAllowedError') ? 'Chrome needs your permission again.' : ((err && err.message) || String(err));
+  } finally { DF.saving = false; dfRender(); }
+}
+
+async function dfTick() {
+  if (!DF.handle || DF.saving || DF.state === 'conflict' || DF.state === 'error') return;
+  const s = JSON.stringify(dfSnapshot());
+  if (s !== DF.lastSnap) await dfSave(false);
+}
+setInterval(dfTick, 1500);
+
+async function dfFlush() { if (DF.handle && DF.state === 'ok') await dfTick(); }
+
+async function dfAttach(h) {
+  const f = await h.getFile();
+  const parsed = dfParse(await f.text());
+  const cur = dfSnapshot();
+  const hadFile = !!DF.handle;
+  let keepCurrent = false;
+  if (hadFile) { await dfFlush(); }
+  else if (cur.students.length && parsed.classes.length) {
+    keepCurrent = confirm('You have "' + (cur.className.trim() || 'a class') + '" open (' + cur.students.length + ' students) that is not in a data file yet.\n\nOK = add it to this data file\nCancel = discard it and load the file instead');
+  } else if (cur.students.length) { keepCurrent = true; }
+  DF.handle = h; DF.name = h.name; DF.data = parsed; DF.lastMod = f.lastModified; DF.state = 'ok'; DF.msg = '';
+  if (keepCurrent) { DF.curId = null; DF.lastSnap = ''; await dfSave(true); }
+  else if (parsed.classes.length) {
+    const pick = parsed.classes.find(c => c.id === parsed.currentId) || dfLatest();
+    dfLoadClass(pick);
+  } else { DF.curId = null; DF.lastSnap = ''; await dfSave(true); }
+  dfRender();
+  toast('Data file connected — saving automatically');
+}
+
+async function dfOpen() {
+  try {
+    const [h] = await window.showOpenFilePicker({ id: 'dimboola-data', types: DF_TYPES, multiple: false });
+    await dfAttach(h);
+  } catch (e) { if (e.name !== 'AbortError') { DF.msg = e.message || String(e); alert('Could not open the data file.\n\n' + DF.msg); } }
+}
+async function dfCreate() {
+  try {
+    const h = await window.showSaveFilePicker({ id: 'dimboola-data', suggestedName: 'dimboola-data.json', types: DF_TYPES });
+    const f = await h.getFile();
+    if (f.size > 0 && !confirm('"' + h.name + '" already has content.\n\nReplace it with a new, empty data file? (Use "Open data file" instead to keep what is in it.)')) return;
+    if (DF.handle) await dfFlush();
+    DF.handle = h; DF.name = h.name; DF.data = { app: DF_APP, version: 1, classes: [] };
+    DF.lastMod = 0; DF.state = 'ok'; DF.lastSnap = '';
+    if (!DF.curId) DF.curId = null;
+    await dfSave(true);
+    toast('New data file created — saving automatically');
+  } catch (e) { if (e.name !== 'AbortError') alert('Could not create the data file.\n\n' + (e.message || e)); }
+}
+async function dfReconnect() {
+  try {
+    const p = await DF.handle.requestPermission({ mode: 'readwrite' });
+    if (p !== 'granted') { DF.msg = 'Permission was not granted.'; dfRender(); return; }
+    DF.state = 'ok'; DF.msg = ''; DF.lastSnap = ''; await dfSave(false);
+  } catch (e) { DF.msg = e.message || String(e); dfRender(); }
+}
+async function dfReloadFromFile() {
+  if (!confirm('Reload from the file? Changes made in this window since the last save will be lost.')) return;
+  try {
+    const f = await DF.handle.getFile();
+    DF.data = dfParse(await f.text()); DF.lastMod = f.lastModified; DF.state = 'ok'; DF.msg = '';
+    const pick = DF.data.classes.find(c => c.id === DF.curId) || dfLatest();
+    if (pick) dfLoadClass(pick); else dfBlank();
+    dfRender(); toast('Reloaded from file');
+  } catch (e) { DF.state = 'error'; DF.msg = e.message || String(e); dfRender(); }
+}
+async function dfOverwrite() {
+  if (!confirm('Overwrite the file with what is in this window? Any changes that were made to the file elsewhere (for example on another computer) will be replaced.')) return;
+  DF.state = 'ok'; await dfSave(true);
+}
+async function dfSwitch(id) {
+  await dfFlush();
+  const c = DF.data.classes.find(x => x.id === id);
+  if (c) { dfLoadClass(c); dfRender(); switchTab('setup'); }
+}
+async function dfNewClass() {
+  await dfFlush();
+  dfBlank(); dfRender(); switchTab('setup');
+}
+async function dfRemoveClass() {
+  const c = DF.data.classes.find(x => x.id === DF.curId);
+  if (!c) { toast('This class is not saved yet'); return; }
+  if (!confirm('Remove "' + c.name + '" from the data file? This cannot be undone (Dropbox version history may still have it).')) return;
+  DF.data.classes = DF.data.classes.filter(x => x.id !== c.id);
+  const next = dfLatest();
+  if (next) dfLoadClass(next); else dfBlank();
+  await dfSave(true);
+  toast('Class removed from the data file');
+}
+async function dfBackup() {
+  try {
+    await dfFlush();
+    const h = await window.showSaveFilePicker({ suggestedName: 'dimboola-data-backup-' + new Date().toISOString().slice(0, 10) + '.json', types: DF_TYPES });
+    const w = await h.createWritable(); await w.write(JSON.stringify(DF.data, null, 1)); await w.close();
+    toast('Backup copy saved');
+  } catch (e) { if (e.name !== 'AbortError') alert('Could not save the backup.\n\n' + (e.message || e)); }
+}
+
+function dfRender() {
+  const bar = document.getElementById('dfBar'); if (!bar) return;
+  const dot = document.getElementById('dfDot'), st = document.getElementById('dfStatus'), ac = document.getElementById('dfActions');
+  const B = (cls, fn, label) => '<button class="btn btn-' + cls + '" onclick="' + fn + '">' + label + '</button>';
+  if (!dfCan()) {
+    dot.className = 'df-dot bad';
+    st.textContent = 'This browser cannot save to a file. Open the app in Chrome to use the data file.';
+    ac.innerHTML = ''; return;
+  }
+  if (!DF.handle) {
+    dot.className = 'df-dot warn';
+    st.textContent = 'No data file connected. Your work is not being saved.';
+    ac.innerHTML = B('primary', 'dfOpen()', 'Open data file') + B('secondary', 'dfCreate()', 'Create new data file');
+    return;
+  }
+  const time = DF.savedAt ? DF.savedAt.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' }) : '';
+  let cls = 'ok', msg = DF.name + ' · ' + (DF.saving ? 'saving…' : (time ? 'saved ' + time : 'connected'));
+  let extra = '';
+  if (DF.state === 'error') { cls = 'bad'; msg = 'NOT SAVED · ' + DF.msg; extra = B('primary', 'dfReconnect()', 'Reconnect'); }
+  if (DF.state === 'conflict') { cls = 'bad'; msg = 'NOT SAVED · ' + DF.name + ' was changed outside this window.'; extra = B('primary', 'dfReloadFromFile()', 'Reload from file') + B('secondary', 'dfOverwrite()', 'Overwrite file'); }
+  dot.className = 'df-dot ' + cls;
+  st.textContent = msg;
+  const list = DF.data.classes.slice().sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+  const opts = (DF.curId ? '' : '<option value="" selected>— new class (not saved yet) —</option>') + list.map(c => {
+    const n = (c.data && c.data.sessions && c.data.sessions.length > 1) ? ' · course' : '';
+    return '<option value="' + e(c.id) + '"' + (c.id === DF.curId ? ' selected' : '') + '>' + e(c.name) + (c.data && c.data.date ? ' · ' + e(c.data.date) : '') + n + '</option>';
+  }).join('');
+  ac.innerHTML = extra + '<select onchange="if(this.value)dfSwitch(this.value)" title="Classes in this data file">' + opts + '</select>' +
+    B('secondary', 'dfNewClass()', 'New class') + B('ghost', 'dfBackup()', 'Backup copy') + B('ghost', 'dfRemoveClass()', 'Remove class') + B('ghost', 'dfOpen()', 'Other file…');
+}
+window.addEventListener('beforeunload', ev => {
+  const pending = DF.handle ? (DF.state !== 'ok' || JSON.stringify(dfSnapshot()) !== DF.lastSnap) : (students.length > 0);
+  if (pending) { ev.preventDefault(); ev.returnValue = ''; }
+});
+window.addEventListener('DOMContentLoaded', dfRender);
 </script>
 </body>
 </html>
